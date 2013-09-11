@@ -1,6 +1,5 @@
 \documentclass[11pt,twoside]{article}
 
-\usepackage{circuitikz}
 \usepackage{amsmath}
 \usepackage{graphicx,epsfig}
 \usepackage{graphicx}
@@ -60,7 +59,7 @@
 \begin{document}
 
 
-\handout{Sept 10, 2013}{6.301 Solid State Circuits}{Sept 17, 2013}
+\handout{Sept 11, 2013}{6.301 Solid State Circuits}{Sept 18, 2013}
 \setlength{\parindent}{0pt}
 
 \newcommand{\solution}{
@@ -72,31 +71,39 @@
 
 \flushleft
 \subsection*{Problem 1: Saturation}
-Determine the DC Operating voltage $V_1$ at which $Q_1$ saturates and $M_1$ enters the triode regime. \\
-Your answer may be in terms of transistor parameters ($I_S$, $V_{CE,sat}$, $\beta_0$, etc).
+Determine the DC Operating voltage $V_1$ at which $Q_1$ saturates and $V_2$ at which $M_1$ enters the triode regime. \\
+Your answer should be in terms of transistor parameters ($I_S$, $V_{CE,sat}$, $\beta_0$, etc).
 
 \begin{center}
-%\includegraphics[width=0.3\textwidth]{}
+\includegraphics[width=0.35\textwidth]{saturation.png}
 \end{center}
 
 \subsection*{Problem 2: Small-signal Parameters}
 Calculate the small-signal transistor parameters $g_m$, $r_{\pi}$, and $r_o$ in the following circuit. \\
 Assume $V_A = 60v$ and $\beta_0 = 200$.  \\
 
+\begin{center}
+\includegraphics[width=0.25\textwidth]{parameters.png}
+\end{center}
+
 \begin{enumerate}
 \item[(a)] $I_1 = .5\mu A$
 \item[(b)] $I_1 = 50\mu A$
 \item[(c)] Draw the small signal model
-\item[(d)] How does $r_o$  affect the output impedance for each bias current?
-\item[(e)] hi 
+\item[(d)] How does the bias current $I1$ affect output impedance?
+\item[(e)] How does the bias current $I1$ affect input impedance?
 \end{enumerate}
 
+\clearpage
+
 \subsection*{Problem 3: Extracting Parameters from Datasheets}
-Extract $r_\pi$, $\beta_0$, $r_\mu$, $r_o$, $c_\mu$, and $c_\pi$ from the 2n2222 datasheet posted on stellar.
+Extract $r_\pi$, $\beta_0$, $r_\mu$, $r_o$, $c_\mu$, and $c_\pi$ from the 2N2222 datasheet posted on stellar.
+
+\vspace{1ex}
 
 \subsection*{Problem 4: Finding $\tau_F$} 
 In many cases, datasheets will not provide enough information to extract every transistor parameter.  
-Using the 2n3866 datasheet posted on stellar, determine an upper bound on $\tau_F$.  Briefly explain all assumptions that you make and define $\tau_F$ and $f_T$.
+Using the 2N3866 datasheet posted on stellar, determine an upper bound on $\tau_F$.  Briefly explain all assumptions that you make and define $\tau_F$ and $f_T$.
 
 
 \clearpage
