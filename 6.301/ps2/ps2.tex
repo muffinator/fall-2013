@@ -1,5 +1,6 @@
 \documentclass[11pt,twoside]{article}
 
+\usepackage{circuitikz}
 \usepackage{amsmath}
 \usepackage{graphicx,epsfig}
 \usepackage{graphicx}
@@ -80,12 +81,23 @@ Your answer may be in terms of transistor parameters ($I_S$, $V_{CE,sat}$, $\bet
 
 \subsection*{Problem 2: Small-signal Parameters}
 Calculate the small-signal transistor parameters $g_m$, $r_{\pi}$, and $r_o$ in the following circuit. \\
-$V_A = 60v$ \\
-$\beta_0 = 200$ \\
+Assume $V_A = 60v$ and $\beta_0 = 200$.  \\
 
 \begin{enumerate}
-\item[(a)]
+\item[(a)] $I_1 = .5\mu A$
+\item[(b)] $I_1 = 50\mu A$
+\item[(c)] Draw the small signal model
+\item[(d)] How does $r_o$  affect the output impedance for each bias current?
+\item[(e)] hi 
 \end{enumerate}
+
+\subsection*{Problem 3: Extracting Parameters from Datasheets}
+Extract $r_\pi$, $\beta_0$, $r_\mu$, $r_o$, $c_\mu$, and $c_\pi$ from the 2n2222 datasheet posted on stellar.
+
+\subsection*{Problem 4: Finding $\tau_F$} 
+In many cases, datasheets will not provide enough information to extract every transistor parameter.  
+Using the 2n3866 datasheet posted on stellar, determine an upper bound on $\tau_F$.  Briefly explain all assumptions that you make and define $\tau_F$ and $f_T$.
+
 
 \clearpage
 \end{document}
