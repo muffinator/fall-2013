@@ -74,31 +74,33 @@
 \subsection*{Problem 1: Building Blocks}
 The AC schematics for four amplifiers are shown below.
 For each of the amplifiers, find the midband voltage gain and the -3dB frequency using the open-circuit time-constant method.
-Assume $/beta=200$, $I_C=2.5mA$, $c_\pi=50pF$, and $c_\mu=2pf$.
+Assume $\beta=200$, $I_C=2.5$mA, $c_\pi=50$pF, and $c_\mu=2$pF.
 Neglect $r_b$ and $r_o$.
+\vspace{1ex}
 \begin{enumerate}
-	\item[\bf(a)] Common Emitter:
+	\item[\bf(a)] Common Emitter: \hspace{1.8in} {\bf(b)} Emitter Follower:
 \begin{center}
 \includegraphics[width=0.25\textwidth]{ce.png}
-\end{center}
-	\item[\bf(b)] Emitter Follower:
-\begin{center}
+\hspace{2in}
 \includegraphics[width=0.25\textwidth]{ef.png}
 \end{center}
-\clearpage
-	\item[\bf(c)] Common Base:
+	\item[\bf(c)] Common Base: \hspace{2in} {\bf(d)} C-E with Emitter Degeneration:
 \begin{center}
 \includegraphics[width=0.3\textwidth]{cb.png}
-\end{center}
-	\item[\bf(d)] Common Emitter with Emitter Degeneration:
-\begin{center}
+\hspace{2in}
 \includegraphics[width=0.25\textwidth]{ceed.png}
+\end{center}
+\begin{center}
 \end{center}
 \end{enumerate}
 
 \subsection*{Problem 2: Two-transistor OCTs}
-For the following CB-CE amplifier, assume $V_{BE}=0.6v$, $\beta=200$, $c_\pi=20pF$, and $c_\mu=2pF$.
+For the following CB-CE amplifier, assume $V_{BE}=0.6$v, $\beta=200$, $c_\pi=20$pF, and $c_\mu=2$pF.
 Neglect $r_b$ and $r_o$.
+
+\begin{center}
+\includegraphics[width=0.5\textwidth]{cb-ce.png}
+\end{center}
 
 \begin{enumerate}
 	\item[\bf(a)] Calculate the midband voltage gain.
@@ -106,17 +108,54 @@ Neglect $r_b$ and $r_o$.
 \end{enumerate}
 
 \subsection*{Problem 3: Emitter Coupled Pairs}
-For the two amplifiers shown below, find the midband voltage gain and the -3dB frequency.
+For the two amplifiers shown below, find the midband voltage gain and the -3dB frequency. \\
 Why does one have more bandwidth than the other? \\
-You may assume $V_{BE}=0.6v$, $\beta=400$, $c_\pi=40pF$, $c_\mu=4pF$, and neglect $r_b$ and $r_o$.
+You may assume $V_{BE}=0.6$v, $\beta=200$, $c_\pi=40$pF, $c_\mu=4$pF, and neglect $r_b$ and $r_o$.
 
 \begin{enumerate}
 	\item[\bf(a)] Single-ended Differential Pair
+
+\begin{center}
+\includegraphics[width=0.35\textwidth]{diff-pair.png}
+\end{center}
+
 	\item[\bf(b)] EF-CB
+
+\begin{center}
+\includegraphics[width=0.35\textwidth]{ef-cb.png}
+\end{center}
+
 \end{enumerate}
 
 \subsection*{Problem 4: Buffered Diff Pair}
+For the amplifier shown below, use the following data: $I_s=0.5$fA, $\beta=200$, $c_{\mu 0}=0.5$pF, $c_{je}=4$pF, and $f_T=500$MHz at $I_C=1$mA and $V_{CB}=2.5$v.
+$m=0.5$ and $\Psi_0=0.7$v for all junctions.
+Neglect $r_b$ and $r_o$.
 
+\begin{center}
+\includegraphics[width=0.7\textwidth]{bdp.png}
+\end{center}
 
+\begin{enumerate}
+	\item[\bf(a)] Calculate the midband voltage gain.
+	\item[\bf(b)] Find the -3dB frequency of the amplifier using the OCT method.
+	\item[\bf(c)] Verify the above results in SPICE.  Turn in your SPICE input file as well as a plot showing the high-frequency roll-off.
+\end{enumerate}
+
+\subsection*{Problem 5: Cascode Cascades}
+Given the following AC schematics, find the midband gain and -3dB frequency using the OCT method for each amplifier. 
+You may assume $\beta=200$, $c_\mu=2$pF, $c_{je}=5$pF, and $\tau_F=250$ps.\\
+Neglect $r_b$ and $r_o$.
+\begin{enumerate}
+	\item[\bf(a)] \hspace{3in} {\bf(b)}
+\begin{center}
+\includegraphics[width=0.4\textwidth]{cascode.png}
+\includegraphics[width=0.5\textwidth]{cascode-ef.png}
+\end{center}
+	\item[\bf(c)]
+\begin{center}
+\includegraphics[width=0.7\textwidth]{ef-cascode-ef.png}
+\end{center}
+\end{enumerate}
 \clearpage
 \end{document}
