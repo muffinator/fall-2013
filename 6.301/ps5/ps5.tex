@@ -20,7 +20,7 @@
 \noindent
 \newline\parbox{6.5in}
 {Fall 2013\hfill Issued : #1 \newline
- Problem Set 2 \hfill Due : #3\newline
+ Problem Set 5 \hfill Due : #3\newline
 %\profs \hfill %Handout #1\vspace*{-.5ex}\newline
 %\mbox{}\hrulefill\mbox{}
 }}
@@ -59,7 +59,7 @@
 \begin{document}
 
 
-\handout{Sept 10, 2013}{6.301 Solid State Circuits}{Sept 17, 2013}
+\handout{Oct 17, 2013}{6.301 Solid State Circuits}{Oct 22, 2013}
 \setlength{\parindent}{0pt}
 
 \newcommand{\solution}{
@@ -71,13 +71,32 @@
 
 \flushleft
 
-\subsection*{Problem 1: Basic Techniques}
+\subsection*{Problem 1: Current Mirror}
+	Find the output impedance, $R_O$, of the following current mirrors:
 \begin{enumerate}
-	\item[(a)] 
+	\item[(a)] Simple Mirror
 \begin{center}
-\includegraphics[width=0.3\textwidth]{}
+\includegraphics[width=0.7\textwidth]{mirror.png}
+\end{center}
+	\item[(b)] Emitter Degeneration
+\begin{center}
+\includegraphics[width=0.7\textwidth]{emitter-degen.png}
+\end{center}
+\clearpage
+	\item[(c)] Emitter Degeneration	with bypassed base (Capacitor is large)
+\begin{center}
+\includegraphics[width=0.6\textwidth]{emitter-degen-cap.png}
 \end{center}
 
+	\item[(d)] Cascode
+\begin{center}
+\includegraphics[width=0.6\textwidth]{cascode.png}
+\end{center}
+
+	\item[(e)] Double Cascode
+\begin{center}
+\includegraphics[width=0.6\textwidth]{double-cascode.png}
+\end{center}
+	
 \end{enumerate}
-\clearpage
 \end{document}
