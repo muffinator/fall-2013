@@ -1,0 +1,100 @@
+%% Creator: Inkscape inkscape 0.48.3.1, www.inkscape.org
+%% PDF/EPS/PS + LaTeX output extension by Johan Engelen, 2010
+%% Accompanies image file 'translinear.pdf' (pdf, eps, ps)
+%%
+%% To include the image in your LaTeX document, write
+%%   \input{<filename>.pdf_tex}
+%%  instead of
+%%   \includegraphics{<filename>.pdf}
+%% To scale the image, write
+%%   \def\svgwidth{<desired width>}
+%%   \input{<filename>.pdf_tex}
+%%  instead of
+%%   \includegraphics[width=<desired width>]{<filename>.pdf}
+%%
+%% Images with a different path to the parent latex file can
+%% be accessed with the `import' package (which may need to be
+%% installed) using
+%%   \usepackage{import}
+%% in the preamble, and then including the image with
+%%   \import{<path to file>}{<filename>.pdf_tex}
+%% Alternatively, one can specify
+%%   \graphicspath{{<path to file>/}}
+%% 
+%% For more information, please see info/svg-inkscape on CTAN:
+%%   http://tug.ctan.org/tex-archive/info/svg-inkscape
+%%
+\begingroup%
+  \makeatletter%
+  \providecommand\color[2][]{%
+    \errmessage{(Inkscape) Color is used for the text in Inkscape, but the package 'color.sty' is not loaded}%
+    \renewcommand\color[2][]{}%
+  }%
+  \providecommand\transparent[1]{%
+    \errmessage{(Inkscape) Transparency is used (non-zero) for the text in Inkscape, but the package 'transparent.sty' is not loaded}%
+    \renewcommand\transparent[1]{}%
+  }%
+  \providecommand\rotatebox[2]{#2}%
+  \ifx\svgwidth\undefined%
+    \setlength{\unitlength}{612bp}%
+    \ifx\svgscale\undefined%
+      \relax%
+    \else%
+      \setlength{\unitlength}{\unitlength * \real{\svgscale}}%
+    \fi%
+  \else%
+    \setlength{\unitlength}{\svgwidth}%
+  \fi%
+  \global\let\svgwidth\undefined%
+  \global\let\svgscale\undefined%
+  \makeatother%
+  \begin{picture}(1,1.29411765)%
+    \put(0,0){\includegraphics[width=\unitlength]{translinear.pdf}}%
+    \put(0.71093913,1.32266375){\makebox(0,0)[lb]{\smash{
+
+(a)}}}%
+    \put(0.21261723,1.2046899){\makebox(0,0)[lb]{\smash{I}}}%
+    \put(0.21833044,1.20089663){\makebox(0,0)[lb]{\smash{1}}}%
+    \put(0.34937815,1.05370954){\makebox(0,0)[lb]{\smash{I}}}%
+    \put(0.35509135,1.04991627){\makebox(0,0)[lb]{\smash{2}}}%
+    \put(0.40752763,1.20468996){\makebox(0,0)[lb]{\smash{I}}}%
+    \put(0.41324083,1.20089669){\makebox(0,0)[lb]{\smash{o}}}%
+    \put(0.14706595,0.75048821){\makebox(0,0)[lb]{\smash{(c)}}}%
+    \put(0.49942809,1.17037617){\makebox(0,0)[lb]{\smash{I(1+x)I(1-x)
+2I}}}%
+    \put(0.66413397,1.20812127){\makebox(0,0)[lb]{\smash{I}}}%
+    \put(0.66984717,1.204328){\makebox(0,0)[lb]{\smash{O}}}%
+    \put(0.52588665,0.74931754){\makebox(0,0)[lb]{\smash{(d)}}}%
+    \put(0.1751156,0.7794438){\makebox(0,0)[lb]{\smash{I(1+x)I(1-x)
+2I
+I}}}%
+    \put(0.33524089,0.93349367){\makebox(0,0)[lb]{\smash{o}}}%
+    \put(0.33310129,0.43891357){\makebox(0,0)[lb]{\smash{(e)}}}%
+    \put(0.53905389,0.95051832){\makebox(0,0)[lb]{\smash{I}}}%
+    \put(0.54476709,0.94672505){\makebox(0,0)[lb]{\smash{x}}}%
+    \put(0.73807428,0.8818909){\makebox(0,0)[lb]{\smash{I}}}%
+    \put(0.74378748,0.87809763){\makebox(0,0)[lb]{\smash{y}}}%
+    \put(0.77238797,0.95051838){\makebox(0,0)[lb]{\smash{I}}}%
+    \put(0.77810118,0.94672512){\makebox(0,0)[lb]{\smash{o}}}%
+    \put(0.53527928,0.89561645){\makebox(0,0)[lb]{\smash{2A}}}%
+    \put(0.55434072,0.89182319){\makebox(0,0)[lb]{\smash{E}}}%
+    \put(0.53683005,0.8086418){\makebox(0,0)[lb]{\smash{2A}}}%
+    \put(0.55589149,0.80484853){\makebox(0,0)[lb]{\smash{E}}}%
+    \put(0.2739326,0.08668447){\makebox(0,0)[lb]{\smash{(f)}}}%
+    \put(0.51295875,0.67972836){\makebox(0,0)[lb]{\smash{I}}}%
+    \put(0.51867195,0.67593509){\makebox(0,0)[lb]{\smash{o}}}%
+    \put(0.35511639,0.67972836){\makebox(0,0)[lb]{\smash{I}}}%
+    \put(0.3608296,0.67593509){\makebox(0,0)[lb]{\smash{x}}}%
+    \put(0.64678384,0.67972836){\makebox(0,0)[lb]{\smash{I}}}%
+    \put(0.65249705,0.67593509){\makebox(0,0)[lb]{\smash{y}}}%
+    \put(0.33869744,0.35330058){\makebox(0,0)[lb]{\smash{Vcc}}}%
+    \put(0.32641312,0.12682999){\makebox(0,0)[lb]{\smash{I}}}%
+    \put(0.33212632,0.12303673){\makebox(0,0)[lb]{\smash{2}}}%
+    \put(0.337874,0.12682999){\makebox(0,0)[lb]{\smash{(1+x)I}}}%
+    \put(0.41447923,0.12303673){\makebox(0,0)[lb]{\smash{2}}}%
+    \put(0.42022691,0.12682999){\makebox(0,0)[lb]{\smash{(1-x)I(1+y)I(1-y)}}}%
+    \put(0.57294195,0.38761431){\makebox(0,0)[lb]{\smash{I}}}%
+    \put(0.57865515,0.38382104){\makebox(0,0)[lb]{\smash{O}}}%
+    \put(0.54821177,1.02194216){\color[rgb]{0,0,0}\makebox(0,0)[lb]{\smash{(b)}}}%
+  \end{picture}%
+\endgroup%
