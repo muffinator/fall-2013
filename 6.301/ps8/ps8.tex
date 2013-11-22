@@ -98,7 +98,7 @@ What famous function does $I_o$ approximate for small $I_x$?\\
 
 \clearpage
 
-\subsection*{Problem 3: Base Current Effects}
+\subsection*{Problem 3: Base Current Error}
 In the following circuit, assume $I_2=1mA$ and $\beta=100$.\\
 \vspace{1ex}
 
@@ -111,17 +111,24 @@ In the following circuit, assume $I_2=1mA$ and $\beta=100$.\\
 	\item[(b)] Assume we can tolerate a maximum $I_o$ error due to $\beta$ of 50\%.  For what range of $I_1$ is this circuit valid?
 \end{enumerate}
 
-\subsection*{Problem 4: Temperature Dependence}
+\subsection*{Problem 4: Temperature Dependence and Compensation}
 When we design a circuit, we prefer that it operate over a wide range of temperature.
+Below is a voltage-biased current source with a temperature dependence heavily based on $R_E$ and $V_{be}$.
 In the following circuit, assume that $\frac{1}{R} \frac{dR}{dT}=600ppm/^{\circ}C$ and $\frac{dV_{be}}{dT}=-2mV/^{\circ}C$. \\
 \vspace{1ex}
-For each of the following circuits find $\frac{dI_o}{dT}$. \\
-\vspace{1ex}
-Additionally, find the value of $R_E$ in terms of $I_o$ that minimizes $\frac{dI_o}{dT}$.
 
 \begin{center}
 \includegraphics[width=.25\textwidth]{temp-dep.eps}
 \end{center}
 
+\begin{enumerate}
+	\item[(a)] Find $\frac{dI_o}{dT}$.
+	\item[(b)] Find the value of $R_E$ in terms of $I_o$ that minimizes $\frac{dI_o}{dT}$.
 
+\end{enumerate}
+
+\subsection*{Problem 5: Your Own Personal Bandgap}
+Referencing the simplified schematic of the LM109 $5$V Bandgap Reference from lecture, design a modified verion that produces an output voltage of $7.5$V.\\
+\vspace{2ex}
+Explain the operation of your reference.
 \end{document}
