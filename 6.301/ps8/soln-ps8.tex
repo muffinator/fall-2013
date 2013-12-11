@@ -1,7 +1,7 @@
 \documentclass[11pt,twoside]{article}
 
 \usepackage{amsmath}
-\usepackage{graphicx,epstopdf}
+\usepackage{graphicx,epstopdf,epsfig}
 \usepackage{amsmath,amssymb,amsbsy,bm}
 %\usepackage[framed]{mcode}
 
@@ -19,7 +19,7 @@
 \noindent
 \newline\parbox{6.5in}
 {Fall 2013\hfill Issued : #1 \newline
- Problem Set 8 \hfill Due : #3\newline
+ Problem Set 8 Solutions \hfill Due : #3\newline
 %\profs \hfill %Handout #1\vspace*{-.5ex}\newline
 %\mbox{}\hrulefill\mbox{}
 }}
@@ -79,13 +79,26 @@ A differential output is denoted by an $I_o$ superimposed on an arrow,
 Finally, use the method of open circuit time constants to estimate the $-3dB$ frequency for the circuit in part (a) only.
 \vspace{8ex}
 \begin{center}
-\includegraphics[width=.9\textwidth]{trans1.eps}
+\includegraphics[width=.9\textwidth]{trans1-soln}
 \end{center}
 
 \clearpage
 \begin{center}
-\includegraphics[width=.6\textwidth]{trans2.eps}
+\includegraphics[width=.9\textwidth]{trans2-soln}
+\includegraphics[width=.9\textwidth]{trans3-soln}
 \end{center}
+\clearpage
+For the -3dB frequency of the circuit in part (a), assume the output node has some load impedance $R_L < r_o$.
+This is reasonable because a current-source input load would look like $\frac{1}{gm}$ and a resistive load would likely be smaller than $r_o$.
+For the worst-case OCT's, $R_\pi$ is $\frac{1}{gm}$ for all transistors.
+For the diode-connected transistors, $R_\mu$ is 0 since the base is shorted to the collector.
+The output transistor's $R_\mu = \frac{1}{gm}+{2R_o}$.
+The middle transistor's $R_\mu = \frac{2}{gm}$.
+\begin{align}
+	\tau &= \frac{4C_\pi}{gm}+C_\mu(\frac{3}{gm}+2R_o) \\
+	f_{-3dB} &= \frac{gm}{2\pi(4C_\pi+(3+2gmR_o)C_\mu)}
+\end{align}
+This circuit is {\it fast}.
 \clearpage
 \subsection*{Problem 2: Translinear Approximator}
 Find $I_o=f(I_x)$, assuming well-matched transistors, negligible base currents, and $I_1=1A$.
@@ -95,7 +108,23 @@ What famous function does $I_o$ approximate for small $I_x$?\\
 \begin{center}
 \includegraphics[width=.9\textwidth]{cos.eps}
 \end{center}
-\clearpage
+\subsection*{Solution:}
+Call the current through $Q_A$ and $Q_B$ $I_A$ and $I_B$, respectively.
+The output current is:
+\begin{align}
+I_0&=I_1-\frac{I_A}{24}-\frac{I_B}{2}\\
+\intertext{We can find $I_A$ from the Gilbert loop:}
+I_x^4&=I_1^3I_A\nonumber \\
+I_A&=\frac{I_x^4}{I_1^3}\nonumber \\
+\intertext{and $I_B$:}
+I_x^2&=I_iI_B\nonumber \\
+I_B&=\frac{I_x^2}{I_1}\nonumber \\
+\intertext{Substituting into (3)}
+I_o &= I_1-\frac{I_x^2}{2I_1}+\frac{I_x^4}{24I_1^3}\\
+\intertext{When $I_1=1$, (4) becomes:}
+I_o &= 1-\frac{I_x^2}{2}+\frac{I_x^4}{24} \nonumber 
+\end{align}
+Which is the first two terms of the Taylor series expansion of cosine.
 
 \subsection*{Problem 3: Base Current Error}
 In the following circuit, assume $I_2=1mA$ and $\beta=100$.\\
@@ -104,10 +133,40 @@ In the following circuit, assume $I_2=1mA$ and $\beta=100$.\\
 \begin{center}
 \includegraphics[width=.28\textwidth]{sqrtxy.eps}
 \end{center}
-
+\clearpage
 \begin{enumerate}
-	\item[(a)] Express $I_o$ in terms of $I_1$ and $I_2$.
+	\item[(a)] Express $I_o$ in terms of $I_1$ and $I_2$.\\
+ This is a simple Gilbert loop.
+	\begin{align*}
+	I_{c3}I_{c4}&=I_{c1}I_{c2}\\
+	I_oI_o&=I_1I_2\\
+	I_{o,ideal}&=sqrt{I_1I_2}
+	\end{align*}
 	\item[(b)] Assume we can tolerate a maximum $I_o$ error due to $\beta$ of 50\%.  For what range of $I_1$ is this circuit valid?
+\vspace{1ex}
+With finite $\beta$ we need to consider the effects of base current.
+\begin{equation*}
+I_{o,real} = sqrt{I_{c1}I_{c2}}
+\end{equation*}
+$I_{o,real}$ should never exceed $I_{o,ideal}$, so 
+$\frac{\sqrt{I_{c1}I_{c2}}}{\sqrt{I_1I_2}}=\frac{1}{2}$ should have at least two solutions
+which will provide the range of $I_1$.
+\begin{equation}
+I_{c1}+\frac{I_{c2}+I_o}{\beta}=I_1 \rightarrow 
+I_{c1}=I_1-\frac{I_{c2}+\sqrt{I_{c1}I_{c2}}}{\beta}
+\end{equation}
+\begin{equation}
+I_{c2} = (I_2-\frac{I_{c1}}{\beta})\frac{\beta}{\beta+1}
+\end{equation}
+Substituting equation (1) in to equation (2) gives:
+\begin{equation*}
+I_{c1}=I_1-(\frac{I_2}{\beta+1}-\frac{I_{c1}}{\beta(\beta+1)})-
+\frac{\frac{\beta}{\beta+1}I_2I_{c1}-\frac{I_{c1}^2}{\beta+1}}{\beta}
+\end{equation*}
+Solve for $I_{c1}$ in terms of $I_1$ and $I_2=1$mA:
+\begin{equation*}
+I_{c1}=\frac{5050(\sqrt{-101(I_1^2-0.1I_1+987E-9)}+10099(I_1-9.9E-6))}{50994951}
+\end{equation*}
 \end{enumerate}
 
 \subsection*{Problem 4: Temperature Dependence and Compensation}
