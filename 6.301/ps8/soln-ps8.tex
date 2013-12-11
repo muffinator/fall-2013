@@ -165,7 +165,11 @@ I_{c1}=I_1-(\frac{I_2}{\beta+1}-\frac{I_{c1}}{\beta(\beta+1)})-
 \end{equation*}
 Solve for $I_{c1}$ in terms of $I_1$ and $I_2=1$mA:
 \begin{equation*}
-I_{c1}=\frac{5050(\sqrt{-101(I_1^2-0.1I_1+987E-9)}+10099(I_1-9.9E-6))}{50994951}
+I_{c1}=\frac{5050(\sqrt{-101(I_1^2-0.1I_1+987\times10^{-9})}+10099(I_1-9.9\times10^{-6}))}{50994951}
+\end{equation*}
+Solving $\frac{\sqrt{I_{c1}I_{c2}}}{\sqrt{I_1I_2}}=\frac{1}{2}$ for $I_1$:
+\begin{equation*}
+12.5\mu A < I_1 < 74.4mA
 \end{equation*}
 \end{enumerate}
 
@@ -180,13 +184,23 @@ In the following circuit, assume that $\frac{1}{R} \frac{dR}{dT}=600ppm/^{\circ}
 \end{center}
 
 \begin{enumerate}
-	\item[(a)] Find $\frac{dI_o}{dT}$.
+	\item[(a)] Find $\frac{dI_o}{dT}$.\\
+\vspace{1ex}
+Assume $I_B=0$.  Then $I_o=I_E=\frac{V_{BB}-V_{BE}}{R_E}$.
+\begin{align*}
+\frac{dI_o}{dT} &= \frac{d}{dT}(\frac{V_{BB}}{R_E})-\frac{d}{dT}(\frac{V_{BE}}{R_E})\\
+ &= \frac{-V_{BB}\quad dR_E}{R_E^2 \quad dT}-\frac{R_E\frac{dV_{BE}}{dT}-V_{BE}\frac{dR_E}{dT}}{R_E^2}\\
+ &= -\frac{V_{BB}}{R_E}(\frac{1}{R_E}\frac{dR_E}{dT})+
+\frac{V_{BE}}{R_E}(\frac{1}{R_E}\frac{dR_E}{dT})-
+\frac{1}{R_E}(\frac{dV_{BE}}{dT})\\
+&= -I_o(\frac{1}{R_E}\frac{dR_E}{dT})-\frac{1}{R_E}(\frac{dV_{BE}}{dT})\\
+\end{align*}
+
 	\item[(b)] Find the value of $R_E$ in terms of $I_o$ that minimizes $\frac{dI_o}{dT}$.
-
+\begin{align*}
+\frac{dI_o}{dT} &= -I_o(\frac{1}{R_E}\frac{dR_E}{dT})-\frac{1}{R_E}(\frac{dV_{BE}}{dT})\\
+&= -I_o(600\times10^{-6}/^{\circ} C)-\frac{1}{R_E}(-2\times10^{-3}V/^{\circ} C)\\
+&\rightarrow R_{E_{min}}=\frac{3.33}{I_o}\\
+\end{align*}
 \end{enumerate}
-
-\subsection*{Problem 5: Your Own Personal Bandgap}
-Referencing the simplified schematic of the LM109 $5$V Bandgap Reference from lecture, design a modified verion that produces an output voltage of $7.5$V.\\
-\vspace{2ex}
-Explain the operation of your reference.
 \end{document}
