@@ -1,0 +1,101 @@
+\documentclass[10pt,twoside]{article}
+
+\usepackage{amsmath}
+\usepackage{graphicx,epsfig}
+\usepackage{graphicx}
+\usepackage{amsmath,amssymb,amsbsy,bm}
+%\usepackage[framed]{mcode}
+
+\newlength{\toppush}
+\setlength{\toppush}{2\headheight}
+\addtolength{\toppush}{\headsep}
+
+\renewcommand{\bottomfraction}{0.95}
+
+\newcommand{\htitle}[3]{\begin{center}
+\vspace*{-\toppush}
+{\large MASSACHUSETTS INSTITUTE OF TECHNOLOGY}\\
+{\small Department of Electrical Engineering and Computer Science}\\
+\vspace*{1ex}{\Large #2}\end{center}
+\noindent
+\newline\parbox{6.5in}
+{Fall 2013\hfill Issued : #1 \newline
+ Problem Set 9 \hfill Due : #3\newline
+%\profs \hfill %Handout #1\vspace*{-.5ex}\newline
+%\mbox{}\hrulefill\mbox{}
+}}
+
+\newcommand{\mcO}{\mathcal{O}}
+\newcommand{\handout}[3]{\thispagestyle{empty}
+\pagestyle{myheadings}\htitle{#1}{#2}{#3}}
+
+\setlength{\oddsidemargin}{0pt}
+\setlength{\evensidemargin}{0pt}
+\setlength{\textwidth}{6.5in}
+\setlength{\topmargin}{0in}
+\setlength{\textheight}{8.5in}
+
+
+\newcommand{\pp}[2]{\frac{\partial #1}{\partial #2}}%
+\newcommand{\ppp}[2]{\frac{\partial^2 #1}{\partial #2^2}}%
+\newcommand{\dd}[2]{\frac{d #1}{d #2}}%
+\newcommand{\ddd}[2]{\frac{d^2 #1}{d #2^2}}%
+\newcommand{\matend}{\end{array}\right]}
+\newcommand{\matc}{\left[\begin{array}{c}}
+\newcommand{\matcc}{\left[\begin{array}{cc}}
+\newcommand{\bb}{\mathbf{b}}
+\newcommand{\bx}{\mathbf{x}}
+\newcommand{\bA}{\mathbf{A}}
+\newcommand{\DD}[2]{\frac{D #1}{D #2}}%
+\newcommand{\Uvec}{\mathbf{U}}
+\newcommand{\uvec}{\mathbf{u}}
+\newcommand{\tauvec}{\bm{\tau}}
+\newcommand{\omegavec}{\bm{\omega}}
+
+
+\renewcommand{\Re}{\mathrm{Re}}
+
+
+\begin{document}
+
+
+\handout{Dec 10, 2013}{6.301 Solid State Circuits}{Not due}
+\setlength{\parindent}{0pt}
+
+\newcommand{\solution}{
+ \medskip
+ {\bf Solution:}
+}
+
+\hrulefill
+
+\flushleft
+\vspace{3ex}
+\hangindent=1cm {\bf Problem 1:} \quad In this problem, a transistor is controlled by supplying a base current drive as seen in Figure 1.
+Analyze the dynamics of the transistor and sketch $q_F, q_S, i_C$, and $i_B$ versus time. Each sketch should
+clearly indicate important slopes, final values, time constants, etc. Read this whole problem before
+starting to solve the first part.
+\begin{enumerate}
+	\item[1.]
+Assume that the transistor remains in the forward active region. Determine the time constants and
+final values etc, and sketch the curves.
+	\item[2.]
+Since $\beta_Fi_B > i_{C_{SAT}}$, the device will not remain in the forward active region for all time. Indicate
+on your graphs the point at which saturation occurs. Find $q_{BO}$, the final values (in saturation) for $i_C$ and $q_S$ and evaluate the time constant $\tau_S$.  Continue the sketches.  How long does it take to traverse the active region?
+	\item[3.]
+Now consider turning off the device, $i_B=0$.  Assume that athe transistor remains saturated, that is $i_C=i_{C_{SAT}}$ for all time.  Determine the final values for $q_S$ and sketch the curves.
+	\item[4.]
+Obviously, the transistor does not remain saturated but enters the forward active region when $q_S$ equals zero. Determine the storage delay time, that is, the time during which the device remains saturated even though $i_B=0$. Determine the time spent crossing the active region. Sketch the curves.
+	\item[5.] Compare turn-on times and turn-off times: explain the difference.
+	\item[6.] It is observed that the storage delay time decreases if the input pulse duration is reduced.  Explain.
+\end{enumerate}
+\vspace{2ex}
+{\bf Problem 2:} Charge Control
+\begin{enumerate}
+	\item[1.] Sketch $q_F, q_S, i_C$, and $i_B$ versus time for the circuit shown in Figure 2.
+	\item[2.] Now assume that you are free to choose the capacitor value. what value should be chosen so
+that final conditions for both the turn on and the turn off transient are established as quickly as
+possible?
+\end{enumerate}
+\clearpage
+\end{document}
