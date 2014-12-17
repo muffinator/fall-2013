@@ -1,27 +1,7 @@
+#CC-BY-SA Josh Gordonson
 import subprocess
-import random
-n=7
-random.seed()
-R1 = 100 
-R2 = 100 #random.randint(1,100e3)
-netlist=open('netlist.cir', 'w')
-netlist.write("""mynetlist
-R1 6 1 {0[R1]}
-R2 1 0 {0[R2]}
-R3 1 2 100 
-R4 2 3 100
-R5 3 0 100
-R6 2 5 100
-R7 5 0 100
-.control
-op
-print v(1) v(2) v(3) v(4) v(5) v(6) 
-.endc
-.end
-""".format(globals()))
-netlist.close()
 
-def runSim(target,results,numNodes):
+def runSim(target,results):
     output=open(results+'.txt', 'w')
     a=subprocess.call(['ngspice','-b',target+'.cir'], stdout=output)
     output.close()
@@ -47,7 +27,16 @@ def insertProbe(target,node):
     netlist.close()
     return contents
 
-network=runSim('netlist','output',n)
-for node in network.keys():
-    insertProbe('netlist',node)
-    print runSim('netlist-t','output',n+1)
+def insertProbe2(target,nodes,groundNodes):
+    netlist=open(target+'.cir', 'r')
+    contents=netlist.readlines()
+    netlist.close()
+    sources=''.join(['Vt'+x+' '+x+' 0 DC 1\n' for x in nodes])
+    grounds=''.join(['Vg'+x+' '+x+' 0 DC 0\n' for x in groundNodes])
+    currents=''.join(['print i(Vt'+x+')\n' for x in nodes])
+    contents.insert(1,sources+grounds)
+    contents.insert(-3,currents)
+    netlist=open(target+'-t.cir', 'w')
+    netlist.write("".join(contents))
+    netlist.close()
+    return contents
