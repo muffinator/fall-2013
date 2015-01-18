@@ -59,9 +59,25 @@
 <library name="butter">
 <packages>
 <package name="RAIL">
-<smd name="P$1" x="-8.763" y="0" dx="14.478" dy="1.778" layer="1"/>
-<smd name="P$2" x="8.763" y="0" dx="14.478" dy="1.778" layer="1"/>
+<smd name="P$1" x="-8.763" y="-0.762" dx="14.478" dy="0.254" layer="1"/>
+<smd name="P$2" x="8.763" y="-0.762" dx="14.478" dy="0.254" layer="1"/>
 <text x="-19.685" y="-0.635" size="1.27" layer="25">&gt;NAME</text>
+<smd name="P$3" x="-3.81" y="0" dx="4.572" dy="1.778" layer="1"/>
+<smd name="P$4" x="3.81" y="0" dx="4.572" dy="1.778" layer="1"/>
+<smd name="P$R" x="13.97" y="0" dx="4.064" dy="1.778" layer="1"/>
+<smd name="P$L" x="-13.97" y="0" dx="4.064" dy="1.778" layer="1"/>
+<polygon width="0.127" layer="35">
+<vertex x="-10.16" y="0.635"/>
+<vertex x="-7.62" y="0.635"/>
+<vertex x="-7.62" y="0"/>
+<vertex x="-10.16" y="0"/>
+</polygon>
+<polygon width="0.127" layer="35">
+<vertex x="7.62" y="0.635"/>
+<vertex x="10.16" y="0.635"/>
+<vertex x="10.16" y="0"/>
+<vertex x="7.62" y="0"/>
+</polygon>
 </package>
 </packages>
 <symbols>
@@ -87,8 +103,8 @@
 <devices>
 <device name="" package="RAIL">
 <connects>
-<connect gate="G$1" pin="L" pad="P$1"/>
-<connect gate="G$1" pin="R" pad="P$2"/>
+<connect gate="G$1" pin="L" pad="P$L"/>
+<connect gate="G$1" pin="R" pad="P$R"/>
 </connects>
 <technologies>
 <technology name=""/>
