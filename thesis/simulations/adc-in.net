@@ -1,0 +1,12 @@
+* Z:\home\muffin\Documents\fall-2013\thesis\simulations\adc-in.asc
+XU1 N003 N001 vcc vee N002 LT1632
+V1 vee 0 -10
+V2 vcc 0 10
+R1 N001 voff 10k
+R2 N002 N001 1k
+V3 voff 0 PULSE(-10 10 3m 10m 10m 1m 21m)
+V4 N003 0 SINE(0 1 1k)
+.tran 0 13m 3m
+.lib LTC.lib
+.backanno
+.end
