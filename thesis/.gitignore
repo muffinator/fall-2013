@@ -2,3 +2,10 @@
 /datasheets/*
 *.json
 *.pyc
+*.cmp
+*.gpl
+*.plc
+*.pro
+*.sol
+*.stc
+*.sts
