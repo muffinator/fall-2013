@@ -7,4 +7,6 @@ CD4051BPWR,     8CH MUX/DEMUX,      TI
 MCP6L92T,       10MHz 2.4V Opamp,   Microchip
 TLO72SG,        JFET Opamp,         Diodes, INC
 NX3V1G384,      SPST NC Switch,     NXP
-
+MCP4012T-503E,	DigiPot 50k,        Microchip
+MCP4017T-104E,  DigiPot 100k,       Microchip
+MCP6S93T-E,     Prog Gain Amp,      Microchip	
