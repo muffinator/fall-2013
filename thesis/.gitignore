@@ -10,3 +10,5 @@
 *.stc
 *.sts
 *.gpi
+/butter/*.d
+/butter/*.o

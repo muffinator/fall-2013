@@ -19,14 +19,19 @@
  * You should have received a copy of the GNU Lesser General Public License
  * along with this library.  If not, see <http://www.gnu.org/licenses/>.
  */
-
+#include <stdio.h>
 #include <libopencm3/stm32/rcc.h>
 #include <libopencm3/stm32/gpio.h>
+
+#define ncs GPIO0 //Register E
+#define CK  GPIO8 //Register B
+#define D   GPIO9 //Register B
 
 static void gpio_setup(void)
 {
 	/* Enable GPIOE clock. */
 	rcc_periph_clock_enable(RCC_GPIOE);
+	rcc_periph_clock_enable(RCC_GPIOB);
 
 	/* Set GPIO12 (in GPIO port E) to 'output push-pull'. */
 	gpio_mode_setup(GPIOE, GPIO_MODE_OUTPUT, GPIO_PUPD_NONE, GPIO12);
@@ -46,9 +51,9 @@ int main(void)
 		gpio_toggle(GPIOE, GPIO12);	/* LED on/off */
 		gpio_toggle(GPIOE, GPIO13);	/* LED on/off */
 		gpio_toggle(GPIOE, GPIO14);	/* LED on/off */
-		for (i = 0; i < 2000; i++) /* Wait a bit. */
+		for (i = 0; i < 200000; i++) /* Wait a bit. */
 			__asm__("nop");
-
+        printf("hi!");
 	}
 
 	return 0;
