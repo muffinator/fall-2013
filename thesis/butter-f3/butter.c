@@ -51,9 +51,9 @@ int main(void)
 		gpio_toggle(GPIOE, GPIO12);	/* LED on/off */
 		gpio_toggle(GPIOE, GPIO13);	/* LED on/off */
 		gpio_toggle(GPIOE, GPIO14);	/* LED on/off */
-		for (i = 0; i < 200000; i++) /* Wait a bit. */
+		for (i = 0; i < 2000000; i++) /* Wait a bit. */
 			__asm__("nop");
-        printf("hi!");
+        printf("hixxxx!");
 	}
 
 	return 0;
