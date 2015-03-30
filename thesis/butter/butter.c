@@ -80,7 +80,7 @@ static void dma_setup(void)
     /* DAC channel 1 uses DMA controller 1 Stream 5 Channel 7. */
     /* Enable DMA1 clock and IRQ */
     rcc_periph_clock_enable(RCC_DMA2);
-    nvic_enable_irq(NVIC_DMA2_STREAM1_IRQ);
+    //nvic_enable_irq(NVIC_DMA2_STREAM1_IRQ);
     dma_stream_reset(mydma, mystream);
     dma_set_priority(mydma, mystream, DMA_SxCR_PL_VERY_HIGH);
     dma_set_memory_size(mydma, mystream, DMA_SxCR_MSIZE_16BIT);
@@ -93,12 +93,12 @@ static void dma_setup(void)
 
     dma_set_peripheral_address(mydma, mystream, (uint32_t) datas);
     /* The array v[] is filled with the waveform data to be output */
-    dma_set_memory_address(mydma, mystream, (uint32_t) &GPIOB_IDR);
+    dma_set_memory_address(mydma, mystream, (uint32_t) &GPIOB_ODR);
     dma_set_number_of_data(mydma, mystream, 8);
     //dma_disable_transfer_complete_interrupt(mydma, mystream);
     dma_channel_select(mydma, mystream, mychannel);
     dma_enable_direct_mode(mydma, mystream);
-    dma_enable_transfer_complete_interrupt(mydma, mystream);
+    //dma_enable_transfer_complete_interrupt(mydma, mystream);
     //dma_enable_direct_mode_error_interrupt(mydma, mystream);
     dma_enable_stream(mydma, mystream);
 
@@ -121,11 +121,11 @@ static void dma_setup(void)
 static void timer1_setup(void)
 {
     rcc_periph_clock_enable(RCC_TIM1);
-    nvic_enable_irq(NVIC_TIM1_UP_TIM10_IRQ);
+    //nvic_enable_irq(NVIC_TIM1_UP_TIM10_IRQ);
     timer_reset(TIM1);
     timer_set_mode(TIM1, TIM_CR1_CKD_CK_INT, TIM_CR1_CMS_EDGE, TIM_CR1_DIR_UP);
-    timer_set_prescaler(TIM1,100000);
-    timer_set_period(TIM1, 1000);
+    timer_set_prescaler(TIM1,0);
+    timer_set_period(TIM1, 4);
 
 //    timer_update_on_overflow(TIM1);
     timer_set_dma_on_compare_event(TIM1);
@@ -150,7 +150,7 @@ static void timer1_setup(void)
    // timer_disable_oc_preload(TIM2, TIM_OC1); 
 
     timer_set_oc_fast_mode(TIM1, TIM_OC1); 
-    timer_set_oc_value(TIM1, TIM_OC1, 5);
+    timer_set_oc_value(TIM1, TIM_OC1, 1);
     timer_enable_counter(TIM1);
 }
 
@@ -456,9 +456,10 @@ int main(void)
    // timer_enable_irq(TIM2, TIM_DIER_UIE); 
     timer_enable_irq(TIM1, TIM_DIER_UIE); 
 	while (1) {
-	//	usbd_poll(usb_device);
+//	usbd_poll(usb_device);
         //gpio_toggle(GPIOA, GPIO8);
-        gpio_toggle(GPIOD, GPIO13);
+     //   gpio_toggle(GPIOD, GPIO13);
+//        gpio_toggle(GPIOB, GPIO5);
           //ready=0;
        // gpio_set(GPIOD, GPIO13);
         //gpio_clear(GPIOD, GPIO13);
