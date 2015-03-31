@@ -37,7 +37,7 @@
 
 static volatile char message = 'a';
 static volatile uint8_t ready = 0;
-static volatile uint16_t datas[8];
+static volatile uint16_t datas[8000];
 static volatile uint8_t send=0;
 static usbd_device *usb_device;
 
@@ -80,7 +80,7 @@ static void dma_setup(void)
     /* DAC channel 1 uses DMA controller 1 Stream 5 Channel 7. */
     /* Enable DMA1 clock and IRQ */
     rcc_periph_clock_enable(RCC_DMA2);
-    //nvic_enable_irq(NVIC_DMA2_STREAM1_IRQ);
+    nvic_enable_irq(NVIC_DMA2_STREAM1_IRQ);
     dma_stream_reset(mydma, mystream);
     dma_set_priority(mydma, mystream, DMA_SxCR_PL_VERY_HIGH);
     dma_set_memory_size(mydma, mystream, DMA_SxCR_MSIZE_16BIT);
@@ -94,11 +94,11 @@ static void dma_setup(void)
     dma_set_peripheral_address(mydma, mystream, (uint32_t) datas);
     /* The array v[] is filled with the waveform data to be output */
     dma_set_memory_address(mydma, mystream, (uint32_t) &GPIOB_ODR);
-    dma_set_number_of_data(mydma, mystream, 8);
+    dma_set_number_of_data(mydma, mystream, 8000);
     //dma_disable_transfer_complete_interrupt(mydma, mystream);
     dma_channel_select(mydma, mystream, mychannel);
     dma_enable_direct_mode(mydma, mystream);
-    //dma_enable_transfer_complete_interrupt(mydma, mystream);
+    dma_enable_transfer_complete_interrupt(mydma, mystream);
     //dma_enable_direct_mode_error_interrupt(mydma, mystream);
     dma_enable_stream(mydma, mystream);
 
@@ -121,7 +121,7 @@ static void dma_setup(void)
 static void timer1_setup(void)
 {
     rcc_periph_clock_enable(RCC_TIM1);
-    //nvic_enable_irq(NVIC_TIM1_UP_TIM10_IRQ);
+    nvic_enable_irq(NVIC_TIM1_UP_TIM10_IRQ);
     timer_reset(TIM1);
     timer_set_mode(TIM1, TIM_CR1_CKD_CK_INT, TIM_CR1_CMS_EDGE, TIM_CR1_DIR_UP);
     timer_set_prescaler(TIM1,0);
@@ -226,6 +226,7 @@ void dma2_stream1_isr(void)
         dma_clear_interrupt_flags(mydma, mystream, DMA_TCIF);
         /* Toggle PC1 just to keep aware of activity and frequency. */
         gpio_toggle(GPIOD, GPIO12);
+        
     }
     if (dma_get_interrupt_flag(mydma, mystream, DMA_DMEIF)) {
         dma_clear_interrupt_flags(mydma, mystream, DMA_DMEIF);
@@ -450,11 +451,11 @@ int main(void)
 			usb_strings, 3,
 			usbd_control_buffer, sizeof(usbd_control_buffer));
 
-//usbd_register_set_config_callback(usb_device, cdcacm_set_config);
+usbd_register_set_config_callback(usb_device, cdcacm_set_config);
 
     
    // timer_enable_irq(TIM2, TIM_DIER_UIE); 
-    timer_enable_irq(TIM1, TIM_DIER_UIE); 
+   // timer_enable_irq(TIM1, TIM_DIER_UIE); 
 	while (1) {
 //	usbd_poll(usb_device);
         //gpio_toggle(GPIOA, GPIO8);
