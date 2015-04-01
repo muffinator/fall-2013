@@ -52,6 +52,15 @@ static void gpio_setup(void)
     datas[5]=0x5555;
     datas[6]=0xaaaa;
     datas[7]=0x5555;
+    datas[8]=0xaaaa;
+    datas[9]=0x5555;
+    datas[10]=0xaaaa;
+    datas[11]=0x5555;
+    datas[12]=0xaaaa;
+    datas[13]=0x5555;
+    datas[14]=0xaaaa;
+    datas[15]=0x5555;
+    
     rcc_periph_clock_enable(RCC_GPIOD);
     rcc_periph_clock_enable(RCC_GPIOB);
     gpio_mode_setup(GPIOB, GPIO_MODE_OUTPUT, GPIO_PUPD_NONE, GPIO_ALL);
@@ -87,18 +96,18 @@ static void dma_setup(void)
     dma_set_peripheral_size(mydma, mystream, DMA_SxCR_PSIZE_16BIT);
     dma_enable_peripheral_increment_mode(mydma, mystream);
     dma_disable_memory_increment_mode(mydma, mystream);
-    dma_enable_circular_mode(mydma, mystream);
+    //dma_enable_circular_mode(mydma, mystream);
     dma_set_transfer_mode(mydma, mystream,
                 DMA_SxCR_DIR_PERIPHERAL_TO_MEM);
 
     dma_set_peripheral_address(mydma, mystream, (uint32_t) datas);
     /* The array v[] is filled with the waveform data to be output */
     dma_set_memory_address(mydma, mystream, (uint32_t) &GPIOB_ODR);
-    dma_set_number_of_data(mydma, mystream, 8000);
+    dma_set_number_of_data(mydma, mystream, 100);
     //dma_disable_transfer_complete_interrupt(mydma, mystream);
     dma_channel_select(mydma, mystream, mychannel);
     dma_enable_direct_mode(mydma, mystream);
-    dma_enable_transfer_complete_interrupt(mydma, mystream);
+//    dma_enable_transfer_complete_interrupt(mydma, mystream);
     //dma_enable_direct_mode_error_interrupt(mydma, mystream);
     dma_enable_stream(mydma, mystream);
 
@@ -125,13 +134,13 @@ static void timer1_setup(void)
     timer_reset(TIM1);
     timer_set_mode(TIM1, TIM_CR1_CKD_CK_INT, TIM_CR1_CMS_EDGE, TIM_CR1_DIR_UP);
     timer_set_prescaler(TIM1,0);
-    timer_set_period(TIM1, 4);
+    timer_set_period(TIM1, 10);
 
 //    timer_update_on_overflow(TIM1);
     timer_set_dma_on_compare_event(TIM1);
     timer_enable_irq(TIM1, TIM_DIER_CC1DE);
 
-    timer_set_oc_mode(TIM1, TIM_OC1, TIM_OCM_TOGGLE);
+    timer_set_oc_mode(TIM1, TIM_OC1, TIM_OCM_PWM2);
     timer_enable_oc_output(TIM1, TIM_OC1);
     timer_enable_break_main_output(TIM1);
 //    timer_disable_oc_output(TIM1, TIM_OC1);
@@ -150,7 +159,7 @@ static void timer1_setup(void)
    // timer_disable_oc_preload(TIM2, TIM_OC1); 
 
     timer_set_oc_fast_mode(TIM1, TIM_OC1); 
-    timer_set_oc_value(TIM1, TIM_OC1, 1);
+    timer_set_oc_value(TIM1, TIM_OC1, 5);
     timer_enable_counter(TIM1);
 }
 
@@ -160,21 +169,20 @@ static void timer2_setup(void)
     nvic_enable_irq(NVIC_TIM2_IRQ);
     timer_reset(TIM2);
     timer_set_mode(TIM2, TIM_CR1_CKD_CK_INT,TIM_CR1_CMS_EDGE,TIM_CR1_DIR_UP);
-    timer_set_prescaler(TIM2, 8399);
+    timer_set_prescaler(TIM2, 83);
     timer_disable_preload(TIM2);
     timer_continuous_mode(TIM2);
-    timer_set_period(TIM2, 20);
-    timer_set_oc_mode(TIM2, TIM_OC2, TIM_OCM_PWM2);
-    timer_enable_oc_output(TIM2, TIM_OC2);
-    timer_enable_break_main_output(TIM1);
+    timer_set_period(TIM2, 40);
+    timer_set_oc_mode(TIM2, TIM_OC2, TIM_OCM_FROZEN);
+    timer_disable_oc_output(TIM2, TIM_OC2);
 
    // timer_update_on_overflow(TIM2);
     //timer_set_dma_on_update_event(TIM2);
  
-   // timer_disable_oc_clear(TIM2, TIM_OC1); 
-   // timer_disable_oc_preload(TIM2, TIM_OC1); 
-    timer_set_oc_fast_mode(TIM2, TIM_OC2); 
-    timer_set_oc_value(TIM2, TIM_OC2, 10);
+    timer_disable_oc_clear(TIM2, TIM_OC1); 
+    timer_disable_oc_preload(TIM2, TIM_OC1); 
+   // timer_set_oc_fast_mode(TIM2, TIM_OC2); 
+   // timer_set_oc_value(TIM2, TIM_OC2, 10);
     //timer_disable_preload(TIM2);
     timer_enable_counter(TIM2);
 }
@@ -200,6 +208,14 @@ void tim2_isr(void)
         timer_clear_flag(TIM2, TIM_SR_UIF);
         //gpio_toggle(GPIOD, GPIO12);
         gpio_toggle(GPIOD, GPIO13);
+   // dma_set_peripheral_address(mydma, mystream, (uint32_t) datas);
+    //dma_set_number_of_data(mydma, mystream, 100);
+        //dma_disable_stream(mydma, mystream);
+
+        dma_clear_interrupt_flags(mydma, mystream, DMA_TCIF);
+        dma_enable_stream(mydma, mystream);
+        
+/*
         if(ready >7){
         ready=0;
         int x=0;
@@ -216,6 +232,7 @@ void tim2_isr(void)
         dma_enable_stream(mydma, mystream);
         datas[ready]=gpio_port_read(GPIOB);
         ready++;
+*/
     }
 }
 
@@ -226,6 +243,7 @@ void dma2_stream1_isr(void)
         dma_clear_interrupt_flags(mydma, mystream, DMA_TCIF);
         /* Toggle PC1 just to keep aware of activity and frequency. */
         gpio_toggle(GPIOD, GPIO12);
+        dma_enable_stream(mydma,mystream);
         
     }
     if (dma_get_interrupt_flag(mydma, mystream, DMA_DMEIF)) {
@@ -443,7 +461,7 @@ int main(void)
 
 	rcc_clock_setup_hse_3v3(&hse_8mhz_3v3[CLOCK_3V3_168MHZ]);
     gpio_setup();
-    //timer2_setup();
+    timer2_setup();
     timer1_setup();
     dma_setup();
 
@@ -454,7 +472,7 @@ int main(void)
 usbd_register_set_config_callback(usb_device, cdcacm_set_config);
 
     
-   // timer_enable_irq(TIM2, TIM_DIER_UIE); 
+    timer_enable_irq(TIM2, TIM_DIER_UIE); 
    // timer_enable_irq(TIM1, TIM_DIER_UIE); 
 	while (1) {
 //	usbd_poll(usb_device);
