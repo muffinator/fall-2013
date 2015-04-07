@@ -40,6 +40,7 @@
 static volatile char message = 'a';
 static volatile uint8_t ready = 0;
 static volatile uint16_t datas[8000];
+static volatile uint16_t rearranged[500];
 static volatile uint8_t send=0;
 static usbd_device *usb_device;
 
@@ -311,6 +312,16 @@ void dma2_stream1_isr(void)
         timer_disable_counter(TIM3);
         //maximum packet size of 64 bytes
         int n;
+        int in;
+        char pin=(1<<0);
+        for(n=0;n<1;n++)
+        {
+            rearranged[n]=0;
+            for(in=0;in<10;in++)
+            {
+                rearranged[n]|=((datas[n*16+in+4]&pin)<<(9-in));
+            }
+        }
         for(n=0;n<12;n++)
         {
             while (usbd_ep_write_packet(usb_device, 0x82, (const void *)&(datas[2*n]), 64)==0);
