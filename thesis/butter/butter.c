@@ -40,6 +40,7 @@
 static volatile char message = 'a';
 static volatile uint8_t ready = 0;
 static volatile uint16_t datas[8000];
+static volatile uint16_t datuh[8000];
 static volatile uint16_t rearranged[500];
 static volatile uint8_t send=0;
 static usbd_device *usb_device;
@@ -47,24 +48,24 @@ static usbd_device *usb_device;
 
 static void gpio_setup(void)
 {
-/*
-    datas[0]=0xaaaa;
-    datas[1]=0x5555;
-    datas[2]=0xaaaa;
-    datas[3]=0x5555;
-    datas[4]=0xaaaa;
-    datas[5]=0x5555;
-    datas[6]=0xaaaa;
-    datas[7]=0x5555;
-    datas[8]=0xaaaa;
-    datas[9]=0x5555;
-    datas[10]=0xaaaa;
-    datas[11]=0x5555;
-    datas[12]=0xaaaa;
-    datas[13]=0x5555;
-    datas[14]=0xaaaa;
-    datas[15]=0x5555;
-*/
+
+    datas[0]=0xaaa1;
+    datas[1]=0x5552;
+    datas[2]=0xaaa3;
+    datas[3]=0x5554;
+    datas[4]=0xaaa5;
+    datas[5]=0x5556;
+    datas[6]=0xaaa7;
+    datas[7]=0x5558;
+    datas[8]=0xaaa9;
+    datas[9]=0x555a;
+    datas[10]=0xaaab;
+    datas[11]=0x555c;
+    datas[12]=0xaaad;
+    datas[13]=0x555e;
+    datas[14]=0xaaaf;
+    datas[15]=0x5550;
+
     rcc_periph_clock_enable(RCC_GPIOB);
     gpio_mode_setup(GPIOB, GPIO_MODE_OUTPUT, GPIO_PUPD_NONE, GPIO_ALL);
     gpio_set_output_options(GPIOB, GPIO_OTYPE_PP, GPIO_OSPEED_50MHZ, GPIO_ALL);
@@ -112,7 +113,7 @@ static void dma_setup(void)
     dma_set_peripheral_address(mydma, mystream, (uint32_t) &GPIOE_IDR);
     /* The array v[] is filled with the waveform data to be output */
 //  dma_set_memory_address(mydma, mystream, (uint32_t) &GPIOB_ODR);
-    dma_set_memory_address(mydma, mystream, (uint32_t) datas);
+    dma_set_memory_address(mydma, mystream, (uint32_t) datuh);
     dma_set_number_of_data(mydma, mystream, 1000);
     //dma_disable_transfer_complete_interrupt(mydma, mystream);
     dma_channel_select(mydma, mystream, mychannel);
@@ -314,19 +315,24 @@ void dma2_stream1_isr(void)
         int n;
         int in;
         char pin=(1<<0);
-        for(n=0;n<1;n++)
+        for(n=0;n<16;n++)
         {
             rearranged[n]=0;
-            for(in=0;in<10;in++)
+            for(in=0;in<16;in++)
             {
-                rearranged[n]|=((datas[n*16+in+4]&pin)<<(9-in));
+              //  rearranged[n]|=((datas[n*16+in+4]&pin)<<(9-in));
+                rearranged[n]|=(((datas[in]>>n)&1)<<(15-in));
             }
         }
-        for(n=0;n<12;n++)
+/*
+        for(n=0;n<1;n++)
         {
             while (usbd_ep_write_packet(usb_device, 0x82, (const void *)&(datas[2*n]), 64)==0);
         }
-        TIM3_EGR |= TIM_EGR_UG;
+*/
+        while (usbd_ep_write_packet(usb_device, 0x82, (const void *)&rearranged,32)==0);
+  
+      TIM3_EGR |= TIM_EGR_UG;
     }
     if (dma_get_interrupt_flag(mydma, mystream, DMA_DMEIF)) {
         dma_clear_interrupt_flags(mydma, mystream, DMA_DMEIF);
