@@ -48,7 +48,7 @@ static usbd_device *usb_device;
 
 static void gpio_setup(void)
 {
-
+/*
     datas[0]=0xaaa1;
     datas[1]=0x5552;
     datas[2]=0xaaa3;
@@ -65,7 +65,7 @@ static void gpio_setup(void)
     datas[13]=0x555e;
     datas[14]=0xaaaf;
     datas[15]=0x5550;
-
+*/
     rcc_periph_clock_enable(RCC_GPIOB);
     gpio_mode_setup(GPIOB, GPIO_MODE_OUTPUT, GPIO_PUPD_NONE, GPIO_ALL);
     gpio_set_output_options(GPIOB, GPIO_OTYPE_PP, GPIO_OSPEED_50MHZ, GPIO_ALL);
@@ -113,8 +113,8 @@ static void dma_setup(void)
     dma_set_peripheral_address(mydma, mystream, (uint32_t) &GPIOE_IDR);
     /* The array v[] is filled with the waveform data to be output */
 //  dma_set_memory_address(mydma, mystream, (uint32_t) &GPIOB_ODR);
-    dma_set_memory_address(mydma, mystream, (uint32_t) datuh);
-    dma_set_number_of_data(mydma, mystream, 1000);
+    dma_set_memory_address(mydma, mystream, (uint32_t) datas);
+    dma_set_number_of_data(mydma, mystream, 8000);
     //dma_disable_transfer_complete_interrupt(mydma, mystream);
     dma_channel_select(mydma, mystream, mychannel);
     dma_enable_direct_mode(mydma, mystream);
@@ -177,7 +177,7 @@ static void timer2_setup(void)
     timer_set_prescaler(TIM2, 0);
     timer_disable_preload(TIM2);
     timer_continuous_mode(TIM2);
-    timer_set_period(TIM2, 16);
+    timer_set_period(TIM2, 15);
 //    timer_set_oc_mode(TIM2, TIM_OC2, TIM_OCM_FROZEN);
 //    timer_disable_oc_output(TIM2, TIM_OC2);
 
@@ -187,7 +187,7 @@ static void timer2_setup(void)
     timer_disable_oc_output(TIM2, TIM_OC1);
     
     timer_set_oc_fast_mode(TIM2, TIM_OC1); 
-    timer_set_oc_value(TIM2, TIM_OC1, 16);
+    timer_set_oc_value(TIM2, TIM_OC1, 15);
  
     //timer_disable_oc_clear(TIM2, TIM_OC1); 
     //timer_disable_oc_preload(TIM2, TIM_OC1); 
@@ -314,23 +314,23 @@ void dma2_stream1_isr(void)
         //maximum packet size of 64 bytes
         int n;
         int in;
-        char pin=(1<<0);
-        for(n=0;n<16;n++)
+        char pin=(0<<0);
+        for(n=0;n<500;n++)
         {
             rearranged[n]=0;
             for(in=0;in<16;in++)
             {
-              //  rearranged[n]|=((datas[n*16+in+4]&pin)<<(9-in));
-                rearranged[n]|=(((datas[in]>>n)&1)<<(15-in));
+                rearranged[n]|=(((datas[n*16+in+4]>>pin)&1)<<(9-in));
+               // rearranged[n]|=(((datas[in+n*16]>>pin)&1)<<(15-in));
             }
         }
-/*
-        for(n=0;n<1;n++)
+
+        for(n=0;n<30;n++)
         {
-            while (usbd_ep_write_packet(usb_device, 0x82, (const void *)&(datas[2*n]), 64)==0);
+        while (usbd_ep_write_packet(usb_device, 0x82, (const void *)&rearranged[n*16],32)==0);
+//            while (usbd_ep_write_packet(usb_device, 0x82, (const void *)&(datas[n*32]), 64)==0);
         }
-*/
-        while (usbd_ep_write_packet(usb_device, 0x82, (const void *)&rearranged,32)==0);
+        
   
       TIM3_EGR |= TIM_EGR_UG;
     }
@@ -519,7 +519,7 @@ static void cdcacm_data_rx_cb(usbd_device *usbd_dev, uint8_t ep)
 	char buf[64];
 	int len = usbd_ep_read_packet(usbd_dev, 0x01, buf, 64);
     if (len) {
-        while (usbd_ep_write_packet(usbd_dev, 0x82, buf, len)==0);
+//        while (usbd_ep_write_packet(usbd_dev, 0x82, buf, len)==0);
         if(buf[0]=='a'){
         timer_enable_counter(TIM3);
         timer_enable_counter(TIM2);
