@@ -17,6 +17,7 @@
  * along with this library.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include <stdio.h>
 #include <stdlib.h>
 #include <libopencm3/stm32/rcc.h>
 #include <libopencm3/stm32/gpio.h>
@@ -327,11 +328,18 @@ void dma2_stream1_isr(void)
 
         for(n=0;n<30;n++)
         {
-        while (usbd_ep_write_packet(usb_device, 0x82, (const void *)&rearranged[n*16],32)==0);
+//        while (usbd_ep_write_packet(usb_device, 0x82, (const void *)&rearranged[n*16],32)==0);
 //            while (usbd_ep_write_packet(usb_device, 0x82, (const void *)&(datas[n*32]), 64)==0);
         }
-        
-  
+    //printf("hi");     
+    uint8_t test[6];
+    test[0]=56;
+    test[1]=55;
+    test[2]=13;
+    test[3]=10;
+    test[4]='/';
+    test[5]='n';
+   while (usbd_ep_write_packet(usb_device, 0x82, (const void *)&test[0], 2)==0);
       TIM3_EGR |= TIM_EGR_UG;
     }
     if (dma_get_interrupt_flag(mydma, mystream, DMA_DMEIF)) {
