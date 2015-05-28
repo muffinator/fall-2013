@@ -46,7 +46,6 @@ static volatile uint16_t rearranged[500];
 static volatile uint8_t send=0;
 static usbd_device *usb_device;
 
-
 static void gpio_setup(void)
 {
 /*
@@ -325,13 +324,15 @@ void dma2_stream1_isr(void)
                // rearranged[n]|=(((datas[in+n*16]>>pin)&1)<<(15-in));
             }
         }
+       
 
-        for(n=0;n<30;n++)
+        for(n=0;n<30;n++)    //we want 30 packets
         {
-//        while (usbd_ep_write_packet(usb_device, 0x82, (const void *)&rearranged[n*16],32)==0);
+        while (usbd_ep_write_packet(usb_device, 0x82, (const void *)&rearranged[n*16],32)==0);
 //            while (usbd_ep_write_packet(usb_device, 0x82, (const void *)&(datas[n*32]), 64)==0);
         }
     //printf("hi");     
+
     uint8_t test[6];
     test[0]=56;
     test[1]=55;
@@ -339,7 +340,8 @@ void dma2_stream1_isr(void)
     test[3]=10;
     test[4]='/';
     test[5]='n';
-   while (usbd_ep_write_packet(usb_device, 0x82, (const void *)&test[0], 2)==0);
+   while (usbd_ep_write_packet(usb_device, 0x82, (const void *)&test[2], 2)==0);
+
       TIM3_EGR |= TIM_EGR_UG;
     }
     if (dma_get_interrupt_flag(mydma, mystream, DMA_DMEIF)) {
@@ -529,6 +531,7 @@ static void cdcacm_data_rx_cb(usbd_device *usbd_dev, uint8_t ep)
     if (len) {
 //        while (usbd_ep_write_packet(usbd_dev, 0x82, buf, len)==0);
         if(buf[0]=='a'){
+        timer_set_period(TIM3, (165<<(buf[1]-'a')));
         timer_enable_counter(TIM3);
         timer_enable_counter(TIM2);
         timer_enable_counter(TIM1);
