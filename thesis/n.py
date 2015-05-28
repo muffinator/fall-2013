@@ -3,30 +3,31 @@ from sim import *
 from random import *
 
 
-matrix=writeRandomNet('netlist.cir',4)
+[rmatrix]=writeRandomNet('netlist',4,['R'])
 printMatrix(rmatrix)
 network=runSim('netlist','output')
 nodes=sorted(network.keys())
 nuno = len(nodes)
 twod = [[0 for x in range(int(nuno))] for x in range(int(nuno))] 
 r = [[None for x in range(int(nuno))] for x in range(int(nuno))] 
+#for every node in the circuit
 for node in nodes:
-    iterate=sorted(network.keys())
-    iterate.remove(node)
-    insertProbe2('netlist', [node],iterate)
-    temp = runSim('netlist-t','output')
-    twod[int(node)-1][int(node)-1]=temp
+    iterate=sorted(network.keys()) 
+    iterate.remove(node)		    	#put a test voltage on that node and
+    insertProbe2('netlist', [node],iterate)	#ground every other node in the circuit
+    temp = runSim('netlist-t','output')		#simulate this
+    twod[int(node)-1][int(node)-1]=temp		#store the results in 2d
     #print 'iterate: '+ str(iterate)
     subnode =[]
-    for test in iterate:
-        iter2=network.keys()
+    for test in iterate:	#now 'test' all nodes that aren't 'node'
+        iter2=network.keys()	
         iter2.remove(node)
-        iter2.remove(test)
+        iter2.remove(test)	#and sense the voltage on 'test' 
         #print iter2
-        insertProbe2('netlist', [node],iter2)
+        insertProbe2('netlist', [node],iter2)	#ground all of the other nodes
         temp = runSim('netlist-t','output')
         print int(node)-1, int(test)-1, range(int(nuno))
-        twod[int(node)-1][int(test)-1]=temp
+        twod[int(node)-1][int(test)-1]=temp	#store the results in 2d
 print '\n'
 for node in range(nuno):
     for subnode in range(nuno): #make start pt node+1 for upper triangle
@@ -55,6 +56,7 @@ for node in range(nuno):
             r[node][subnode]=(c1+c2+1)/(i*(c2+c1*c2))
             print node, subnode, r[node][subnode]-(c1+c2+1)/(ir*(c1+c2*c1))
 \
+print 'Given: \n'
 printMatrix(rmatrix)
 print '\n'
 a = range(nuno)
@@ -79,7 +81,7 @@ for node in a:
             r[node][node]=rng
         if rng>100:
             print rp, irp-req
-
+print 'Calculated: \n'
 printMatrix(r)
 
 writeJason('resistor',r,1)
