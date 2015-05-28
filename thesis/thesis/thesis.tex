@@ -36,15 +36,85 @@ To satisfy the requirements of the Masters in Engineering program, I propose a s
 
 \section{Overview}
 
-\section{Programming}
+A confident linkage between the the electrical and mechanical domains is required to construct a circuit.
+On larger scales, the mechanical structures (eg. contacts, wires, components) that create electrical circuits are visible in plain sight. 
+It is simple and reliable, then, to determine the circuit representation of a mechanical structure that has no hidden connections. 
+Breadboards often obscure connections due to their construction. 
+The regular nature of a breadboard, a grid of contact points arranged in rails, makes it difficult to keep track of which rail is connected to what circuit node.
+When combined with the opaque nature of most components and the poor reliability of breadboard contacts, visually verifying complex circuits on a breadboard becomes infeasible. 
+Many of the inherent problems with breadboards stem from this open-loop nature of breadboarding, where visual cues are not enough to determine the electrical circuit from the mechanical structure. 
+A symptom of open-loop construction techniques is a mismatch between the mental model and the physical realization of the system at hand. 
+I seek to close this loop by designing and implementing a circuit-sensing breadboard.
+
+At first glance, the proposed problem is straightforward. 
+A standard-issue breadboard has 130 conductive rails. 
+Each of these rails can be connected to an array of ADCs (analog to digital convert-
+ers) and DACs (digital to analog converters) controlled by a microcontroller. 
+With access to every node in the circuit, by iteratively stimulating and probing the circuit it is possible 1 to determine the circuit topology constructed on the breadboard. 
+Once the topology has been determined, a schematic representation of the constructed circuit, from the perspective of the breadboard, can be displayed.
+This visual display will provide an accurate depiction of the electrical circuit at hand, effectively closing the loop on breadboard construction.
+Designing a circuit-sensing breadboard will require a substantial amount of hardware and software infrastructure. 
+Fortunately, the majority of this infrastructure is useful in its own right. 
+A hardware test-bench will have to be constructed to interface each of the 130 rails on the breadboard with a hand full of ADCs, DACs, and the microcontroller. 
+The test-bench should include a pcb-mounted breadboard, an ADC and DAC multiplexing board, firmware to control sampling and stimulating the breadboard, and software to stream the sampling data to a computer for display.
+Effectively, the test-bench is a 130-channel digital breadboard-oscilloscope/function generator. 
+Since software is faster to prototype with, I will be doing most of the theoretical circuit topology work in software. 
+A test-bench for a circuit simulator will have to be built. 
+Ideally, this test-bench will allow a circuit-sensing program to probe and stimulate node voltages of an automatically generated circuit, as if it were running on a microcontroller connected to the hardware test-bench with an arbitrary circuit built up.
+After the test-benches have been constructed, they need to be integrated and the circuit-sensing program will be tested on physical circuits. 
+Finally, a schematic drawing program will be written to visualize the circuit-sensed topology.
+
+\section{Work to Date}
+\subsection{PCB integration of Breadboard}
+
+Tool design is an art.
+There are many fields of study dedicated to the art of design, none of which I've spent much time exploring.
+Despite this, I have developed my own sense for how tools should feel when they're in use.
+The circuit-sensing breadboard should seem no different in both size and weight from a standard breadboard.
+(I'm not saying that standard breadboards are perfect, but I am deciding not to spend time redesigning the breadboard)
+To that end, I've decided that the best way to interface with an existing breadboard is to physically mount that breadboard on a printed circuit board.
+I've developed a new technique for mounting a breadboard on a PCB.
+
+A modern solderless breadboard is usually composed of three components - a plastic face, metal finger springs (rails), and a foam backing.
+The finger springs are designed to fit snugly in the plastic face, which provides structure for the entire board.
+The foam backing keeps the finger springs from being pushed out the back of the plastic face.
+A breadboard can be mounted to a PCB by removing the foam backing and surface mount soldering the finger springs to a PCB, then pressing the plastic face onto the mounted rails.
+
+Initial tests of this technique involved small numbers of finger springs hand-soldered one-by-one to a PCB, using nail polish as soldermask.
+The results of these tests were promising, but alignment proved to be an issue.
+To mitigate this, a rail-holder was 3d-printed to losely hold each finger spring in precise alignment for PCB mounting.
+Once all of the rails were inserted upside-down in the rail-holder, a dot of super glue between two dots of solderpaste were dispensed on each rail.
+The rails were then adhered to the PCB by pressing the PCB upside-down onto the array of aligned rails, such that the rails lined up with pads on the PCB. 
+To aide with alignment during mounting, the rail-holder had four global alignment pegs that mated with four holes drilled into the PCB.
+Finally the assembly was reflowed with hot air and the plastic faceplate was pressed on.
+
+This process was successful and seems feasible for high-production runs, though I should probably talk to an expert on the subject.
+
+\subsection{Resistor network sensing algorithm}
+
+\subsubsection{Pre-fabbed circuit algorithm/requirements (topology reconstruction)}
+
+\subsubsection{Incremental modeling algorithm/requirements}
+
+\subsection{Software Testbench}
+
+\subsection{Hardware Testbench}
+
+\subsubsection{Programming}
+
 In order to handle the high datarates associated with capturing eight 1MSPS ADCs we use the Direct Memory Access (DMA) controller to asynchronously store samples.
 Triggered by a timer interrupt, the DMA controller can store 8-bit wide GPIO port data.
 Since the ADCs are serial output devices each additional ADC-sample-bit read will create an 8-bit wide piece of data, one bit for each ADC.
 This data will have to be decoded later on to achieve high sample rates.
 
-\subsection{Timers}
+\subsubsection{Timers}
+
 To clock the SPI ADCs we need a clock signal.   
 There are several timers to choose from on our microcontroller of choice, but we'll look at timers 2-5.
+
+\subsubsection{STM32 stuff}
+
+\subsubsection{Arduino stuff}
 
 \begin{thebibliography}{1}
 \end{thebibliography}
