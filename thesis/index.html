@@ -18,7 +18,7 @@ text {
 
 </style>
 <body>
-<script src="http://d3js.org/d3.v3.min.js"></script>
+<script src="/home/muffin/Documents/fall-2013/thesis/d3.v3.min.js"></script>
 <script>
 function drawGraph(name){
 	var width = 400,
@@ -63,7 +63,10 @@ function drawGraph(name){
 	    .attr("d", rFunction(resistor))
 	    .attr("class", "link")
         .attr("fill", "none")
-	    .style("stroke-width", 2);//function(d) { return Math.sqrt(d.value); });
+	    .style("stroke-width", 2)
+        .style("stroke", function(d) {return d.value;});//function(d) { return Math.sqrt(d.value); });
+
+
 
     var gnodes = svg.selectAll('g.gnode')
         .data(graph.nodes)

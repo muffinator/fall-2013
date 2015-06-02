@@ -44,15 +44,15 @@ for node in range(nuno):
         else:
             c1=1E19
         if e <> 1.0:
-            c2=e/(1.0-e)
+            c2=e/(1.0zp-e)
         else:
             c2=1E19
         #print 's: '+str(s)+' c1: '+str(c1)+' e: '+str(e)+' c2: '+str(c2)
         if node==subnode or c1==c2==0.0:
             pass
         else:
-            i = -1*twod[node][subnode]['vt'+str(node+1)]
-            ir= -1*twod[subnode][node]['vt'+str(subnode+1)]
+            i = -1*twod[node][subnode]['v']
+            ir= -1*twod[subnode][node]['v']
             r[node][subnode]=(c1+c2+1)/(i*(c2+c1*c2))
             print node, subnode, r[node][subnode]-(c1+c2+1)/(ir*(c1+c2*c1))
 \
@@ -74,7 +74,7 @@ for node in a:
         rp += tmp
     if rp<>0:
         irp = 1.0/rp
-    req = -1.0/twod[node][node]['vt'+str(node+1)]
+    req = -1.0/twod[node][node]['v']
     if req<>irp:
         rng = req*irp/(irp-req)
         if rng>0:
