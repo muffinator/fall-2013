@@ -7604,6 +7604,8 @@ Source: AVX .. aphvc.pdf</description>
 <part name="GND13" library="supply1" deviceset="GND" device=""/>
 <part name="P+13" library="supply1" deviceset="+5V" device=""/>
 <part name="P+14" library="supply1" deviceset="+5V" device=""/>
+<part name="GND14" library="supply1" deviceset="GND" device=""/>
+<part name="P+15" library="supply1" deviceset="+5V" device=""/>
 </parts>
 <sheets>
 <sheet>
@@ -7696,7 +7698,7 @@ Source: AVX .. aphvc.pdf</description>
 <instance part="C2" gate="G$1" x="7.62" y="99.06"/>
 <instance part="C3" gate="G$1" x="27.94" y="43.18"/>
 <instance part="C4" gate="G$1" x="35.56" y="43.18"/>
-<instance part="C5" gate="G$1" x="50.8" y="121.92"/>
+<instance part="C5" gate="G$1" x="68.58" y="116.84"/>
 <instance part="C6" gate="G$1" x="127" y="55.88"/>
 <instance part="C7" gate="G$1" x="137.16" y="55.88"/>
 <instance part="P+9" gate="1" x="7.62" y="104.14" smashed="yes">
@@ -7722,6 +7724,10 @@ Source: AVX .. aphvc.pdf</description>
 </instance>
 <instance part="P+14" gate="1" x="137.16" y="60.96" smashed="yes">
 <attribute name="VALUE" x="138.938" y="62.738" size="1.778" layer="96" rot="R180"/>
+</instance>
+<instance part="GND14" gate="1" x="68.58" y="109.22"/>
+<instance part="P+15" gate="1" x="68.58" y="121.92" smashed="yes">
+<attribute name="VALUE" x="70.358" y="123.698" size="1.778" layer="96" rot="R180"/>
 </instance>
 </instances>
 <busses>
@@ -7825,6 +7831,10 @@ Source: AVX .. aphvc.pdf</description>
 <segment>
 <pinref part="C7" gate="G$1" pin="2"/>
 <pinref part="GND13" gate="1" pin="GND"/>
+</segment>
+<segment>
+<pinref part="C5" gate="G$1" pin="2"/>
+<pinref part="GND14" gate="1" pin="GND"/>
 </segment>
 </net>
 <net name="SCK" class="0">
@@ -8233,6 +8243,10 @@ Source: AVX .. aphvc.pdf</description>
 <segment>
 <pinref part="C7" gate="G$1" pin="1"/>
 <pinref part="P+14" gate="1" pin="+5V"/>
+</segment>
+<segment>
+<pinref part="C5" gate="G$1" pin="1"/>
+<pinref part="P+15" gate="1" pin="+5V"/>
 </segment>
 </net>
 <net name="N$5" class="0">
