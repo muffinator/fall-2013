@@ -12,3 +12,4 @@
 *.gpi
 /butter/*.d
 /butter/*.o
+*~
