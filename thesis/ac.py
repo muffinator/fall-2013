@@ -2,27 +2,31 @@
 from sim import *
 from random import *
 from math import *
-net = 'rlc'
+from cmath import *
+net = 'ac'
 out = 'output'
 nodenum=4
 nodelist=range(1,nodenum+1)
-print nodelist
+print nodelist,'\n'
 [rmatrix,cmatrix]=writeRandomNet(net,nodenum,['R','C'])
+
 rboop = [[None for x in range(int(nodenum))] for x in range(int(nodenum))] 
+
 lp=[]
 lo=[]
+
 def odelist(n,m,nodelist):
     return [str(int(x)) for x in nodelist if ((x!=int(n))&(x!=int(m)))]
 
 for n in nodelist:
-    insertProbe2(net,[str(n)],odelist(n,n,nodelist),[])
-    lpt=runSim(net+'-t',out)
+    insertProbe2(net,[str(n)],odelist(n,n,nodelist),[],'AC')
+    lpt=runSim(net+'-t',out,'AC')
     lt = []
     for m in odelist(n,n,nodelist):
         m=int(m)
-        insertProbe2(net,[str(n)],odelist(n,m,nodelist),[str(m)])
+        insertProbe2(net,[str(n)],odelist(n,m,nodelist),[str(m)],'AC')
         try:
-            lt+=[(runSim(net+'-t',out)[str(m)])]
+            lt+=[(runSim(net+'-t',out,'AC')[str(m)])]
         except:
             lt+=[None]
     lp+=[lpt]
@@ -35,17 +39,21 @@ print("L:")
 print("C:")
 printMatrix(cmatrix)
 print ''
-rp=[-1/l['v'] for l in lp]
-debug=1
-if debug:
-    for l in lp:
-        print l 
+for l in lp:
+    print l
+print'' 
+rp=[[-l['v'][n] for l in lp] for n in range(len(lp[0]['v']))]
+for r in rp:
+    print''
+    for q in r:
+        print q
+print''
+for l in lo:
+    print l
     print ''
-    print rp
-    print ''
-    for l in lo:
-        print l
-    print ''
+    for m in l:
+        print m
+print ''
 for n in range(nodenum):
     r=range(nodenum)
     r.remove(n)
@@ -53,12 +61,11 @@ for n in range(nodenum):
         try:
             #print 'm: '+str(m)+' n: '+str(n)
             #print rp[m]/lo[n][0]
-            rboop[m][n]=rp[m]/lo[n][0]
+            rboop[m][n]=rp[0][m]/lo[n][0][0]
         except:
             pass
             #print None
-        print lo[n]
-        lo[n].remove(lo[n][0])
+        lo[n][0].remove(lo[n][0][0])
 for n in range(nodenum):
     tmp=float("inf")
     for r in rboop[n]:
@@ -68,8 +75,8 @@ for n in range(nodenum):
         except:
             pass
     try:
-        if abs(tmp-rp[n])>1E-5:
-            rboop[n][n]=1/(1/rp[n]-1/tmp)
+        if abs(tmp-rp[0][n])>1E-5:
+            rboop[n][n]=1/(1/rp[0][n]-1/tmp)
     except:
         pass
 print ''

@@ -44,7 +44,7 @@ for node in range(nuno):
         else:
             c1=1E19
         if e <> 1.0:
-            c2=e/(1.0zp-e)
+            c2=e/(1.0*zp-e)
         else:
             c2=1E19
         #print 's: '+str(s)+' c1: '+str(c1)+' e: '+str(e)+' c2: '+str(c2)

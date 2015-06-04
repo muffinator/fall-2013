@@ -1,27 +1,55 @@
 #CC-BY-SA Josh Gordonson
 from random import *
 import subprocess
+import cmath
+import math
 
-def runSim(target,results):
+def runSim(target,results,source='DC'):
     output=open(results+'.txt', 'w')
     a=subprocess.call(['ngspice','-b',target+'.cir'], stdout=output) #run ngspice
     output.close()
     output=open(results+'.txt', 'r')
-    a=output.read().splitlines()[7:] #get rid of the non-data output
-    output.close()
-    vars={}
-    for node in a:
-        entry=node.replace('(','').replace(')','') #formatting
-        exec(entry) #assign the resulting text values to the text variables
-        nodeval = entry.split('=') #make it easy to make a dictionary of the var/vals
-        vars.update({nodeval[0].strip()[1:]:float(nodeval[1].strip())})
+    if source=='DC':
+        a=output.read().splitlines()[7:] #get rid of the non-data output
+        output.close()
+        vars={}
+        for node in a:
+            entry=node.replace('(','').replace(')','') #formatting
+            exec(entry) #assign the resulting text values to the text variables
+            nodeval = entry.split('=') #make it easy to make a dictionary of the var/vals
+            vars.update({nodeval[0].strip()[1:]:float(nodeval[1].strip())})
+    else:
+        a=output.read().splitlines()
+        output.close()
+        takedata=0
+        datas=[]
+        vars={}
+        for line in a:
+            if ("-----" in line) or line=="\x0c":
+                continue
+            if "mynetlist" in line:
+                takedata=0
+            if "Index" in line: 
+                takedata=1
+                if datas!=[]:
+                    vars.update({var:datas})
+                var=line[24:].strip().replace('(','').replace(')','')[1:]
+                datas=[]
+                flist=[]
+                continue
+            if takedata:
+                line=line.replace(',','').split('\t')
+                datas+=[complex(float(line[2]),float(line[3]))]
+                flist+=[float(line[1])]   
+        vars.update({var:datas})
+        vars.update({'f':flist})        
     return vars
 
-def insertProbe(target,node):
+def insertProbe(target,node,source='DC'):
     netlist=open(target+'.cir', 'r')
     contents=netlist.readlines()
     netlist.close()
-    contents.insert(1,'V '+node+' 0 DC 1\n')
+    contents.insert(1,'V '+node+' 0 '+source+' 1\n')
     contents.insert(-3,'print i(V)\n')
     netlist=open(target+'-t.cir', 'w')
     netlist.write("".join(contents))
@@ -29,15 +57,19 @@ def insertProbe(target,node):
     return contents
 
 # inserts a voltage probe at [nodes] and grounds [groundNodes] in netlist 'target'
-def insertProbe2(target,nodes,groundNodes):
+def insertProbe2(target,nodes,groundNodes,probes,source='DC'):
     netlist=open(target+'.cir', 'r')
     contents=netlist.readlines()
     netlist.close()
-    sources=''.join(['V '+x+' 0 DC 1\n' for x in nodes])
+    sources=''.join(['V '+x+' 0 '+source+' 1\n' for x in nodes])
     grounds=''.join(['Vg'+x+' '+x+' 0 DC 0\n' for x in groundNodes])
-    currents=''.join(['print i(V)\n' for x in nodes])
+    currents=''.join(['    print i(V) ' for x in nodes])
+    voltages=''.join(['v('+x+') ' for x in probes])
+    control=''
+    if source=='AC':
+        control='    AC dec 1 1 1000 \n'
     contents.insert(1,sources+grounds)
-    contents.insert(-3,currents)
+    contents.insert(-4,control+currents+voltages+'\n')
     netlist=open(target+'-t.cir', 'w')
     netlist.write("".join(contents))
     netlist.close()
@@ -90,7 +122,7 @@ def writeRandomNet(netlist,num,elements):
         for x in range(num):
             for y in range(x,num):
                 if elem[x][y]:
-                    elem[x][y]=int(10**triangular(0,3,1.5))*(10**(-9*idx))
+                    elem[x][y]=int(10**triangular(0,3,1.5))*(10**(-7*idx))
                     elem[y][x]=elem[x][y]
                     val = str(elem[x][y])
                     s = x
@@ -102,9 +134,9 @@ def writeRandomNet(netlist,num,elements):
         idx=1
     netlist.write(""".control
     op
-    print """)
-    for elem in range(num):
-        netlist.write('v('+str(elem+1)+') ')
+    """)
+    #for elem in range(num):
+        #netlist.write('v('+str(elem+1)+') ')
     netlist.write("""
     .endc
     .end
