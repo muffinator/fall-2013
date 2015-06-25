@@ -53,10 +53,12 @@ printMatrix(cmatrix)
 print ''
 print 'Flist:   ',flist
 print ''
+fmax = len(flist)-1
+fmin = 0
 zboop = [[[None for x in range(len(flist))] for x in range(int(nodenum))] for y in range(int(nodenum))]
-lboop=[[ for x in range(int(nodenum))] for y in range(int(nodenum))]
-cboop=[[ for x in range(int(nodenum))] for y in range(int(nodenum))]
-rboop=[[ for x in range(int(nodenum))] for y in range(int(nodenum))]
+lboop=[[None for x in range(int(nodenum))] for y in range(int(nodenum))]
+cboop=[[None for x in range(int(nodenum))] for y in range(int(nodenum))]
+rboop=[[None for x in range(int(nodenum))] for y in range(int(nodenum))]
 lp=[]
 lo=[]
 #rp=[-1/l['v'][0] for l in lp]
@@ -67,48 +69,43 @@ if debug:
 '-------------------------------THE STUFF---------------------------------------'
 for n in range(nodenum):
     for m in range(nodenum):
-        for f in range(len(flist)):
-            try:
-                if m==n:
-                    continue
-                zare= -(zm[m][m][f]*zm[n][m][f])
-                if abs(zare) < 1e7:
-                    zboop[m][n][f]=1/(zare)
-                    rboop[m][n]=1/zare.real
-                    lboop[m][n]=1/(abs(zare.imag)*2*pi*flist[f])
-                    cboop[m][n]=abs(zare.imag)/(2*pi*flist[f])
-                else:
-                    pass
-            except:
-                pass
+        try:
+            if m==n:
+                continue
+            zare = -(zm[m][m][fmax]*zm[n][m][fmax])
+            zsea = -(zm[m][m][fmax]*zm[n][m][fmax])
+            zell = -(zm[m][m][fmin]*zm[n][m][fmin])
+            if 1/abs(zare) < 1e7:
+                rboop[m][n] = 1/zare.real
+            lboop[m][n] = 1/(abs(zell.imag)*2*pi*flist[fmin])
+            cboop[m][n] = abs(zsea.imag)/(2*pi*flist[fmax])
+        except:
+            pass
 
 for n in range(nodenum):
     tmp=float("inf")
-    mid = len(flist)-1
     for r in rboop[n]:
         try:
-            tmp=1/(1/tmp+1/r[mid])
+            tmp=1/(1/tmp+1/r)
         except:
             pass
     try:
-        if abs(tmp-(1/-zm[n][n][mid].real))>1E-5:
-            rare = 1/(-zm[n][n][mid].real-1/tmp)
+        if abs(tmp-(1/-zm[n][n][fmax].real))>1E-5:
+            rare = 1/(-zm[n][n][fmax].real-1/tmp)
             if abs(rare) < 1e7:
-                print 'hi'
-                rboop[n][n][mid]=rare
+                rboop[n][n]=rare
             else:
-                print 'hi'
                 pass
     except:
         pass
 '-------------------------------------------------------------------------------'
 print '\nrboop: --------------------------------------'
 printMatrix(rboop)
-print''
-print '\ncboop: --------------------------------------'
-printMatrix(cboop)
 print '\nlboop: --------------------------------------'
 printMatrix(lboop)
+print '\ncboop: --------------------------------------'
+printMatrix(cboop)
+
 '''
     print 'rp\n'
     for r in rp:
