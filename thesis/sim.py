@@ -67,7 +67,7 @@ def insertProbe2(target,nodes,groundNodes,probes,source='DC'):
     voltages=''.join(['v('+x+') ' for x in probes])
     control=''
     if source=='AC':
-        control='    AC dec 1 1 100 \n'
+        control='    AC dec 1 1 100000 \n'
     contents.insert(1,sources+grounds)
     contents.insert(-4,control+currents+voltages+'\n')
     netlist=open(target+'-t.cir', 'w')
@@ -76,15 +76,27 @@ def insertProbe2(target,nodes,groundNodes,probes,source='DC'):
     return contents
 
 def printMatrix(m):
-    for row in m: 
-        concat='' 
-        for entry in row: 
-            if entry==None: 
-                print entry,'   ', 
-            else: 
-                print('{:.2e}'.format(entry)), 
-        print ' '
+    if type(m[0][0])==list:
+        for row in m:
+            for freq in range(len(row[0])):
+                for entry in row:
+                    if entry[freq] == None:
+                        print None,'\t\t',
+                    else:
+                        print('{:.2e}'.format(entry[freq]))+'\t',
+                print''
+            print ''
+    else:                        
+        for row in m: 
+            for entry in row:
+                concat='' 
+                if entry==None: 
+                    print entry,'   ', 
+                else: 
+                    print('{:.2e}'.format(entry)), 
+            print ' '
 	pass  
+	
 
 def genMatrix(num):
     seed()
@@ -136,9 +148,9 @@ def writeRandomNet(netlist,num,elements):
                         netlist.write('Rc'+str(numr)+' '+str(s+1)+' '+str(e+1)+' '+'1e8'+'\n')
                         elem[x][y]=elem[y][x]=elem[x][y]*1e-7
                     elif wname[elemlist.index(elem)]=='L':
-                        netlist.write('L'+str(numr)+' '+str(s+1)+' '+'tl'+str(numr)+' '+val+'e-7'+'\n')
+                        netlist.write('L'+str(numr)+' '+str(s+1)+' '+'tl'+str(numr)+' '+val+'e-4'+'\n')
                         netlist.write('Rl'+str(numr)+' '+'tl'+str(numr)+' '+str(e+1)+' '+'1e-5'+'\n')
-                        elem[x][y]=elem[y][x]=elem[x][y]*1e-7
+                        elem[x][y]=elem[y][x]=elem[x][y]*1e-4
                     else:
                         netlist.write('R'+str(numr)+' '+str(s+1)+' '+str(e+1)+' '+val+'\n')
                     numr+=1
