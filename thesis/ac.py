@@ -54,9 +54,9 @@ print ''
 print 'Flist:   ',flist
 print ''
 zboop = [[[None for x in range(len(flist))] for x in range(int(nodenum))] for y in range(int(nodenum))]
-lboop=[[[None for x in range(len(flist))] for x in range(int(nodenum))] for y in range(int(nodenum))]
-cboop=[[[None for x in range(len(flist))] for x in range(int(nodenum))] for y in range(int(nodenum))]
-rboop=[[[None for x in range(len(flist))] for x in range(int(nodenum))] for y in range(int(nodenum))]
+lboop=[[ for x in range(int(nodenum))] for y in range(int(nodenum))]
+cboop=[[ for x in range(int(nodenum))] for y in range(int(nodenum))]
+rboop=[[ for x in range(int(nodenum))] for y in range(int(nodenum))]
 lp=[]
 lo=[]
 #rp=[-1/l['v'][0] for l in lp]
@@ -74,9 +74,9 @@ for n in range(nodenum):
                 zare= -(zm[m][m][f]*zm[n][m][f])
                 if abs(zare) < 1e7:
                     zboop[m][n][f]=1/(zare)
-                    rboop[m][n][f]=1/zare.real
-                    lboop[m][n][f]=1/(abs(zare.imag)*2*pi*flist[f])
-                    cboop[m][n][f]=abs(zare.imag)/(2*pi*flist[f])
+                    rboop[m][n]=1/zare.real
+                    lboop[m][n]=1/(abs(zare.imag)*2*pi*flist[f])
+                    cboop[m][n]=abs(zare.imag)/(2*pi*flist[f])
                 else:
                     pass
             except:
