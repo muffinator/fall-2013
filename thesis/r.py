@@ -4,78 +4,72 @@ from random import *
 from math import *
 net = 'rlc'
 out = 'output'
-nodenum=5
+nodenum=3
 nodelist=range(1,nodenum+1)
 print nodelist
-[rmatrix,cmatrix]=writeRandomNet(net,nodenum,['R','C'])
+[rmatrix]=writeRandomNet(net,nodenum,['R'])
 rboop = [[None for x in range(int(nodenum))] for x in range(int(nodenum))] 
 lp=[]
 lo=[]
 def odelist(n,m,nodelist):
     return [str(int(x)) for x in nodelist if ((x!=int(n))&(x!=int(m)))]
 
+rm=[]
 for n in nodelist:
-    insertProbe2(net,[str(n)],odelist(n,n,nodelist),[])
-    lpt=runSim(net+'-t',out)
-    lt = []
-    for m in odelist(n,n,nodelist):
+    rt = []
+    for m in nodelist:
         m=int(m)
         insertProbe2(net,[str(n)],odelist(n,m,nodelist),[str(m)])
         try:
-            lt+=[(runSim(net+'-t',out)[str(m)])]
+            if m==n:
+                m='v'
+            rt+=[(runSim(net+'-t',out)[str(m)])]
         except:
-            lt+=[None]
-    lp+=[lpt]
-    lo+=[lt]
+            rt+=[None]
+    rm+=[rt]
 subprocess.call("clear")
 print("R:")
 printMatrix(rmatrix)
-print("L:")
-#printMatrix(lmatrix)
-print("C:")
-printMatrix(cmatrix)
+
 print ''
-rp=[-1/l['v'] for l in lp]
+rn=[-1/rm[n-1][n-1] for n in nodelist]
 debug=0
 if debug:
-    for l in lp:
+    print ''
+    for l in no:
         print l 
     print ''
     print rp
+    print rn
     print ''
     for l in lo:
         print l
     print ''
 for n in range(nodenum):
-    r=range(nodenum)
-    r.remove(n)
-    for m in r:
+    for m in range(nodenum):
         try:
-            #print 'm: '+str(m)+' n: '+str(n)
-            #print rp[m]/lo[n][0]
-            rare= rp[m]/lo[n][0]
+            if m==n:
+                continue
+            rare= -(rm[m][m]*rm[n][m])
             if rare < 1e7:
-                rboop[m][n]=rp[m]/lo[n][0]
+                rboop[m][n]=1/rare
             else:
                 pass
         except:
             pass
-            #print None
-        #print lo[n]
-        lo[n].remove(lo[n][0])
+
 for n in range(nodenum):
     tmp=float("inf")
     for r in rboop[n]:
         try:
             tmp=1/(1/tmp+1/r)
-            #print tmp
         except:
             pass
     try:
-        if abs(tmp-rp[n])>1E-5:
-            rare = 1/(1/rp[n]-1/tmp)
+        if abs(tmp-(1/-rm[n][n]))>1E-5:
+            rare = 1/(-rm[n][n]-1/tmp)
             if rare < 1e7:
-                rboop[n][n]=1/(1/rp[n]-1/tmp)
+                rboop[n][n]=rare
             else:
                 pass
     except:
@@ -83,7 +77,17 @@ for n in range(nodenum):
 print ''
 printMatrix(rboop)
 print ''
-
+error=[]
+for n in range(nodenum):
+    te = []
+    for m in range(nodenum):
+        try:
+            te+=[abs(rmatrix[n][m]-rboop[n][m])]
+        except:
+            te+=[None]
+    error+=[te]
+          
+printMatrix(error)
 writeJason('resistor',rboop,1)
 writeJason('given',rmatrix,3)
 

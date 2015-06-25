@@ -67,7 +67,7 @@ def insertProbe2(target,nodes,groundNodes,probes,source='DC'):
     voltages=''.join(['v('+x+') ' for x in probes])
     control=''
     if source=='AC':
-        control='    AC dec 1 1 1000 \n'
+        control='    AC dec 1 1 100 \n'
     contents.insert(1,sources+grounds)
     contents.insert(-4,control+currents+voltages+'\n')
     netlist=open(target+'-t.cir', 'w')
@@ -117,19 +117,30 @@ def writeRandomNet(netlist,num,elements):
     netlist.write('mynetlist\n')
     val=str(1)
     idx=0
+    if 'C' or 'L' in wname:
+        idx = 0
     for elem in elemlist:
         numr=0
         for x in range(num):
             for y in range(x,num):
                 if elem[x][y]:
-                    elem[x][y]=int(10**triangular(0,3,1.5))*(10**(-7*idx))
+                    elem[x][y]=int(10**triangular(0,3,1.5))
                     elem[y][x]=elem[x][y]
                     val = str(elem[x][y])
                     s = x
                     e = y
                     if s==e:
                        e = -1
-                    netlist.write(wname[elemlist.index(elem)]+str(numr)+' '+str(s+1)+' '+str(e+1)+' '+val+'\n')
+                    if wname[elemlist.index(elem)]=='C':
+                        netlist.write('C'+str(numr)+' '+str(s+1)+' '+str(e+1)+' '+val+'e-7'+'\n')
+                        netlist.write('Rc'+str(numr)+' '+str(s+1)+' '+str(e+1)+' '+'1e8'+'\n')
+                        elem[x][y]=elem[y][x]=elem[x][y]*1e-7
+                    elif wname[elemlist.index(elem)]=='L':
+                        netlist.write('L'+str(numr)+' '+str(s+1)+' '+'tl'+str(numr)+' '+val+'e-7'+'\n')
+                        netlist.write('Rl'+str(numr)+' '+'tl'+str(numr)+' '+str(e+1)+' '+'1e-5'+'\n')
+                        elem[x][y]=elem[y][x]=elem[x][y]*1e-7
+                    else:
+                        netlist.write('R'+str(numr)+' '+str(s+1)+' '+str(e+1)+' '+val+'\n')
                     numr+=1
         idx=1
     netlist.write(""".control
