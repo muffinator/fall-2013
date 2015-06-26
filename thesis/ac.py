@@ -72,21 +72,22 @@ for n in range(nodenum):
             pass
 
 for n in range(nodenum):
-    tmp=float("inf")
-    for r in rboop[n]:
+    tmp=[float("inf") for f in flist]
+    for z in zboop[n]:
+        for f in range(len(flist)):
+            try:
+                tmp[f]=1/(1/tmp[f]+1/z[f])
+            except:
+                pass
         try:
-            tmp=1/(1/tmp+1/r)
+            if abs(tmp[fmax]-(1/-zm[n][n][fmax]))>1E-5:
+                rare = 1/(-zm[n][n][fmax]-1/tmp[fmax])
+                if abs(rare.real) < 1e7:
+                    rboop[n][n]=abs(rare)
+                else:
+                    pass
         except:
             pass
-    try:
-        if abs(tmp-(1/-zm[n][n][fmax].real))>1E-5:
-            rare = 1/(-zm[n][n][fmax].real-1/tmp)
-            if abs(rare.real) < 1e7:
-                rboop[n][n]=rare
-            else:
-                pass
-    except:
-        pass
 '-------------------------------------------------------------------------------'
 print '\nrboop: --------------------------------------'
 printMatrix(rboop)
