@@ -27,22 +27,7 @@ for n in nodelist:
             zt+=[None]
     zm+=[zt]
 flist=runSim(net+'-t',out,'AC')['f']
-'''
-for n in nodelist:
-    insertProbe2(net,[str(n)],odelist(n,n,nodelist),[],'AC')
-    lpt=runSim(net+'-t',out,'AC')
-    lt = []
-    for m in odelist(n,n,nodelist):
-        m=int(m)
-        insertProbe2(net,[str(n)],odelist(n,m,nodelist),[str(m)],'AC')
-        try:
-            lt+=[(runSim(net+'-t',out,'AC')[str(m)])]
-            print lt
-        except:
-            lt+=[None]
-    lp+=[lpt]
-    lo+=[lt]
-'''
+
 subprocess.call("clear")
 print("R:")
 printMatrix(rmatrix)
@@ -75,8 +60,12 @@ for n in range(nodenum):
             zare = -(zm[m][m][fmax]*zm[n][m][fmax])
             zsea = -(zm[m][m][fmax]*zm[n][m][fmax])
             zell = -(zm[m][m][fmin]*zm[n][m][fmin])
-            if 1/abs(zare) < 1e7:
+            if 1/abs(zare.real) < 1e7:
                 rboop[m][n] = 1/zare.real
+            for f in range(len(flist)):
+                zazz= -(zm[m][m][f]*zm[n][m][f])
+                if 1/abs(zazz) < 1e7:
+                    zboop[m][n][f] = 1/zazz
             lboop[m][n] = 1/(abs(zell.imag)*2*pi*flist[fmin])
             cboop[m][n] = abs(zsea.imag)/(2*pi*flist[fmax])
         except:
@@ -92,7 +81,7 @@ for n in range(nodenum):
     try:
         if abs(tmp-(1/-zm[n][n][fmax].real))>1E-5:
             rare = 1/(-zm[n][n][fmax].real-1/tmp)
-            if abs(rare) < 1e7:
+            if abs(rare.real) < 1e7:
                 rboop[n][n]=rare
             else:
                 pass
