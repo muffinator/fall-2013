@@ -1,5 +1,6 @@
 \documentclass[11pt, a4paper]{article}
-
+\usepackage{tikz}
+\usepackage{circuitikz}
 \usepackage{float}
 \usepackage{amsmath}
 \usepackage{graphicx,epsfig}
@@ -17,12 +18,14 @@
 The breadboard has been a staple substrate for electronic construction over the last century.
 At the dawn of a growing interest in amatuer radio, resourceful tinkerers used planks of wood to secure and ruggedize their electrical handiwork.
 %Breadboarding was a construction technique that enabled reconfigurable experiments or permanent electrical machines 
+%---------------------------------BREADBOARD FIGURE-------------------------------
 Conductive nodes, such as nails or copper rails, were driven into the non-conductive boards, providing anchors and contact points that were electrically isolated from the rest of the circuit.
 Components were soldered or wire-wrapped to the nodes, and sometimes secured by non-energized nails or screws.
 This construction technique provided a lot of artistic freedom in circuit construction, but was time consuming and required relatively heavy hand tools such as a hammer or drill.
 
 The solderless breadboard is the cannonical tool given to students taking introductory courses in the field.
-Rather than driving nodes into arbitrary locations, component leads are inserted into contact points that allow rapid semi-rigid construction of circuits with no other tools.
+Rather than driving nodes into arbitrary locations, component leads are inserted into contact points arranged on a grid that allow rapid semi-rigid construction of circuits with no other tools.
+%-------------------------------BREADBOARD FIGURE-----------------------------
 The layout of a solderless breadboard is designed to be compatible with a plethora of powerful integrated circuits, enabling complex designs.
 Modern solderless breadboards have come a long way from their namesake wooden ancestors, but there is still room for improvement. 
 
@@ -50,19 +53,19 @@ At first glance, the proposed problem is straightforward.
 A standard-issue breadboard has 130 conductive rails. 
 Each of these rails can be connected to an array of ADCs (analog to digital convert-
 ers) and DACs (digital to analog converters) controlled by a microcontroller. 
-With access to every node in the circuit, by iteratively stimulating and probing the circuit it is possible 1 to determine the circuit topology constructed on the breadboard. 
-Once the topology has been determined, a schematic representation of the constructed circuit, from the perspective of the breadboard, can be displayed.
-This visual display will provide an accurate depiction of the electrical circuit at hand, effectively closing the loop on breadboard construction.
-Designing a circuit-sensing breadboard will require a substantial amount of hardware and software infrastructure. 
+With access to every node in the circuit, it is possible to determine a constructed circuit's topology by iteratively stimulating and probing the circuit. 
+Further, a schematic representation of the circuit topology can be drawn on an available display.
+This visual display provides an accurate depiction of the electrical circuit at hand, effectively closing the loop on breadboard construction.
+%---------------------BREADBOARD VS BUTTERBOARD FIGURE-------------------------
+Designing a circuit-sensing breadboard requires a substantial amount of hardware and software infrastructure. 
 Fortunately, the majority of this infrastructure is useful in its own right. 
-A hardware test-bench will have to be constructed to interface each of the 130 rails on the breadboard with a hand full of ADCs, DACs, and the microcontroller. 
-The test-bench should include a pcb-mounted breadboard, an ADC and DAC multiplexing board, firmware to control sampling and stimulating the breadboard, and software to stream the sampling data to a computer for display.
+A hardware test-bench was constructed to interface each of the 130 rails on the breadboard. 
+The test-bench is composed of a pcb-mounted breadboard, an ADC and DAC multiplexing board, a micrcontroller, firmware to control sampling and stimulating the breadboard, and software to stream the sampling data to a computer for display.
 Effectively, the test-bench is a 130-channel digital breadboard-oscilloscope/function generator. 
-Since software is faster to prototype with, I will be doing most of the theoretical circuit topology work in software. 
-A test-bench for a circuit simulator will have to be built. 
-Ideally, this test-bench will allow a circuit-sensing program to probe and stimulate node voltages of an automatically generated circuit, as if it were running on a microcontroller connected to the hardware test-bench with an arbitrary circuit built up.
-After the test-benches have been constructed, they need to be integrated and the circuit-sensing program will be tested on physical circuits. 
-Finally, a schematic drawing program will be written to visualize the circuit-sensed topology.
+Since software is faster to prototype with, the theoretical circuit topology work was first implelemted in software. 
+A circuit simulator test-bench was written to provide the circuit-sensing algorithm in development with data.. 
+This test-bench allowed the circuit-sensing algorithm to probe, stimulate, and ground every node of a randomly generated circuit, as if the circuit were built on a breadboard attached to the hardware test bench mentioned above.
+The software test-bench also had the ability to write out the circuit network solution to a schematic display.
 
 \section{Work to Date}
 \subsection{PCB integration of Breadboard}
@@ -76,41 +79,180 @@ To that end, I've decided that the best way to interface with an existing breadb
 I've developed a new technique for mounting a breadboard on a PCB.
 
 A modern solderless breadboard is usually composed of three components - a plastic face, metal finger springs (rails), and a foam backing.
+%---------------------DECONSTRUCTED BREADBOARD FIGURE---------------------------
 The finger springs are designed to fit snugly in the plastic face, which provides structure for the entire board.
 The foam backing keeps the finger springs from being pushed out the back of the plastic face.
 A breadboard can be mounted to a PCB by removing the foam backing and surface mount soldering the finger springs to a PCB, then pressing the plastic face onto the mounted rails.
 
 Initial tests of this technique involved small numbers of finger springs hand-soldered one-by-one to a PCB, using nail polish as soldermask.
+%----------------------------1ST PROTOTYPE------------------------------------
 The results of these tests were promising, but alignment proved to be an issue.
 To mitigate this, a rail-holder was 3d-printed to losely hold each finger spring in precise alignment for PCB mounting.
+%-----------------------RAIL HOLDER+GLUE AND PASTE----------------------------
 Once all of the rails were inserted upside-down in the rail-holder, a dot of super glue between two dots of solderpaste were dispensed on each rail.
 The rails were then adhered to the PCB by pressing the PCB upside-down onto the array of aligned rails, such that the rails lined up with pads on the PCB. 
 To aide with alignment during mounting, the rail-holder had four global alignment pegs that mated with four holes drilled into the PCB.
 Finally the assembly was reflowed with hot air and the plastic faceplate was pressed on.
+%-------------------UPSIDE DOWN PCB+SOLDERED RAILED+FINISHED------------------
+%This process was successful and seems feasible for high-production runs, though I should probably talk to an expert on the subject.
 
-This process was successful and seems feasible for high-production runs, though I should probably talk to an expert on the subject.
+%With a good PCB-Breadboard interface, a hardware test-bench was designed and fabricated.
 
-\subsection{Resistor network sensing algorithm}
+\subsection{Software Test-bench}
 
-With a breadboard to probe, we now need to develop hardware to probe the breadboard and an algorithm to determine the circuits constructed using the breadboard.
-We can divide the topic of circuit sensing algorithms into two camps - one that gets to watch the circuit as it's constructed and one that doesn't.
-We'll call the latter pre-fabbed and the former incremental modeling.
+The software test-bench was written to quickly iterate and test the circuit-sensing algorithm.
+The test-bench uses NGspice, an open-source circuit simulator, to simulate a circuit and return only the data that would be accessible to the hardware test bench.
+It includes a method to generate a random circuit with a specified number of nodes and types of circuit element, a method to insert probes, ground nodes, and voltage sources into an existing circuit, and a method to execute the simulation and format the results into a python-friendly output.
+[I sincerely regret using python to implement this algorithm and intend to port the algorithm to julia or another, friendlier, language.]
 
-\subsubsection{Pre-fabbed circuit algorithm/requirements (topology reconstruction)}
+Circuits are described by netlists (text descriptions of a circuit) where each line specifies a new branch in the network.
+Each branch is composed of a circuit element (resistor, voltage source, etc.) with specified circuit parameter(s) (resistance, voltage, etc.), connected between a set of nodes.
+Netlists are convenient here because they allow for insertion of circuit elelments, voltage sources, probes, and grounds with the addition of simple strings to a text file.
 
-This algorithm was designed to probe a circuit layed out on a breadboard and determine its circuit topology.
-This seems reasonable for any given practical circuit on a breadboard, considering that the majority of breadboard nodes go unused.
-To derive the algorithm, let's look at a simple example of a three node circuit.
+To write a random circuit netlist, the test-bench generates a random symmetric n-by-n matrix for each desired circuit element type, where n is the desired number of nodes in the circuit, excluding 'ground'.
+The circuit elements explored in the scope of this thesis are resistors, capacitors, and inductors.
+Each matrix can be interpreted as a graph connecting the nodes in one dimension of the matrix to the nodes in the other dimension of the matrix.
+The value at each location in the matrix is the circuit parameter for that particular element.  
+%----------------------Matrix -> Circuit -> Netlist Example---------------------
+The matrix is used to generate a list of strings that are then inserted into a spice netlist.
+At this point, the netlist only describes the random circuit generated and contains none of the 'machinery' required to reverse-engineer the circuit.
 
-However, this algorithm must take into account the space of all possible circuit topologies formed between the 130 nodes available on a breadboard.
-This is rather undesirable, and but it can be avoided if we have a way to 
-To make an arbitrarily complex circuit simpler to understand, we can truncate the network by grounding a large majority of the nodes.
+The circuit sensing algorithm conducts experiments on the circuit at hand and uses the data recorded to reverse-engineer the circuit.
+These experiments are implemented by simulating the effect of adding voltage sources, grounding nodes, reading node voltages, and reading the current through the voltage sources.
 
-\subsubsection{Incremental modeling algorithm/requirements}
+Voltage sources are added by inserting a voltage source into the existing circuit netlist with an AC or a DC voltage.
+Nodes are grounded by inserting a voltage source with zero DC voltage with respect to ground.
+In the hardware test bench, nodes are grounded by a MOSFET connecting each rail to ground.
+On the other hand, voltage sources are driven by a buffered DAC and multiplexed out to all of the nodes.
+Since we have access to the voltage source, we can measure the current supplied by the buffered DAC and use that to gain information about the circuit in question.
+This is a better idea as there are fewer current sensors required.
 
-\subsection{Software Testbench}
 
-\subsection{Hardware Testbench}
+\subsection{Hardware Test-bench}
+
+The hardware test-bench is composed of a multiplexed network of voltage sensors, current sensors, signal generators, and a grounding network all orchestrated by a microcontroller.  
+
+In the hardware test bench, these voltage sources will be driven by a buffered DAC and multiplexed out to all of the nodes.
+Since we have access to the voltage source, we can measure the current supplied by the buffered DAC and use that to gain information about the circuit in question.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+\subsection{Impedance network sensing algorithm}
+
+Given the ability to probe any node voltage, the ability to add a voltage source with a current meter to any node, and the ability to ground any node, an algorithm to reverse engineer any RLC network was written.
+The impedance network sensing algorithm works as follows:
+\begin{figure}[h]
+  \begin{center}
+    \begin{circuitikz}
+		\draw (0,0)
+		node[label={below:$1$}] {}
+		to[R=$Z_{13}$] (1.5,2.584)
+		node[label={above:$3$}] {}
+		to[R=$Z_{35}$] (3,0) % The resistor
+		node[label={below:$5$}] {}
+		to[R=$Z_{15}$] (0,0)
+		to[R=$Z_{12}$] (-1.5,2.584)
+		node[label={above:$2$}] {}
+		to[R=$Z_{23}$] (1.5,2.584)
+		to[R=$Z_{34}$] (4.5,2.584)
+		node[label={above:$4$}] {}
+		to[R=$Z_{45}$] (3,0);	
+		\fill (0,0) circle (1mm);
+		\fill (3,0) circle (1mm);
+		\fill (1.5,2.584) circle (1mm);
+		\fill (4.5,2.584) circle (1mm);
+		\fill (-1.5,2.584) circle (1mm);
+    \end{circuitikz}
+   \caption{Example Circuit}
+  \end{center}
+\end{figure}
+\begin{enumerate}
+\item[1] - Pick a circuit branch [$b_1$] between two nodes [$n_1$] and [$n_2$] to identify
+\item[2] - Add a voltage source to [$n_1$] and ground every other node in the circuit
+\item[3] - Divide the voltage at [$n_1$], [$V_{n_1}$], by the voltage source current [$I_{VS}$] to obtain the parallel impedance of all branches connected to [$n_1$], [$Z_{1_{||}}$]
+\item[4] - Add a voltage source to [$n_2$] and ground every node in the circuit except for [$n_1$] and [$n_2$]
+\item[5] - Divide [$Z_{1_{||}}$] by the resulting voltage measured, [$V_{n_1}$] to obtain the impedance of [$b_1$], [$Z_{12}$]
+\item[6] - Repeat 1-5 for all pairs of nodes in the network
+\end{enumerate}
+Step [5] is a bit magical, so let's look at a quick example from Figure 1:
+First, let's pick nodes $1$ and $3$, apply a voltage source to node $1$ and ground all of the other nodes.  \\
+The resulting $\displaystyle Z_{1_{||}} = Z_{13}||(Z_{12}||Z_{15})= \frac{Z_{13}(Z_{12}||Z_{15})}{Z_{13}+(Z_{12}||Z_{15})}$\\
+Now, we apply a voltage source to node $3$, open node $1$, and ground all of the other nodes.\\
+The voltage that appears at node $1$, $\displaystyle V_{n_1} = \frac{Z_{12}||Z_{15}}{Z_{13}+Z_{12}||Z_{15}}$\\
+Finally, $\displaystyle \frac{Z_{1_{||}}}{V_{n_1}}=\frac{\frac{Z_{13}(Z_{12}||Z_{15})}{Z_{13}+(Z_{12}||Z_{15})}}{\frac{Z_{12}||Z_{15}}{Z_{13}+Z_{12}||Z_{15}}}=Z_{13}$
+
+To determine if there are multiple element types [in parallel] between two nodes, we can select a few frequencies to scan through and analyze the resulting change in impedance.
+
+\begin{figure}[h]
+  \begin{center}
+    \begin{circuitikz}
+		\draw (0,-.5)
+		node[label={below:$2$}] {}
+		to[short] (0,0)
+		to[R=$r$] (0,2)
+		to[short] (1.5,2)
+		to[L=$l$] (1.5,0) % The resistor
+		to[short] (-1.5,0)
+		to[C=$c$] (-1.5,2)
+		to[short] (0,2)
+		to[short] (0,2.5)
+		node[label={above:$1$}] {};
+	    \fill (0,-.5) circle (1mm);
+		\fill (0,2.5) circle (1mm);	
+    \end{circuitikz}
+   \caption{Example Circuit}
+  \end{center}
+\end{figure}
+
+The impedance of a parallel RLC 'tank' circuit can be characterized and analyzed over all frequencies.
+
+\begin{align}
+Z_C = \frac{1}{j\omega C} \qquad Z_R = R \qquad Z_L = j\omega L \\
+Z_{RLC}=Z_C||Z_R||Z_L = \frac{1}{j\omega C+\frac{1}{R}+\frac{1}{j\omega L}}= \frac{j\omega RL}{-\omega^2RLC+j\omega L+R}
+\end{align}
+
+$\displaystyle Z_{RLC}$ has a zero at $\frac{1}{RL}$ and two poles at $\frac{-L^{+}_{-}\sqrt{L^2+4R^2LC}}{-2RLC}$\\
+\includegraphics[width=0.35\textwidth]{inductors.png}
+\includegraphics[width=0.35\textwidth]{resistors.png}
+\includegraphics[width=0.35\textwidth]{capacitors.png}\\
+\includegraphics[width=0.35\textwidth]{rL.png}
+\includegraphics[width=0.35\textwidth]{Rc.png}
+\includegraphics[width=0.35\textwidth]{rC.png}\\
+
+
+If we look at the plots above, we can see that varying the resistance changes the maximum impedance over all frequencies, varying the inductance drops the asymptotic impedance at low frequencies, and varying the capacitance drops the asymptotic impedance at high frequencies.
+We can imagine there are three 'regimes' on the impedance vs frequency plot that divide the operation of an RLC tank into three elements:\\
+When the slope is +1, the tank behaves like an inductor 
+$L=|Z|/(j\omega)$.
+When the slope is -1, the tank behaves like a capacitor
+$C=j\omega |Z|$.
+When the slope is 0, the tank behaves like a resistor
+$R=|Z|$.
+This behavior can be exploited to reveal what elements are in parallel with one another.
+First, sample at the highest possible driving frequency and a decade lower in frequency.
+If the impedance increases by a decade, then there is a capacitor with capacitance $C=j\omega |Z|$.
+Then, sample at the lowest reasonable driving frequency and a decade higher in frequency.
+If the impedance increases by a decade, then there is an inductor with inductance $L=|Z|/(j\omega)$.
+If there is an inductor and a capacitor, find the equivalent series resistance by sampling at the square root 
+
+There are 
 
 \subsubsection{Programming}
 
