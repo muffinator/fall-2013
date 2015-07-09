@@ -68,39 +68,9 @@ This test-bench allowed the circuit-sensing algorithm to probe, stimulate, and g
 The software test-bench also had the ability to write out the circuit network solution to a schematic display.
 
 \section{Work to Date}
-\subsection{PCB integration of Breadboard}
-
-Tool design is an art.
-There are many fields of study dedicated to the art of design, none of which I've spent much time exploring.
-Despite this, I have developed my own sense for how tools should feel when they're in use.
-The circuit-sensing breadboard should seem no different in both size and weight from a standard breadboard.
-(I'm not saying that standard breadboards are perfect, but I am deciding not to spend time redesigning the breadboard)
-To that end, I've decided that the best way to interface with an existing breadboard is to physically mount that breadboard on a printed circuit board.
-I've developed a new technique for mounting a breadboard on a PCB.
-
-A modern solderless breadboard is usually composed of three components - a plastic face, metal finger springs (rails), and a foam backing.
-%---------------------DECONSTRUCTED BREADBOARD FIGURE---------------------------
-The finger springs are designed to fit snugly in the plastic face, which provides structure for the entire board.
-The foam backing keeps the finger springs from being pushed out the back of the plastic face.
-A breadboard can be mounted to a PCB by removing the foam backing and surface mount soldering the finger springs to a PCB, then pressing the plastic face onto the mounted rails.
-
-Initial tests of this technique involved small numbers of finger springs hand-soldered one-by-one to a PCB, using nail polish as soldermask.
-%----------------------------1ST PROTOTYPE------------------------------------
-The results of these tests were promising, but alignment proved to be an issue.
-To mitigate this, a rail-holder was 3d-printed to losely hold each finger spring in precise alignment for PCB mounting.
-%-----------------------RAIL HOLDER+GLUE AND PASTE----------------------------
-Once all of the rails were inserted upside-down in the rail-holder, a dot of super glue between two dots of solderpaste were dispensed on each rail.
-The rails were then adhered to the PCB by pressing the PCB upside-down onto the array of aligned rails, such that the rails lined up with pads on the PCB. 
-To aide with alignment during mounting, the rail-holder had four global alignment pegs that mated with four holes drilled into the PCB.
-Finally the assembly was reflowed with hot air and the plastic faceplate was pressed on.
-%-------------------UPSIDE DOWN PCB+SOLDERED RAILED+FINISHED------------------
-%This process was successful and seems feasible for high-production runs, though I should probably talk to an expert on the subject.
-
-%With a good PCB-Breadboard interface, a hardware test-bench was designed and fabricated.
-
 \subsection{Software Test-bench}
 
-The software test-bench was written to quickly iterate and test the circuit-sensing algorithm.
+A software test-bench was written to quickly iterate and test the circuit-sensing algorithm.
 The test-bench uses NGspice, an open-source circuit simulator, to simulate a circuit and return only the data that would be accessible to the hardware test bench.
 It includes a method to generate a random circuit with a specified number of nodes and types of circuit element, a method to insert probes, ground nodes, and voltage sources into an existing circuit, and a method to execute the simulation and format the results into a python-friendly output.
 [I sincerely regret using python to implement this algorithm and intend to port the algorithm to julia or another, friendlier, language.]
@@ -126,32 +96,6 @@ In the hardware test bench, nodes are grounded by a MOSFET connecting each rail 
 On the other hand, voltage sources are driven by a buffered DAC and multiplexed out to all of the nodes.
 Since we have access to the voltage source, we can measure the current supplied by the buffered DAC and use that to gain information about the circuit in question.
 This is a better idea as there are fewer current sensors required.
-
-
-\subsection{Hardware Test-bench}
-
-The hardware test-bench is composed of a multiplexed network of voltage sensors, current sensors, signal generators, and a grounding network all orchestrated by a microcontroller.  
-
-In the hardware test bench, these voltage sources will be driven by a buffered DAC and multiplexed out to all of the nodes.
-Since we have access to the voltage source, we can measure the current supplied by the buffered DAC and use that to gain information about the circuit in question.
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 \subsection{Impedance network sensing algorithm}
@@ -238,7 +182,7 @@ $\displaystyle Z_{RLC}$ has a zero at $\frac{1}{RL}$ and two poles at $\frac{-L^
 
 
 If we look at the plots above, we can see that varying the resistance changes the maximum impedance over all frequencies, varying the inductance drops the asymptotic impedance at low frequencies, and varying the capacitance drops the asymptotic impedance at high frequencies.
-We can imagine there are three 'regimes' on the impedance vs frequency plot that divide the operation of an RLC tank into three elements:\\
+We can imagine there are three regimes on the impedance vs frequency plot that divide the operation of an RLC tank into three elements:\\
 When the slope is +1, the tank behaves like an inductor 
 $L=|Z|/(j\omega)$.
 When the slope is -1, the tank behaves like a capacitor
@@ -250,9 +194,63 @@ First, sample at the highest possible driving frequency and a decade lower in fr
 If the impedance increases by a decade, then there is a capacitor with capacitance $C=j\omega |Z|$.
 Then, sample at the lowest reasonable driving frequency and a decade higher in frequency.
 If the impedance increases by a decade, then there is an inductor with inductance $L=|Z|/(j\omega)$.
-If there is an inductor and a capacitor, find the equivalent series resistance by sampling at the square root 
+If there is an inductor and a capacitor, find the equivalent parallel resistance by sampling at $\omega=\sqrt{LC}^{-1}$.
+If there is only a capacitor, find the equivalent parallel resistance by sampling at the lowest reasonable driving frequency.
+If there is only an inductor, find the equivalent parallel resistance by sampling at the highest reasonable driving frequency.
+If there is no capacitor and no inductor, sample mid-band.
+An open circuit between two nodes will be indicated by an extremely high resistive reading and a low capacitance reading.
 
-There are 
+Diodes are indicated by asymmetric resistances.
+For example, if $R_{12}=100\Omega$ and $R_{21}=1\Omega$, there is likely a diode between nodes 1 and 2.
+
+
+
+
+
+\subsection{PCB integration of Breadboard}
+
+Tool design is an art.
+There are many fields of study dedicated to the art of design, none of which I've spent much time exploring.
+Despite this, I have developed my own sense for how tools should feel when they're in use.
+The circuit-sensing breadboard should seem no different in both size and weight from a standard breadboard.
+(I'm not saying that standard breadboards are perfect, but I am deciding not to spend time redesigning the breadboard)
+To that end, I've decided that the best way to interface with an existing breadboard is to physically mount that breadboard on a printed circuit board.
+I've developed a new technique for mounting a breadboard on a PCB.
+
+A modern solderless breadboard is usually composed of three components - a plastic face, metal finger springs (rails), and a foam backing.
+%---------------------DECONSTRUCTED BREADBOARD FIGURE---------------------------
+The finger springs are designed to fit snugly in the plastic face, which provides structure for the entire board.
+The foam backing keeps the finger springs from being pushed out the back of the plastic face.
+A breadboard can be mounted to a PCB by removing the foam backing and surface mount soldering the finger springs to a PCB, then pressing the plastic face onto the mounted rails.
+
+Initial tests of this technique involved small numbers of finger springs hand-soldered one-by-one to a PCB, using nail polish as soldermask.
+%----------------------------1ST PROTOTYPE------------------------------------
+The results of these tests were promising, but alignment proved to be an issue.
+To mitigate this, a rail-holder was 3d-printed to losely hold each finger spring in precise alignment for PCB mounting.
+%-----------------------RAIL HOLDER+GLUE AND PASTE----------------------------
+Once all of the rails were inserted upside-down in the rail-holder, a dot of super glue between two dots of solderpaste were dispensed on each rail.
+The rails were then adhered to the PCB by pressing the PCB upside-down onto the array of aligned rails, such that the rails lined up with pads on the PCB. 
+To aide with alignment during mounting, the rail-holder had four global alignment pegs that mated with four holes drilled into the PCB.
+Finally the assembly was reflowed with hot air and the plastic faceplate was pressed on.
+%-------------------UPSIDE DOWN PCB+SOLDERED RAILED+FINISHED------------------
+%This process was successful and seems feasible for high-production runs, though I should probably talk to an expert on the subject.
+
+%With a good PCB-Breadboard interface, a hardware test-bench was designed and fabricated.
+
+
+\subsection{Hardware Test-bench}
+
+The hardware test-bench is composed of a multiplexed network of voltage sensors, current sensors, signal generators, and a grounding network all orchestrated by a microcontroller.  
+
+In the hardware test bench, these voltage sources will be driven by a buffered DAC and multiplexed out to all of the nodes.
+Since we have access to the voltage source, we can measure the current supplied by the buffered DAC and use that to gain information about the circuit in question.
+
+In practice, designing a hardware test-bench that can perform comparably to the software test-bench is difficult.
+The largest hurdle to taking high accuracy measurements is dynamic range.
+Computers with 64-bit floating point numbers can easily handle six orders of magnitude while simulating circuits.
+Designing an analog circuit that operates well over six orders of magnitude is no simple task.
+(ie. a current sensor that operates over six orders of magnitude, a voltage sensor that operates over six orders of magnitude, an ADC that operates well over six orders of magnitude, etc.)
+
 
 \subsubsection{Programming}
 
