@@ -52,6 +52,7 @@ static volatile uint16_t datas[8000];
 static volatile uint16_t datuh[8000];
 static volatile uint16_t rearranged[500];
 static volatile uint8_t send=0;
+//static volatile uint8_t muxpin[8]={3,0,1,2,4,6,7,5};
 static usbd_device *usb_device;
 
 static void gpio_setup(void)
@@ -81,6 +82,10 @@ PB6-PB8,PB9 = S0-S2,SE
 PE0 = D0
 PC13 = !CS
 */
+//------------  PC13: !CS
+    rcc_periph_clock_enable(RCC_GPIOC);
+    gpio_mode_setup(GPIOC, GPIO_MODE_OUTPUT, GPIO_PUPD_NONE, GPIO13);
+    gpio_set_output_options(GPIOC, GPIO_OTYPE_PP, GPIO_OSPEED_50MHZ, GPIO13);
 
 //------------  PB6-PB8,PB9: S0-S2,SE
     rcc_periph_clock_enable(RCC_GPIOB);
@@ -243,11 +248,6 @@ static void timer3_setup(void)
     timer_enable_counter(TIM3);
 }
 
-void gnd_nodes(uint8_t nodes)
-{
-    gpio_clear(GPIOD,nodes&0xff);
-    gpio_set(GPIOD,((~nodes)&0xff));     //grounds all nodes but the ones of interest
-}
 
 /*--------------------- Timer ISR ---------------------------*/
 
@@ -256,7 +256,7 @@ void tim1_up_tim10_isr(void)
 {
     if (timer_get_flag(TIM1, TIM_SR_UIF)){
         timer_clear_flag(TIM1, TIM_SR_UIF);
-        gpio_set(GPIOD, GPIO12);
+       // gpio_set(GPIOD, GPIO12);
         //gpio_toggle(GPIOD, GPIO13);
     //    usbd_ep_write_packet(usb_device, 0x82, (uint8_t *)&send, 1);
       //  dma_enable_stream(mydma, mystream);
@@ -267,7 +267,7 @@ void tim1_cc_isr(void)
 {
     if (timer_get_flag(TIM1, TIM_SR_CC1IF)){
         timer_clear_flag(TIM1, TIM_SR_CC1IF);
-        gpio_clear(GPIOD, GPIO12);
+//        gpio_clear(GPIOD, GPIO12);
     }
 
 }
@@ -277,7 +277,7 @@ void tim2_isr(void)
 {
     if (timer_get_flag(TIM2, TIM_SR_UIF)){
         timer_clear_flag(TIM2, TIM_SR_UIF);
-        gpio_clear(GPIOA, GPIO15);
+        gpio_clear(cs);
 }
     //check to see if it's our vector
     if (timer_get_flag(TIM2, TIM_SR_CC1IF)) {
@@ -285,7 +285,7 @@ void tim2_isr(void)
         timer_clear_flag(TIM2, TIM_SR_CC1IF);
         //gpio_toggle(GPIOD, GPIO12);
         //timer_disable_counter(TIM1);
-        gpio_set(GPIOA, GPIO15);
+        gpio_set(cs);
    // dma_set_peripheral_address(mydma, mystream, (uint32_t) datas);
     //dma_set_number_of_data(mydma, mystream, 100);
         //dma_disable_stream(mydma, mystream);
@@ -319,13 +319,13 @@ void tim3_isr(void)
     if (timer_get_flag(TIM3, TIM_SR_UIF)){
         timer_clear_flag(TIM3, TIM_SR_UIF);
         TIM2_EGR |= TIM_EGR_UG;
-        gpio_clear(GPIOA, GPIO15);
+        gpio_clear(cs);
         TIM1_EGR |= TIM_EGR_UG;
     }
     
     if (timer_get_flag(TIM3, TIM_SR_CC1IF)) {
         timer_clear_flag(TIM3, TIM_SR_CC1IF);
-        gpio_set(GPIOA, GPIO15);
+        gpio_set(cs);
     }
 }
 
@@ -334,7 +334,7 @@ void dma2_stream1_isr(void)
     if (dma_get_interrupt_flag(mydma, mystream, DMA_TCIF)) {
         dma_clear_interrupt_flags(mydma, mystream, DMA_TCIF);
         /* Toggle PC1 just to keep aware of activity and frequency. */
-        gpio_toggle(GPIOD, GPIO12);
+        //gpio_toggle(GPIOD, GPIO12);
         timer_disable_counter(TIM3);
         //maximum packet size of 64 bytes
         int n;
@@ -351,9 +351,9 @@ void dma2_stream1_isr(void)
         }
        
 
-        for(n=0;n<30;n++)    //we want 30 packets
+        for(n=0;n<2;n++)    //we want 30 packets
         {
-//        while (usbd_ep_write_packet(usb_device, 0x82, (const void *)&rearranged[n*16],32)==0);
+        while (usbd_ep_write_packet(usb_device, 0x82, (const void *)&rearranged[n*16],32)==0);
 //////            while (usbd_ep_write_packet(usb_device, 0x82, (const void *)&(datas[n*32]), 64)==0);
         }
     //printf("hi");     
@@ -365,14 +365,14 @@ void dma2_stream1_isr(void)
     test[3]=10;
     test[4]='/';
     test[5]='n';
-//   while (usbd_ep_write_packet(usb_device, 0x82, (const void *)&test[2], 2)==0);
+   while (usbd_ep_write_packet(usb_device, 0x82, (const void *)&test[2], 2)==0);
 
       TIM3_EGR |= TIM_EGR_UG;
     }
     if (dma_get_interrupt_flag(mydma, mystream, DMA_DMEIF)) {
         dma_clear_interrupt_flags(mydma, mystream, DMA_DMEIF);
         /* Toggle PC1 just to keep aware of activity and frequency. */
-        gpio_set(GPIOD, GPIO13);
+        //gpio_set(GPIOD, GPIO13);
     }
 }
 
@@ -554,13 +554,21 @@ static void cdcacm_data_rx_cb(usbd_device *usbd_dev, uint8_t ep)
 	char buf[64];
 	int len = usbd_ep_read_packet(usbd_dev, 0x01, buf, 64);
     if (len) {
-//        while (usbd_ep_write_packet(usbd_dev, 0x82, buf, len)==0);
         if(buf[0]=='a'){
-        timer_set_period(TIM3, (165<<(buf[1]-'a')));
-        timer_enable_counter(TIM3);
-        timer_enable_counter(TIM2);
-        timer_enable_counter(TIM1);
-    }
+            timer_set_period(TIM3, 165);
+            timer_enable_counter(TIM3);
+            timer_enable_counter(TIM2);
+            timer_enable_counter(TIM1);
+        }
+        else {
+            gpio_clear(GPIOD,0xff); // un-ground all pins
+            gpio_clear(GPIOD, 0b1111<<12); //reset mux
+            gpio_set(GPIOD, buf[0]<<12);
+            gpio_clear(GPIOB,0xff); // un-ground all pins
+            gpio_clear(GPIOB, 0b1111<<6); //reset mux
+            gpio_set(GPIOB,buf[0]<<6);
+            //gpio_toggle(GPIOD, orange);
+        }
     }
 }
 
@@ -606,13 +614,13 @@ int main(void)
 			usb_strings, 3,
 			usbd_control_buffer, sizeof(usbd_control_buffer));
 
-usbd_register_set_config_callback(usb_device, cdcacm_set_config);
+    usbd_register_set_config_callback(usb_device, cdcacm_set_config);
 
-    uint8_t i;
-    long t;
+ //   uint8_t i;
+ //   long t;
 	while (1)
     {
-        for (i=0; i<8;i++)
+/*        for (i=0; i<8;i++)
         {
             // ground pins
             gpio_clear(GPIOD,0xff);
@@ -630,7 +638,7 @@ usbd_register_set_config_callback(usb_device, cdcacm_set_config);
                 __asm__("nop");
             }
         }
-/*
+
         gpio_set(GPIOA, GPIO15);
         for (i = 0; i<10; i++)
         {
