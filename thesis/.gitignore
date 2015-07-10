@@ -12,9 +12,9 @@
 *.gpi
 /butter/*.d
 /butter/*.o
-/*/*.d
-/*/*.elf
-/*/*.hex
-/*/*.map
-/*/*.o
+/tsp/*.d
+/tsp/*.elf
+/tsp/*.hex
+/tsp/*.map
+/tsp/*.o
 *~
