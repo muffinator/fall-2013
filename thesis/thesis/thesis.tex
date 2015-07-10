@@ -4,11 +4,12 @@
 \usepackage{float}
 \usepackage{amsmath}
 \usepackage{graphicx,epsfig}
+\usepackage{verbatim}
 \usepackage{enumerate}
 \usepackage[margin=.8in]{geometry}
 \providecommand{\e}[1]{\ensuremath{\times 10^{#1}}}
 
-\title{MEng Thesis!}
+\title{MEng Thesis \\ Circuit Sensing Breadboard}
 \author{Josh Gordonson}
 
 \begin{document}
@@ -59,13 +60,14 @@ This visual display provides an accurate depiction of the electrical circuit at 
 %---------------------BREADBOARD VS BUTTERBOARD FIGURE-------------------------
 Designing a circuit-sensing breadboard requires a substantial amount of hardware and software infrastructure. 
 Fortunately, the majority of this infrastructure is useful in its own right. 
+
 A hardware test-bench was constructed to interface each of the 130 rails on the breadboard. 
 The test-bench is composed of a pcb-mounted breadboard, an ADC and DAC multiplexing board, a micrcontroller, firmware to control sampling and stimulating the breadboard, and software to stream the sampling data to a computer for display.
 Effectively, the test-bench is a 130-channel digital breadboard-oscilloscope/function generator. 
 Since software is faster to prototype with, the theoretical circuit topology work was first implelemted in software. 
-A circuit simulator test-bench was written to provide the circuit-sensing algorithm in development with data.. 
-This test-bench allowed the circuit-sensing algorithm to probe, stimulate, and ground every node of a randomly generated circuit, as if the circuit were built on a breadboard attached to the hardware test bench mentioned above.
-The software test-bench also had the ability to write out the circuit network solution to a schematic display.
+A circuit simulator test-bench was written to provide the circuit-sensing algorithm in development with data.
+This test-bench allows the circuit-sensing algorithm to probe, stimulate, and ground every node of a randomly generated circuit, as if the circuit were built on a breadboard attached to the hardware test bench mentioned above.
+The software test-bench also had the ability to print out a circuit network solution to a schematic display.
 
 \section{Work to Date}
 \subsection{Software Test-bench}
@@ -81,7 +83,7 @@ Netlists are convenient here because they allow for insertion of circuit elelmen
 
 To write a random circuit netlist, the test-bench generates a random symmetric n-by-n matrix for each desired circuit element type, where n is the desired number of nodes in the circuit, excluding 'ground'.
 The circuit elements explored in the scope of this thesis are resistors, capacitors, and inductors.
-Each matrix can be interpreted as a graph connecting the nodes in one dimension of the matrix to the nodes in the other dimension of the matrix.
+Each matrix is interpreted as a graph connecting the nodes in one dimension of the matrix to the nodes in the other dimension of the matrix.
 The value at each location in the matrix is the circuit parameter for that particular element.  
 %----------------------Matrix -> Circuit -> Netlist Example---------------------
 The matrix is used to generate a list of strings that are then inserted into a spice netlist.
@@ -150,18 +152,18 @@ To determine if there are multiple element types [in parallel] between two nodes
 		\draw (0,-.5)
 		node[label={below:$2$}] {}
 		to[short] (0,0)
-		to[R=$r$] (0,2)
+		to[R=$R$] (0,2)
 		to[short] (1.5,2)
-		to[L=$l$] (1.5,0) % The resistor
+		to[L=$L$] (1.5,0) % The resistor
 		to[short] (-1.5,0)
-		to[C=$c$] (-1.5,2)
+		to[C=$C$] (-1.5,2)
 		to[short] (0,2)
 		to[short] (0,2.5)
 		node[label={above:$1$}] {};
 	    \fill (0,-.5) circle (1mm);
 		\fill (0,2.5) circle (1mm);	
     \end{circuitikz}
-   \caption{Example Circuit}
+   \caption{Example RLC Tank Circuit}
   \end{center}
 \end{figure}
 
@@ -206,7 +208,7 @@ For example, if $R_{12}=100\Omega$ and $R_{21}=1\Omega$, there is likely a diode
 
 
 
-
+\begin{comment}
 \subsection{PCB integration of Breadboard}
 
 Tool design is an art.
@@ -267,7 +269,7 @@ There are several timers to choose from on our microcontroller of choice, but we
 \subsubsection{STM32 stuff}
 
 \subsubsection{Arduino stuff}
-
+\end{comment}
 \begin{thebibliography}{1}
 \end{thebibliography}
 \end{document}
