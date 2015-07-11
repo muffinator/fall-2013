@@ -53,7 +53,7 @@ static volatile uint16_t datas[8000];
 static volatile uint16_t datuh[8000];
 static volatile uint16_t rearranged[500];
 static volatile uint8_t send=0;
-static volatile uint8_t muxpin[8]={3,0,1,2,4,6,7,5};
+static volatile uint8_t muxpin[8]={5,7,6,4,2,1,0,3};
 static usbd_device *usb_device;
 
 static void gpio_setup(void)
@@ -81,7 +81,7 @@ static void gpio_setup(void)
     //------------	D12-15: LEDs, D0-7: ground fets
     rcc_periph_clock_enable(RCC_GPIOD);
     gpio_mode_setup(GPIOD, GPIO_MODE_OUTPUT, GPIO_PUPD_NONE, GPIO_ALL);
-    gpio_set_output_options(GPIOD, GPIO_OTYPE_PP, GPIO_OSPEED_25MHZ, GPIO_ALL);
+    gpio_set_output_options(GPIOD, GPIO_OTYPE_PP, GPIO_OSPEED_50MHZ, GPIO_ALL);
     gpio_set(cs);
 
     //------------	A8: Clock
@@ -268,7 +268,7 @@ void dma2_stream1_isr(void)
             }
             //rearranged[n]=rearranged[n]>>1;
         }
-        for(n=0;n<10;n++)		//we want 30 packets
+        for(n=0;n<30;n++)		//we want 30 packets
         {
             while (usbd_ep_write_packet(usb_device, 0x82, (const void *)&rearranged[n*16],32)==0);
             //While (usbd_ep_write_packet(usb_device, 0x82, (const void *)&(datas[n*32]), 64)==0);
@@ -300,9 +300,9 @@ static void cdcacm_data_rx_cb(usbd_device *usbd_dev, uint8_t ep)
     int len = usbd_ep_read_packet(usbd_dev, 0x01, buf, 64);
     if (len) {
         //while (usbd_ep_write_packet(usbd_dev, 0x82, buf, len)==0);
-        if(buf[0]=='a')
+        if(buf[0]=='s')
         {
-            timer_set_period(TIM3, 165);
+            timer_set_period(TIM3, 165+buf[1]);
             timer_enable_counter(TIM3);
             timer_enable_counter(TIM2);
             timer_enable_counter(TIM1);
@@ -310,17 +310,14 @@ static void cdcacm_data_rx_cb(usbd_device *usbd_dev, uint8_t ep)
         else if(buf[0]=='g')
         {
             gpio_clear(GPIOD,0xff);
-            gpio_set(GPIOD,(buf[1]&0xff));
-            if(buf[1]==4){gpio_set(GPIOD,blue);}
+            gpio_set(GPIOD,((buf[1])&0xff));
         }
-        else
+        else if(buf[0]=='m')
         {
-            gpio_clear(GPIOD,0xff); // un-ground all pins
-            gpio_clear(GPIOD, 0b1111<<12); //reset mux
-            gpio_set(GPIOD, (buf[0]&0xf)<<12);
-            gpio_clear(GPIOB,0xff); // un-ground all pins
+            gpio_clear(GPIOD, 0b111<<12); //reset LEDs
+            gpio_set(GPIOD, (buf[1]&0xf)<<12); //set LEDs
             gpio_clear(GPIOB, 0b1111<<6); //reset mux
-            gpio_set(GPIOB,muxpin[(buf[0]&0xf)]<<6);
+            gpio_set(GPIOB,muxpin[(buf[1]&0xf)]<<6);
         }
     }
 }
