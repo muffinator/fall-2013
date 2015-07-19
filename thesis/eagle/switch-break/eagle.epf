@@ -361,6 +361,7 @@ UsedLibrary="/home/muffin/eagle/lbr/SparkFun-Resistors.lbr"
 UsedLibrary="/home/muffin/eagle/lbr/SparkFun-Retired.lbr"
 UsedLibrary="/home/muffin/eagle/lbr/SparkFun-Sensors.lbr"
 UsedLibrary="/home/muffin/eagle/lbr/User-Submitted.lbr"
+UsedLibrary="/home/muffin/Documents/fall-2013/thesis/eagle/butter.lbr"
 
 [Win_1]
 Type="Control Panel"
