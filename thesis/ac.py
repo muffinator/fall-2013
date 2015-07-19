@@ -5,7 +5,7 @@ from math import *
 from cmath import *
 net = 'ac'
 out = 'output'
-nodenum=2
+nodenum=3
 nodelist=range(1,nodenum+1)
 print nodelist,'\n'
 [rmatrix,lmatrix,cmatrix]=writeRandomNet(net,nodenum,['R','L','C'])

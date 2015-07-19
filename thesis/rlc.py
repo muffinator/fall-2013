@@ -4,7 +4,7 @@ from random import *
 from math import *
 net = 'rlc'
 out = 'output'
-nodenum=5
+nodenum=4
 nodelist=range(1,nodenum+1)
 print nodelist
 [rmatrix,cmatrix]=writeRandomNet(net,nodenum,['R','C'])
@@ -84,6 +84,6 @@ print ''
 printMatrix(rboop)
 print ''
 
-writeJason('resistor',rboop,1)
-writeJason('given',rmatrix,3)
+writeJason('resistor',rboop,1,3)
+writeJason('given',rmatrix,3,0)
 

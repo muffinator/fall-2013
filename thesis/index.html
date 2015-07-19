@@ -11,11 +11,12 @@
   stroke: #999;
   stroke-opacity: .6;
 }
+/*
 text {
-  font: 12px sans-serif;
+  font: 17px sans-serif;
   pointer-events: none;
 }
-
+*/
 </style>
 <body>
 <script src="/home/muffin/Documents/fall-2013/thesis/d3.v3.min.js"></script>
@@ -27,7 +28,7 @@ function drawGraph(name){
 	var color = d3.scale.category20();
 
 	var force = d3.layout.force()
-	
+
 	    .charge(-2000)
 	    .linkDistance( function(link) {return Math.log(link.value);} )
 	    .size([width, height]);
@@ -49,10 +50,24 @@ function drawGraph(name){
                         {'x':sx+33,    'y':sy+6}, {'x':sx+39,    'y':sy-6},
                         {'x':sx+42,    'y':sy}, {'x':sx+60,    'y':sy} ];
 
-    var rFunction = d3.svg.line()
+    var capacitor1 = [    {'x':sx,     'y':sy}, {'x':sx+27,    'y':sy},
+                        {'x':sx+27,    'y':sy+6}, {'x':sx+27,    'y':sy-6}];
+
+    var capacitor2 = [
+                        {'x':sx+33,    'y':sy+6}, {'x':sx+33,    'y':sy-6},
+                        {'x':sx+33,    'y':sy}, {'x':sx+60,    'y':sy} ];
+
+    var inductor= "m0,0 h16 c0,-10 10,-10 10,0 0,-10 10,-10 10,0 0,-10 10,-10 10,0 h16";
+
+    var line = d3.svg.line()
         .x(function(d) {return d.x;})
         .y(function(d) {return d.y;})
         .interpolate("linear");
+
+    var spline = d3.svg.line()
+        .x(function(d) {return d.x;})
+        .y(function(d) {return d.y;})
+        .interpolate("basis");
 
     var glinks = svg.selectAll("g.glink")
         .data(graph.links)
@@ -60,13 +75,19 @@ function drawGraph(name){
         .classed('glink', true);
 
 	var link = glinks.append("path")
-	    .attr("d", rFunction(resistor))
+	    .attr("d", line(resistor))
 	    .attr("class", "link")
         .attr("fill", "none")
 	    .style("stroke-width", 2)
         .style("stroke", function(d) {return d.value;});//function(d) { return Math.sqrt(d.value); });
 
-
+  var llabels = glinks.append("text")
+      .attr("font-size", "10px")
+      .attr("opacity", ".7")
+      //.attr("rotate","-180")
+      //.attr("x", "20")
+      //.attr("y", "20")
+      .text(function(d) { return d.value; });
 
     var gnodes = svg.selectAll('g.gnode')
         .data(graph.nodes)
@@ -82,7 +103,7 @@ function drawGraph(name){
 
 
   var labels = gnodes.append("text")
-      .attr("font-size", "40px")
+      .attr("font-size", "12px")
       .attr("x", "5")
       .attr("y", "1")
       .text(function(d) { return d.name; });
@@ -94,19 +115,25 @@ function drawGraph(name){
             return 'translate(' + [d.source.x,d.source.y] + ') '+
                 'rotate(' + [
                 360/6.28*Math.atan((d.target.y-d.source.y)/(d.target.x-d.source.x))
-                + 180*(d.target.x<d.source.x)] 
+                + 180*(d.target.x<d.source.x)]
                 + ',0,0) ' +
                 'scale(' + [Math.sqrt(Math.pow(d.target.x-d.source.x,2)
                 + Math.pow(d.target.y-d.source.y,2))/60] + ')';
         });
+
+        llabels.attr("transform", function(d) {
+            return  'rotate(' + [-360/6.28*Math.atan((d.target.y-d.source.y)/(d.target.x-d.source.x))+ 180*(d.target.x<d.source.x)]+',0,0) '+'translate(' + [(d.target.x-d.source.x)/2,(d.target.y-d.source.y)/2] + ')'
+            ;
+        });
+
 /*
 	    link.attr("x1", function(d) { return d.source.x; })
 		.attr("y1", function(d) { return d.source.y; })
 		.attr("x2", function(d) { return d.target.x; })
 		.attr("y2", function(d) { return d.target.y; });
 */
-    gnodes.attr("transform", function(d) { 
-        return 'translate(' + [d.x, d.y] + ')'; 
+    gnodes.attr("transform", function(d) {
+        return 'translate(' + [d.x, d.y] + ')';
     });
 	  });
 	});
@@ -116,4 +143,3 @@ drawGraph("resistor.json");
 drawGraph("given.json");
 </script>
 </body>
-

@@ -170,7 +170,7 @@ def writeRandomNet(netlist,num,elements):
         #return 0
     return elemlist
 
-def writeJason(name,network,group):
+def writeJason(name,network,group,dec):
     jason=open(name+'.json', 'w')
     jason.write("""{
         "nodes":[
@@ -186,9 +186,9 @@ def writeJason(name,network,group):
         for m in range(n,len(network)):
             if network[n][m]:
                 if n<>m:
-                    chewed+=[[str(n),str(m),str(network[n][m])]]
+                    chewed+=[[str(n),str(m),str(round(network[n][m],dec))]]
                 else:
-                    chewed+=[[str(n),str(len(network)),str(network[n][n])]]
+                    chewed+=[[str(n),str(len(network)),str(round(network[n][n],dec))]]
     for bite in chewed:
         jason.write('   {"source":'+bite[0]+',"target":'+bite[1]+',"value":'+bite[2]+'}')
         if chewed.index(bite)<(len(chewed)-1):
