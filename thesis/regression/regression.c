@@ -98,12 +98,16 @@ void tim2_isr(void)
 {
     if (timer_get_flag(TIM2, TIM_SR_UIF)){
         timer_clear_flag(TIM2, TIM_SR_UIF);
+        timer_disable_irq(TIM2, TIM_DIER_UIE);
         gpio_set(GPIOD, orange);
+        timer_enable_irq(TIM2, TIM_DIER_CC1IE);
     }
 
     if (timer_get_flag(TIM2, TIM_SR_CC1IF)) {
         timer_clear_flag(TIM2, TIM_SR_CC1IF);
+        timer_disable_irq(TIM2, TIM_DIER_CC1IE);
         gpio_clear(GPIOD, orange); 
+        timer_enable_irq(TIM2, TIM_DIER_UIE);
     }
 }
 
@@ -129,9 +133,9 @@ int main(void)
     gpio_setup();
 
     timer2_setup();
-    timer_enable_irq(TIM2, TIM_DIER_UIE|TIM_DIER_CC1IE);
-    timer5_setup();
-    timer_enable_irq(TIM5, TIM_DIER_UIE|TIM_DIER_CC1IE);
+    timer_enable_irq(TIM2, TIM_DIER_UIE);
+    //timer5_setup();
+    //timer_enable_irq(TIM5, TIM_DIER_UIE|TIM_DIER_CC1IE);
 
     uint32_t i;
     while (1)
