@@ -11,11 +11,9 @@
 *.sts
 *.gpi
 *.cir
-/butter/*.d
-/butter/*.o
-/tsp/*.d
-/tsp/*.elf
-/tsp/*.hex
-/tsp/*.map
-/tsp/*.o
+*.d
+*.elf
+*.hex
+*.map
+*.o
 *~
