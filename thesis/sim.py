@@ -104,6 +104,8 @@ def genMatrix(num):
     count=0
     for r in range(num):
         for x in range(r,num):
+            if x==r:
+                continue
             tmp = randint(0,1)
             if tmp==1:
                 rmatrix[x][r]=rmatrix[r][x]=1
@@ -142,7 +144,7 @@ def writeRandomNet(netlist,num,elements):
                     s = x
                     e = y
                     if s==e:
-                       e = -1
+                       continue #e = -1
                     if wname[elemlist.index(elem)]=='C':
                         netlist.write('C'+str(numr)+' '+str(s+1)+' '+str(e+1)+' '+val+'e-7'+'\n')
                         netlist.write('Rc'+str(numr)+' '+str(s+1)+' '+str(e+1)+' '+'1e8'+'\n')
@@ -170,14 +172,15 @@ def writeRandomNet(netlist,num,elements):
         #return 0
     return elemlist
 
-def writeJason(name,network,group,dec):
+def writeJason(name,network,group,elem):
     jason=open(name+'.json', 'w')
     jason.write("""{
         "nodes":[
     """)
     for n in range(len(network)):
-        jason.write('   {"name":"'+str(n)+'","group":'+str(group)+'},\n')
-    jason.write('   {"name":"g","group":'+str(group+1)+'}\n')
+        jason.write('   {"name":"'+str(n)+'","group":'+str(group)+'}')
+        if n<(len(network)-1):
+            jason.write(',\n')
     jason.write("""],
         "links":[
     """)
@@ -186,12 +189,12 @@ def writeJason(name,network,group,dec):
         for m in range(n,len(network)):
             if network[n][m]:
                 if n<>m:
-                    chewed+=[[str(n),str(m),str(round(network[n][m],dec))]]
+                    chewed+=[[str(n),str(m),str(round(network[n][m],2))]]
                 else:
-                    chewed+=[[str(n),str(len(network)),str(round(network[n][n],dec))]]
-    for bite in chewed:
-        jason.write('   {"source":'+bite[0]+',"target":'+bite[1]+',"value":'+bite[2]+'}')
-        if chewed.index(bite)<(len(chewed)-1):
+                    chewed+=[[str(n),str(len(network)),str(round(network[n][n],2))]]
+    for b in chewed:
+        jason.write('   {"source":'+b[0]+',"target":'+b[1]+',"value":'+b[2]+',"elem":'+str(elem)+'}')
+        if chewed.index(b)<(len(chewed)-1):
             jason.write(',\n')
         else:
             jason.write('\n')
