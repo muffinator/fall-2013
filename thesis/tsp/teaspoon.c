@@ -54,6 +54,8 @@ static volatile uint16_t datas[16000];
 static volatile uint16_t rearranged[1000];
 static volatile uint8_t send=0;
 static volatile uint8_t muxpin[8]={5,7,6,4,2,1,0,3};
+static volatile uint16_t testt = 168;
+static volatile int edge=1;
 volatile uint16_t idx=0;
 static usbd_device *usb_device;
 
@@ -85,7 +87,7 @@ static void gpio_setup(void)
     gpio_set_output_options(GPIOD, GPIO_OTYPE_PP, GPIO_OSPEED_50MHZ, GPIO_ALL);
     gpio_set(cs);
 
-    //------------	A8: Clock
+    //------------	A8: Clock  A4: DAC
     rcc_periph_clock_enable(RCC_GPIOA);
     rcc_periph_clock_enable(RCC_OTGFS);
 
@@ -101,12 +103,11 @@ static void gpio_setup(void)
 }
 
 
-static void dma_setup(void)
+static void dma2_setup(void)
 {
     /* DAC channel 1 uses DMA controller 1 Stream 5 Channel 7. */
     /* Enable DMA1 clock and IRQ */
     rcc_periph_clock_enable(RCC_DMA2);
-    nvic_enable_irq(NVIC_DMA2_STREAM1_IRQ);
     dma_stream_reset(mydma, mystream);
     dma_set_priority(mydma, mystream, DMA_SxCR_PL_VERY_HIGH);
     dma_set_memory_size(mydma, mystream, DMA_SxCR_MSIZE_16BIT);
@@ -125,13 +126,14 @@ static void dma_setup(void)
     dma_channel_select(mydma, mystream, mychannel);
     dma_enable_direct_mode(mydma, mystream);
     dma_enable_transfer_complete_interrupt(mydma, mystream);
-    //dma_enable_direct_mode_error_interrupt(mydma, mystream);
+    dma_enable_direct_mode_error_interrupt(mydma, mystream);
     dma_enable_stream(mydma, mystream);
+    nvic_enable_irq(NVIC_DMA2_STREAM1_IRQ);
+}
 
-
-
+static void dma1_setup(void)
+{
     rcc_periph_clock_enable(RCC_DMA1);
-	nvic_enable_irq(NVIC_DMA1_STREAM5_IRQ);
 	dma_stream_reset(DMA1, DMA_STREAM5);
 	dma_set_priority(DMA1, DMA_STREAM5, DMA_SxCR_PL_HIGH);
 	dma_set_memory_size(DMA1, DMA_STREAM5, DMA_SxCR_MSIZE_8BIT);
@@ -144,11 +146,12 @@ static void dma_setup(void)
 	   register */
 	dma_set_peripheral_address(DMA1, DMA_STREAM5, (uint32_t) &DAC_DHR8R1);
 	/* The array v[] is filled with the waveform data to be output */
-	dma_set_memory_address(DMA1, DMA_STREAM5, (uint32_t) stim);
-	dma_set_number_of_data(DMA1, DMA_STREAM5, 800);
+	dma_set_memory_address(DMA1, DMA_STREAM5, (uint32_t) cos250);
+	dma_set_number_of_data(DMA1, DMA_STREAM5, 1000);
 	dma_enable_transfer_complete_interrupt(DMA1, DMA_STREAM5);
 	dma_channel_select(DMA1, DMA_STREAM5, DMA_SxCR_CHSEL_7);
 	dma_enable_stream(DMA1, DMA_STREAM5);
+	nvic_enable_irq(NVIC_DMA1_STREAM5_IRQ);
 }
 
 static void dac_setup(void)
@@ -161,7 +164,7 @@ static void dac_setup(void)
 	dac_trigger_enable(CHANNEL_1);
 	dac_set_trigger_source(DAC_CR_TSEL1_T5);
 	dac_dma_enable(CHANNEL_1);
-	dac_enable(CHANNEL_1);
+    dac_enable(CHANNEL_1);
 }
 
 /* Timer Setup */
@@ -280,6 +283,7 @@ void dma2_stream1_isr(void)
         dma_clear_interrupt_flags(mydma, mystream, DMA_TCIF);
         /* Toggle PC1 just to keep aware of activity and frequency. */
         //gpio_toggle(GPIOD, GPIO12);
+        gpio_toggle(GPIOD, red);
         timer_disable_counter(TIM5);
         //maximum packet size of 64 bytes
         int n;
@@ -295,7 +299,7 @@ void dma2_stream1_isr(void)
             }
             //rearranged[n]=rearranged[n]>>1;
         }
-        for(n=0;n<60;n++)		//we want 30 packets
+        for(n=0;n<63;n++)		//we want 30 packets
         {
             while (usbd_ep_write_packet(usb_device, 0x82, (const void *)&rearranged[n*16],32)==0);
             //While (usbd_ep_write_packet(usb_device, 0x82, (const void *)&(datas[n*32]), 64)==0);
@@ -310,8 +314,10 @@ void dma2_stream1_isr(void)
         test[4]='/';
         test[5]='n';
         while (usbd_ep_write_packet(usb_device, 0x82, (const void *)&test[2], 2)==0);
+        
+        
         dac_disable(CHANNEL_1);
-        TIM5_EGR |= TIM_EGR_UG;
+        TIM5_EGR |= TIM_EGR_UG; 
     }
     if (dma_get_interrupt_flag(mydma, mystream, DMA_DMEIF)) {
         dma_clear_interrupt_flags(mydma, mystream, DMA_DMEIF);
@@ -340,11 +346,33 @@ static void cdcacm_data_rx_cb(usbd_device *usbd_dev, uint8_t ep)
         //while (usbd_ep_write_packet(usbd_dev, 0x82, buf, len)==0);
         if(buf[0]=='s')
         {
+            uint32_t clork = 84000000;
+            uint32_t freq=(((uint32_t)buf[3]<<16)+((uint32_t)buf[2]<<8)+(uint32_t)buf[1]);
+            uint16_t pd=168;
+            if(freq < 1000){
+                pd=(uint16_t)(clork/freq/250);
+                dma_disable_stream(DMA1, DMA_STREAM5);
+	            dma_set_memory_address(DMA1, DMA_STREAM5, (uint32_t) cos250);
+	            dma_enable_stream(DMA1, DMA_STREAM5);
+	        }else if(freq<5000){
+	            pd=(uint16_t)(clork/freq/100);
+	            dma_disable_stream(DMA1, DMA_STREAM5);
+	            dma_set_memory_address(DMA1, DMA_STREAM5, (uint32_t) cos100);
+	            dma_enable_stream(DMA1, DMA_STREAM5);
+	        }
+	        else {
+	            pd=(uint16_t)(clork/freq/25);
+	            dma_disable_stream(DMA1, DMA_STREAM5);
+	            dma_set_memory_address(DMA1, DMA_STREAM5, (uint32_t) cos25);
+	            dma_enable_stream(DMA1, DMA_STREAM5);
+	        }
+            if (pd<168){pd=168;}
             dac_enable(CHANNEL_1);
-            timer_set_period(TIM5, 165+buf[1]);
+            timer_set_period(TIM5, (uint16_t)(pd));
             timer_enable_counter(TIM5);
             timer_enable_counter(TIM2);
             timer_enable_counter(TIM1);
+
         }
         else if(buf[0]=='g')
         {
@@ -353,8 +381,8 @@ static void cdcacm_data_rx_cb(usbd_device *usbd_dev, uint8_t ep)
         }
         else if(buf[0]=='m')
         {
-            gpio_clear(GPIOD, 0b111<<12); //reset LEDs
-            gpio_set(GPIOD, (buf[1]&0xf)<<12); //set LEDs
+            //gpio_clear(GPIOD, 0b111<<12); //reset LEDs
+            //gpio_set(GPIOD, (buf[1]&0xf)<<12); //set LEDs
             gpio_clear(GPIOB, 0b1111<<6); //reset mux
             gpio_set(GPIOB,muxpin[(buf[1]&0xf)]<<6);
         }
@@ -395,7 +423,8 @@ int main(void)
     timer_disable_counter(TIM5);
     timer_disable_counter(TIM2);
     timer_disable_counter(TIM1);
-    dma_setup();
+    dma2_setup();
+    dma1_setup();
     dac_setup();
     dac_disable(CHANNEL_1);
     
