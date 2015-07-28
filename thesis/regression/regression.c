@@ -55,7 +55,6 @@ static void gpio_setup(void)
 static void timer2_setup(void)
 {
 	rcc_periph_clock_enable(RCC_TIM2);
-	nvic_enable_irq(NVIC_TIM2_IRQ);
 	timer_reset(TIM2);
 	timer_set_mode(TIM2, TIM_CR1_CKD_CK_INT,TIM_CR1_CMS_EDGE,TIM_CR1_DIR_UP);
 	timer_set_prescaler(TIM2, 0);
@@ -68,28 +67,30 @@ static void timer2_setup(void)
     //timer_disable_oc_clear(TIM2, TIM_OC1);
     //timer_disable_oc_preload(TIM2, TIM_OC1);
 	timer_set_oc_fast_mode(TIM2, TIM_OC1);
-	timer_set_oc_value(TIM2, TIM_OC1, 105);
+	timer_set_oc_value(TIM2, TIM_OC1, 104);
 	timer_enable_counter(TIM2);
+	nvic_enable_irq(NVIC_TIM2_IRQ);
 }
 
 static void timer5_setup(void)
 {
 	rcc_periph_clock_enable(RCC_TIM5);
-	nvic_enable_irq(NVIC_TIM5_IRQ);
 	timer_reset(TIM5);
 	timer_set_mode(TIM5, TIM_CR1_CKD_CK_INT,TIM_CR1_CMS_EDGE,TIM_CR1_DIR_UP);
 	timer_set_prescaler(TIM5, 0);
+	timer_set_counter(TIM5, 0);
 	timer_disable_preload(TIM5);
 	timer_continuous_mode(TIM5);
-	timer_set_period(TIM5, 800);
+	timer_set_period(TIM5, 165);
 	timer_set_oc_mode(TIM5, TIM_OC1, TIM_OCM_PWM2);
 	timer_disable_oc_output(TIM2, TIM_OC1|TIM_OC2 | TIM_OC3 | TIM_OC4);
     //timer_enable_oc_output(TIM2, TIM_OC1);
     //timer_disable_oc_clear(TIM2, TIM_OC1);
     //timer_disable_oc_preload(TIM2, TIM_OC1);
 	timer_set_oc_fast_mode(TIM5, TIM_OC1);
-	timer_set_oc_value(TIM5, TIM_OC1, 400);
+	timer_set_oc_value(TIM5, TIM_OC1, 100);
 	timer_enable_counter(TIM5);
+	nvic_enable_irq(NVIC_TIM5_IRQ);
 }
 
 /* Timer 3 ISR */
@@ -98,16 +99,12 @@ void tim2_isr(void)
 {
     if (timer_get_flag(TIM2, TIM_SR_UIF)){
         timer_clear_flag(TIM2, TIM_SR_UIF);
-        timer_disable_irq(TIM2, TIM_DIER_UIE);
         gpio_set(GPIOD, orange);
-        timer_enable_irq(TIM2, TIM_DIER_CC1IE);
     }
 
     if (timer_get_flag(TIM2, TIM_SR_CC1IF)) {
         timer_clear_flag(TIM2, TIM_SR_CC1IF);
-        timer_disable_irq(TIM2, TIM_DIER_CC1IE);
         gpio_clear(GPIOD, orange); 
-        timer_enable_irq(TIM2, TIM_DIER_UIE);
     }
 }
 
@@ -115,12 +112,12 @@ void tim5_isr(void)
 {
     if (timer_get_flag(TIM5, TIM_SR_UIF)){
         timer_clear_flag(TIM5, TIM_SR_UIF);
-        gpio_set(GPIOD, green);
+        gpio_set(GPIOD, orange);
     }
 
     if (timer_get_flag(TIM5, TIM_SR_CC1IF)) {
         timer_clear_flag(TIM5, TIM_SR_CC1IF);
-        gpio_clear(GPIOD, green); 
+        gpio_clear(GPIOD, orange); 
     }
 }
 
@@ -132,33 +129,47 @@ int main(void)
     rcc_clock_setup_hse_3v3(&hse_8mhz_3v3[CLOCK_3V3_168MHZ]);
     gpio_setup();
 
-    timer2_setup();
-    timer_enable_irq(TIM2, TIM_DIER_UIE);
-    //timer5_setup();
-    //timer_enable_irq(TIM5, TIM_DIER_UIE|TIM_DIER_CC1IE);
+    //timer2_setup();
+    //timer_enable_irq(TIM2, TIM_DIER_UIE|TIM_DIER_CC1IE);
+    timer5_setup();
+    timer_enable_irq(TIM5, TIM_DIER_UIE|TIM_DIER_CC1IE);
 
     uint32_t i;
     while (1)
     {
         for (testt=150;testt<220;testt++)
         {
-            for (i = 0; i<2000000; i++)
+            for (i = 0; i<20000; i++)
             {
                 __asm__("nop");
+                if(timer_get_counter(TIM5)>220){
+                    gpio_set(GPIOD,blue);
+                    gpio_set(GPIOD, green);
+                    }else{
+                    gpio_clear(GPIOD,blue);
+                    }
             }
-            timer_disable_counter(TIM2);
-            timer_set_period(TIM2, testt);
-            timer_enable_counter(TIM2);
+            //timer_disable_counter(TIM5);
+            timer_set_counter(TIM5,1);
+            timer_set_period(TIM5, testt);
+            //timer_enable_counter(TIM5);
         }
         for (testt=220;testt>170;testt--)
         {
-            for (i = 0; i<2000000; i++)
+            for (i = 0; i<20000; i++)
             {
                 __asm__("nop");
+               if(timer_get_counter(TIM5)>220){
+                    gpio_set(GPIOD,blue);
+                    gpio_set(GPIOD, green);
+                    }else{
+                    gpio_clear(GPIOD,blue);
+                    }
             }
-            timer_disable_counter(TIM2);
-            timer_set_period(TIM2, testt);
-            timer_enable_counter(TIM2);
+            //timer_disable_counter(TIM5);
+            timer_set_counter(TIM5,1);
+            timer_set_period(TIM5, testt);
+            //timer_enable_counter(TIM5);
         }
     }
 }
