@@ -84,6 +84,6 @@ print ''
 printMatrix(rboop)
 print ''
 
-writeJason('resistor',rboop,1,3)
-writeJason('given',rmatrix,3,0)
+writeJason('resistor',rboop,1,1)
+writeJason('given',rmatrix,3,1)
 
