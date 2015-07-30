@@ -55,7 +55,9 @@ static volatile uint16_t rearranged[1000];
 static volatile uint8_t send=0;
 static volatile uint8_t muxpin[8]={5,7,6,4,2,1,0,3};
 static volatile uint16_t testt = 168;
+static volatile uint32_t *dacData = (volatile uint32_t *)&cos250;
 static volatile int edge=1;
+static volatile int swap=0;
 volatile uint16_t idx=0;
 static usbd_device *usb_device;
 
@@ -102,7 +104,6 @@ static void gpio_setup(void)
     gpio_set_af(GPIOA, GPIO_AF1, GPIO8);
 }
 
-
 static void dma2_setup(void)
 {
     /* DAC channel 1 uses DMA controller 1 Stream 5 Channel 7. */
@@ -135,7 +136,7 @@ static void dma1_setup(void)
 {
     rcc_periph_clock_enable(RCC_DMA1);
 	dma_stream_reset(DMA1, DMA_STREAM5);
-	dma_set_priority(DMA1, DMA_STREAM5, DMA_SxCR_PL_HIGH);
+	dma_set_priority(DMA1, DMA_STREAM5, DMA_SxCR_PL_MEDIUM);
 	dma_set_memory_size(DMA1, DMA_STREAM5, DMA_SxCR_MSIZE_8BIT);
 	dma_set_peripheral_size(DMA1, DMA_STREAM5, DMA_SxCR_PSIZE_8BIT);
 	dma_enable_memory_increment_mode(DMA1, DMA_STREAM5);
@@ -194,7 +195,6 @@ static void timer1_setup(void)
     timer_set_oc_value(TIM1, TIM_OC1, 5);
     timer_enable_counter(TIM1);
 }
-
 
 static void timer2_setup(void)
 {
@@ -307,6 +307,10 @@ void dma2_stream1_isr(void)
             for(in=0;in<16;in++)
             {
                 rearranged[n]|=(((datas[n*16+in+4]>>pin)&1)<<(9-in));
+                //we need to go retrieve all of the bits across datas, since the
+                //'serial' data is stored in 'parallel' blocks...
+                //the 9-in gives us 10 bits of data.  I think if we changed that
+                //to 11 it'd give us 12 bits.
                 //rearranged[n]|=(((datas[in+n*16]>>pin)&1)<<(15-in));
             }
             //rearranged[n]=rearranged[n]>>1;
@@ -317,7 +321,6 @@ void dma2_stream1_isr(void)
             //While (usbd_ep_write_packet(usb_device, 0x82, (const void *)&(datas[n*32]), 64)==0);
         }
         //printf("hi");
-
         uint8_t test[6];
         test[0]=56;
         test[1]=55;
@@ -326,11 +329,8 @@ void dma2_stream1_isr(void)
         test[4]='/';
         test[5]='n';
         while (usbd_ep_write_packet(usb_device, 0x82, (const void *)&test[2], 2)==0);
-
-
         //dac_disable(CHANNEL_1);
         TIM5_EGR |= TIM_EGR_UG;
-
     }
     if (dma_get_interrupt_flag(mydma, mystream, DMA_DMEIF)) {
         dma_clear_interrupt_flags(mydma, mystream, DMA_DMEIF);
@@ -345,9 +345,18 @@ void dma1_stream5_isr(void)
         dma_clear_interrupt_flags(DMA1, DMA_STREAM5, DMA_TCIF);
         /* Toggle PC1 just to keep aware of activity and frequency. */
         gpio_toggle(GPIOD, green);
+        if(swap)
+        {
+            dma_disable_stream(DMA1, DMA_STREAM5);
+            dma_set_memory_address(DMA1, DMA_STREAM5, (uint32_t) dacData);
+            dma_enable_stream(DMA1, DMA_STREAM5);
+            timer_enable_counter(TIM5);
+            timer_enable_counter(TIM2);
+            timer_enable_counter(TIM1);
+            swap=0;
+        }
     }
 }
-
 
 static void cdcacm_data_rx_cb(usbd_device *usbd_dev, uint8_t ep)
 {
@@ -366,32 +375,24 @@ static void cdcacm_data_rx_cb(usbd_device *usbd_dev, uint8_t ep)
             if(freq < 3000){
                 dpd=(uint16_t)(clork/freq/250);
                 spd=(uint32_t)(dpd);
-                dma_disable_stream(DMA1, DMA_STREAM5);
-	            dma_set_memory_address(DMA1, DMA_STREAM5, (uint32_t) cos250);
-	            dma_enable_stream(DMA1, DMA_STREAM5);
+	            dacData = (volatile uint32_t *)&(cos250);
+                swap=1;
 	        }else if(freq<15000){
 	            dpd=(uint16_t)(clork/freq/100);
                 spd=(uint32_t)(dpd);
-	            dma_disable_stream(DMA1, DMA_STREAM5);
-	            dma_set_memory_address(DMA1, DMA_STREAM5, (uint32_t) cos100);
-	            dma_enable_stream(DMA1, DMA_STREAM5);
+	            dacData = (volatile uint32_t *)&(cos100);
+                swap=1;
 	        }
 	        else {
 	            dpd=(uint16_t)(clork/freq/25);
                 spd=(uint32_t)(dpd/4);
-	            dma_disable_stream(DMA1, DMA_STREAM5);
-	            dma_set_memory_address(DMA1, DMA_STREAM5, (uint32_t) cos25);
-	            dma_enable_stream(DMA1, DMA_STREAM5);
+	            dacData = (volatile uint32_t *)&(cos25);
+                swap=1;
 	        }
             if (spd<168){spd=168;}  //don't sample faster than 500KHz
             if (dpd<12){dpd=12;}    //the DMA can't drive faster than this
-            dac_enable(CHANNEL_1);
             timer_set_period(TIM5, (uint32_t)(spd));
             timer_set_period(TIM4, (uint16_t)(dpd));
-            timer_enable_counter(TIM5);
-            timer_enable_counter(TIM2);
-            timer_enable_counter(TIM1);
-
         }
         else if(buf[0]=='g')
         {
