@@ -146,7 +146,7 @@ static void dma1_setup(void)
 	   register */
 	dma_set_peripheral_address(DMA1, DMA_STREAM5, (uint32_t) &DAC_DHR8R1);
 	/* The array v[] is filled with the waveform data to be output */
-	dma_set_memory_address(DMA1, DMA_STREAM5, (uint32_t) cos250);
+	dma_set_memory_address(DMA1, DMA_STREAM5, (uint32_t) cos25);
 	dma_set_number_of_data(DMA1, DMA_STREAM5, 1000);
 	dma_enable_transfer_complete_interrupt(DMA1, DMA_STREAM5);
 	dma_channel_select(DMA1, DMA_STREAM5, DMA_SxCR_CHSEL_7);
@@ -162,7 +162,7 @@ static void dac_setup(void)
 	 * Assume the DAC has woken up by the time the first transfer occurs */
 	dac_buffer_enable(CHANNEL_1);
 	dac_trigger_enable(CHANNEL_1);
-	dac_set_trigger_source(DAC_CR_TSEL1_T5);
+	dac_set_trigger_source(DAC_CR_TSEL1_T4);
 	dac_dma_enable(CHANNEL_1);
     dac_enable(CHANNEL_1);
 }
@@ -257,7 +257,19 @@ static void timer5_setup(void)
 	timer_enable_counter(TIM5);
 }
 
-/* Timer 3 ISR */
+static void timer4_setup(void)
+{
+	rcc_periph_clock_enable(RCC_TIM4);
+	nvic_enable_irq(NVIC_TIM4_IRQ);
+	timer_reset(TIM4);
+	timer_set_mode(TIM4, TIM_CR1_CKD_CK_INT,TIM_CR1_CMS_EDGE,TIM_CR1_DIR_UP);
+	timer_set_prescaler(TIM4, 0);
+	timer_disable_preload(TIM4);
+	timer_continuous_mode(TIM4);
+	timer_set_period(TIM4, 11);
+	timer_set_master_mode(TIM4, TIM_CR2_MMS_UPDATE);
+	timer_enable_counter(TIM4);
+}
 
 void tim5_isr(void)
 {
@@ -314,10 +326,11 @@ void dma2_stream1_isr(void)
         test[4]='/';
         test[5]='n';
         while (usbd_ep_write_packet(usb_device, 0x82, (const void *)&test[2], 2)==0);
-        
-        
-        dac_disable(CHANNEL_1);
-        TIM5_EGR |= TIM_EGR_UG; 
+
+
+        //dac_disable(CHANNEL_1);
+        TIM5_EGR |= TIM_EGR_UG;
+
     }
     if (dma_get_interrupt_flag(mydma, mystream, DMA_DMEIF)) {
         dma_clear_interrupt_flags(mydma, mystream, DMA_DMEIF);
@@ -348,27 +361,33 @@ static void cdcacm_data_rx_cb(usbd_device *usbd_dev, uint8_t ep)
         {
             uint32_t clork = 84000000;
             uint32_t freq=(((uint32_t)buf[3]<<16)+((uint32_t)buf[2]<<8)+(uint32_t)buf[1]);
-            uint16_t pd=168;
-            if(freq < 1000){
-                pd=(uint16_t)(clork/freq/250);
+            uint32_t spd=168;
+            uint16_t dpd=12;
+            if(freq < 3000){
+                dpd=(uint16_t)(clork/freq/250);
+                spd=(uint32_t)(dpd);
                 dma_disable_stream(DMA1, DMA_STREAM5);
 	            dma_set_memory_address(DMA1, DMA_STREAM5, (uint32_t) cos250);
 	            dma_enable_stream(DMA1, DMA_STREAM5);
-	        }else if(freq<5000){
-	            pd=(uint16_t)(clork/freq/100);
+	        }else if(freq<15000){
+	            dpd=(uint16_t)(clork/freq/100);
+                spd=(uint32_t)(dpd);
 	            dma_disable_stream(DMA1, DMA_STREAM5);
 	            dma_set_memory_address(DMA1, DMA_STREAM5, (uint32_t) cos100);
 	            dma_enable_stream(DMA1, DMA_STREAM5);
 	        }
 	        else {
-	            pd=(uint16_t)(clork/freq/25);
+	            dpd=(uint16_t)(clork/freq/25);
+                spd=(uint32_t)(dpd/4);
 	            dma_disable_stream(DMA1, DMA_STREAM5);
 	            dma_set_memory_address(DMA1, DMA_STREAM5, (uint32_t) cos25);
 	            dma_enable_stream(DMA1, DMA_STREAM5);
 	        }
-            if (pd<168){pd=168;}
+            if (spd<168){spd=168;}  //don't sample faster than 500KHz
+            if (dpd<12){dpd=12;}    //the DMA can't drive faster than this
             dac_enable(CHANNEL_1);
-            timer_set_period(TIM5, (uint16_t)(pd));
+            timer_set_period(TIM5, (uint32_t)(spd));
+            timer_set_period(TIM4, (uint16_t)(dpd));
             timer_enable_counter(TIM5);
             timer_enable_counter(TIM2);
             timer_enable_counter(TIM1);
@@ -426,8 +445,9 @@ int main(void)
     dma2_setup();
     dma1_setup();
     dac_setup();
-    dac_disable(CHANNEL_1);
-    
+    timer4_setup();
+    //dac_disable(CHANNEL_1);
+
     usb_device = usbd_init(&otgfs_usb_driver, &dev, &config,usb_strings, 3,
         usbd_control_buffer, sizeof(usbd_control_buffer));
     usbd_register_set_config_callback(usb_device, cdcacm_set_config);

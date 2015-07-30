@@ -33,40 +33,49 @@ def medicine(chan,freq=1000):
         amin+=min(b[(ivl*x):ivl*(x+1)])
     amax = amax/split
     amin = amin/split
-    #print amax-amin
+    print amax-amin
     plot(range(len(b)+70),b+70*[b[-1]],label=chan)
     return(amax-amin)
 
 #for x in range(8):
  #   medicine(x)
 #medicine(5)
-
+medicine(2,1000)
+medicine(4,1000)
+show()
+# medicine(2,10000)
+# medicine(4,10000)
+# show()
+# medicine(2,40000)
+# medicine(4,40000)
+# show()
 tps=50
 n=range(1,tps)
 v=[]
 i=[]
 z=[]
 #4429 (189) 4535 (185)
-w = logspace(1,4,100)
+w = logspace(2,5,50)
 c = [1/((s*2*3.1415)*.82E-6) for s in w]
 r = [1500 for s in w]
-for x in w:
-    v+=[medicine(2,x)]
-    i+=[medicine(4,x)]
-    z+=[v[-1]/i[-1]*100]
-#print(medicine(2,10)/medicine(4,10)*90)
-#print(medicine(2,100)/medicine(4,100)*90)
 
-fig, ax1 = plt.subplots()
-
-ax2 = ax1.twinx()
-ax1.semilogx(w, v, 'y-', w,i, 'g-')
-ax2.loglog(w, z, 'b-o', w, c, 'k-', w, r, 'k-')
-
-ax1.set_xlabel('X data')
-ax1.set_ylabel('Y1 data', color='g')
-ax2.set_ylabel('Y2 data', color='b')
-
-plt.savefig("/home/muffin/Documents/fall-2013/thesis/tsp/plots/fig.png")
+# for x in w:
+#     v+=[medicine(2,x)]
+#     i+=[medicine(4,x)]
+#     z+=[v[-1]/i[-1]*100]
+# #print(medicine(2,10)/medicine(4,10)*90)
+# #print(medicine(2,100)/medicine(4,100)*90)
+#
+# fig, ax1 = plt.subplots()
+#
+# ax2 = ax1.twinx()
+# ax1.semilogx(w, v, 'y-', w,i, 'g-')
+# ax2.loglog(w, z, 'b-o', w, c, 'k-', w, r, 'k-')
+#
+# ax1.set_xlabel('X data')
+# ax1.set_ylabel('Y1 data', color='g')
+# ax2.set_ylabel('Y2 data', color='b')
+#
+# plt.savefig("/home/muffin/Documents/fall-2013/thesis/tsp/plots/fig.png")
 
 ser.close()
