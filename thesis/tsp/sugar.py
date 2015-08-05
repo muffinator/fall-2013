@@ -17,14 +17,14 @@ def medicine(chan,freq=1000):
     ser.write((['s']+f))
     a = ser.read(2000)
     b = [5*((ord(a[2*x+1])<<8)+ord(a[2*x]))/1024. for x in range(len(a)/2)]
-    # b = b[2:-2]
+    b = b[2:]
     # t=linspace(0,1000,1000)
     # b = [100*cos(90*3.1415/1000*x)+150+10*random() for x in t]
-    bx=[0]
-    nmax=0
-    nmin=0
-    look=1
-    dur = 10
+    # bx=[0]
+    # nmax=0
+    # nmin=0
+    # look=1
+    # dur = 10
     ft=fft(b)
     # if (freq > 6000):
     #     dur=4
@@ -69,13 +69,19 @@ def medicine(chan,freq=1000):
     # print amax-amin
     #plot(t,b,'k',t,bx[1:],'b')
     # plot(abs(ft)/500)
-    amp=max(abs(ft)[1:])/500
+    aind=argmax(abs(ft[1:]))+1
+    amp = abs(ft[aind])/500
+    phase = angle(ft[aind])
+    # print phase
+    # plot(abs(ft[1:])/500)
+    # plot(angle(ft[1:]))
+    # show()
     # print amp
     # show()
-    # plot(range(len(bx[1:])),bx[1:],'b',range(len(b)+7),b+7*[b[-1]],'r',label=chan)
-    # show()
+    plot(range(len(b)+7),b+7*[b[-1]],'r',label=chan)
+    show()
     # print ":".join("{:02x}".format(ord(c)) for c in a)
-    return(amp)
+    return ft[aind]
 
 #for x in range(8):
  #   medicine(x)
@@ -89,35 +95,56 @@ def medicine(chan,freq=1000):
 # medicine(2,40000)
 # medicine(4,40000)
 # show()
-tps=50
+tps=10
 v=[]
 i=[]
 z=[]
-#4429 (189) 4535 (185)
-w = logspace(5,2,tps)
-c = [1/((s*2*3.1415)*33E-6) for s in w]
-cp5 = [1/((s*2*3.1415)*33E-6*1.05) for s in w]
-cm5 = [1/((s*2*3.1415)*33E-6*.95) for s in w]
-r = [1500 for s in w]
-avg=0
+rs=[]
+ls=[]
+cs=[]
+w = logspace(2,5,tps)
 for x in w:
-    v+=[medicine(2,x)]
-    i+=[medicine(4,x)]
+    compv = medicine(2,x)
+    compi = medicine(4,x)
+    v+=[abs(compv)/500]
+    i+=[abs(compi)/500]
     z+=[v[-1]/i[-1]*90]
-    avg+=(1./(z[-1]*2*3.1415*x*tps))
-#print(medicine(2,10)/medicine(4,10)*90)
-#print(medicine(2,100)/medicine(4,100)*90)
-print avg
+
+for n in range(len(z)-1):
+    slope = (log(z[n+1])-log(z[n]))/(log(w[n+1])-log(w[n]))
+    if slope < -.8:
+        if slope > -1.2:
+            cs+=[1/(z[n]*2*3.1415*w[n])]
+            print 1/(z[n]*2*3.1415*w[n]),"F", w[n]
+    if slope < .2:
+        if slope > -.2:
+            rs+=[z[n]]
+            print z[n], "ohm", w[n]
+    if slope > .8:
+        if slope < 1.2:
+            ls+=[z[n]*2*3.1415*w[n]]
+            print z[n]*2*3.1415*w[n],"H", w[n]
+
 fig, ax1 = plt.subplots()
 
 ax2 = ax1.twinx()
 ax1.semilogx(w, v, 'y-', w,i, 'g-')
-ax2.loglog(w, z, 'b-o', w, c, 'k-', w, cm5, 'k.-', w, cp5, 'k.-', w, r, 'k-')
+
+if(cs):
+    c = [1/(mean(cs)*2*3.1415*s) for s in w]
+    ax2.loglog(w,c,'k-')
+if(rs):
+    r = [mean(rs) for s in w]
+    ax2.loglog(w,r,'k-')
+if(ls):
+    l = [mean(ls)*2*3.1415*s for s in w]
+    ax2.loglog(w,l,'k-')
+
+ax2.loglog(w, z, 'b-o')
 
 ax1.set_xlabel('Frequench (Hz) data')
 ax1.set_ylabel('Voltage (yellow) Current (Green)', color='g')
 ax2.set_ylabel('Impedance (Ohms)', color='b')
-
 plt.savefig("/home/muffin/Documents/fall-2013/thesis/tsp/plots/fig.png")
 
 ser.close()
