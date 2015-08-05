@@ -20,7 +20,39 @@ text {
 </style>
 <body>
 <script src="/home/muffin/Documents/fall-2013/thesis/d3.v3.min.js"></script>
+<script src="/home/muffin/Documents/fall-2013/thesis/jquery-1.11.3.min.js"></script>
 <script>
+
+function onFileChange(url, callback, delay, last) {
+  delay = delay || 500;
+  last = last || null;
+
+
+  $.ajaxSetup({ cache: false });
+  $.ajax({
+    type: "HEAD",
+    async: true,
+    mimeType: "application/json",
+    url: url
+  }).done(function(message, text, request) {
+    var t = new Date(request.getResponseHeader('Last-Modified'));
+   print(t);
+    if (last == null || t > last) {
+      callback()
+    }
+   
+    setTimeout(function() {
+      onFileChange(url, callback, delay, t);
+    }, delay);
+  })
+  .fail(function() {
+    setTimeout(function() {
+      onFileChange(url, callback, delay, last);
+    }, delay);
+  });
+};
+
+
 function drawGraph(name){
 	var width = 350,
 	    height = 500;
@@ -139,7 +171,12 @@ function drawGraph(name){
 	});
 }
 
-drawGraph("resistor.json");
-drawGraph("given.json");
+onFileChange("/home/muffin/Documents/fall-2013/thesis/", function() {
+  drawGraph("/home/muffin/Documents/fall-2013/thesis/resistor.json");
+});   
+
+onFileChange("/home/muffin/Documents/fall-2013/thesis/", function() {
+  drawGraph("/home/muffin/Documents/fall-2013/thesis/given.json");
+});
 </script>
 </body>
