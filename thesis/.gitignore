@@ -18,3 +18,5 @@
 *.o
 *~
 *.epf
+/eagle/*.pdf
+/eagle/*.png
