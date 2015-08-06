@@ -1,5 +1,13 @@
-*/eagle/*#*
-*/datasheets/*
+/eagle/**/*#*
+/datasheets/*
+/duino
+/tsp/plots/
+/texts/
+/test/
+/butter-f3/
+/simulations/*.net
+*.js
+*.zip
 *.json
 *.pyc
 *.cmp
@@ -18,5 +26,5 @@
 *.o
 *~
 *.epf
-*/eagle/**.pdf
-*/eagle/**.png
+/eagle/**/*.pdf
+/eagle/**/*.png
