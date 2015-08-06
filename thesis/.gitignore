@@ -1,5 +1,5 @@
-/eagle/*#*
-/datasheets/*
+*/eagle/*#*
+*/datasheets/*
 *.json
 *.pyc
 *.cmp
@@ -18,5 +18,5 @@
 *.o
 *~
 *.epf
-/eagle/*.pdf
-/eagle/*.png
+*/eagle/*.pdf
+*/eagle/*.png
