@@ -58,6 +58,7 @@ static volatile uint8_t muxpin[8]={5,7,6,4,2,1,0,3};
 static volatile uint8_t swpin[9]={4,6,14,7,15,8,11,9,10};
 static volatile uint16_t testt = 168;
 static volatile uint32_t *dacData = (volatile uint32_t *)&cos250;
+static volatile uint8_t adc=0;
 static volatile int edge=1;
 static volatile int swap=0;
 volatile uint16_t idx=0;
@@ -302,7 +303,7 @@ void dma2_stream1_isr(void)
         //maximum packet size of 64 bytes
         int n;
         int in;
-        char pin=(0<<0);
+        char pin=(adc<<0);
         for(n=0;n<1000;n++)
         {
             rearranged[n]=0;
@@ -370,6 +371,7 @@ static void cdcacm_data_rx_cb(usbd_device *usbd_dev, uint8_t ep)
         //while (usbd_ep_write_packet(usbd_dev, 0x82, buf, len)==0);
         if(buf[0]=='s')
         {
+            adc = buf[4]&1;
             uint32_t clork = 84000000;
             uint32_t freq=(((uint32_t)buf[3]<<16)+((uint32_t)buf[2]<<8)+(uint32_t)buf[1]);
             uint32_t spd=168;
@@ -407,6 +409,7 @@ static void cdcacm_data_rx_cb(usbd_device *usbd_dev, uint8_t ep)
             //gpio_set(GPIOD, (buf[1]&0xf)<<12); //set LEDs
             gpio_clear(GPIOB, 0b1111<<6); //reset mux
             gpio_set(GPIOB,muxpin[(buf[1]&0xf)]<<6);
+            gpio_clear(GPIOB,GPIO9);
         }
         else if(buf[0]=='w')
         {
