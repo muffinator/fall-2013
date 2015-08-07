@@ -8,7 +8,8 @@ from pylab import *
 ser = serial.Serial("/dev/ttyACM0")
 
 def medicine(chan,freq=1000):
-    ser.write(['g',(0<<chan)])
+    ser.write(['g',0xff&(~(1<<chan))])
+    ser.write(['w',chan+1])
     freq = int(freq)
     f=[freq&0xff,(freq&0xff00)>>8,(freq&0xff0000)>>16]
     # print freq, f
@@ -78,10 +79,11 @@ def medicine(chan,freq=1000):
     # show()
     # print amp
     # show()
-    plot(range(len(b)+7),b+7*[b[-1]],'r',label=chan)
-    show()
+    # plot(range(len(b)+7),b+7*[b[-1]],'r',label=chan)
+    # show()
     # print ":".join("{:02x}".format(ord(c)) for c in a)
     return ft[aind]
+
 
 #for x in range(8):
  #   medicine(x)
@@ -95,6 +97,9 @@ def medicine(chan,freq=1000):
 # medicine(2,40000)
 # medicine(4,40000)
 # show()
+
+print(medicine(6))
+"""
 tps=10
 v=[]
 i=[]
@@ -146,5 +151,5 @@ ax1.set_xlabel('Frequench (Hz) data')
 ax1.set_ylabel('Voltage (yellow) Current (Green)', color='g')
 ax2.set_ylabel('Impedance (Ohms)', color='b')
 plt.savefig("/home/muffin/Documents/fall-2013/thesis/tsp/plots/fig.png")
-
+"""
 ser.close()

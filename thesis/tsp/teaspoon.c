@@ -46,6 +46,7 @@
 #define red GPIO14
 #define blue GPIO15
 #define cs GPIOC,GPIO13
+#define swpins GPIO6|GPIO7|GPIO8|GPIO9|GPIO10|GPIO11|GPIO14|GPIO15
 
 
 static volatile char message = 'a';
@@ -54,6 +55,7 @@ static volatile uint16_t datas[16000];
 static volatile uint16_t rearranged[1000];
 static volatile uint8_t send=0;
 static volatile uint8_t muxpin[8]={5,7,6,4,2,1,0,3};
+static volatile uint8_t swpin[9]={4,6,14,7,15,8,11,9,10};
 static volatile uint16_t testt = 168;
 static volatile uint32_t *dacData = (volatile uint32_t *)&cos250;
 static volatile int edge=1;
@@ -69,10 +71,10 @@ static void gpio_setup(void)
     PE0 = D0
     PC13 = !CS
     */
-    //------------	PC13: !CS
+    //------------	PC13: !CS  P6-11, P14-15: switches
     rcc_periph_clock_enable(RCC_GPIOC);
-    gpio_mode_setup(GPIOC, GPIO_MODE_OUTPUT, GPIO_PUPD_NONE, GPIO1|GPIO13);
-    gpio_set_output_options(GPIOC, GPIO_OTYPE_PP, GPIO_OSPEED_50MHZ, GPIO1|GPIO13);
+    gpio_mode_setup(GPIOC, GPIO_MODE_OUTPUT, GPIO_PUPD_NONE, GPIO_ALL);
+    gpio_set_output_options(GPIOC, GPIO_OTYPE_PP, GPIO_OSPEED_50MHZ, GPIO_ALL);
 
     //------------	PB6-PB8,PB9: S0-S2,SE
 	rcc_periph_clock_enable(RCC_GPIOB);
@@ -405,6 +407,11 @@ static void cdcacm_data_rx_cb(usbd_device *usbd_dev, uint8_t ep)
             //gpio_set(GPIOD, (buf[1]&0xf)<<12); //set LEDs
             gpio_clear(GPIOB, 0b1111<<6); //reset mux
             gpio_set(GPIOB,muxpin[(buf[1]&0xf)]<<6);
+        }
+        else if(buf[0]=='w')
+        {
+            gpio_clear(GPIOC,swpins);
+            gpio_set(GPIOC,(1<<swpin[(buf[1]&0xf)]));
         }
     }
 }
