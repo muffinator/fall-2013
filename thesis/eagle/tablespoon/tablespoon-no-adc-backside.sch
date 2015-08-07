@@ -7967,7 +7967,6 @@ Basic schematic elements and footprints for 0603, 1206, and PTH resistors.</desc
 <part name="R3" library="rcl" deviceset="R-US_" device="R0603"/>
 <part name="R4" library="rcl" deviceset="R-US_" device="R0603"/>
 <part name="R5" library="rcl" deviceset="R-US_" device="R0603"/>
-<part name="GND7" library="supply1" deviceset="GND" device=""/>
 <part name="U2" library="butter" deviceset="ADCS7477" device=""/>
 <part name="R6" library="SparkFun-Passives" deviceset="RESISTOR" device="0805-RES"/>
 <part name="R7" library="SparkFun-Passives" deviceset="RESISTOR" device="0805-RES"/>
@@ -7978,6 +7977,10 @@ Basic schematic elements and footprints for 0603, 1206, and PTH resistors.</desc
 <part name="R13" library="SparkFun-Passives" deviceset="RESISTOR" device="0805-RES"/>
 <part name="R10" library="SparkFun-Passives" deviceset="RESISTOR" device="0805-RES"/>
 <part name="GND8" library="supply1" deviceset="GND" device=""/>
+<part name="R14" library="rcl" deviceset="R-US_" device="R0603"/>
+<part name="R15" library="rcl" deviceset="R-US_" device="R0603"/>
+<part name="SUPPLY2" library="SparkFun-Aesthetics" deviceset="5V" device=""/>
+<part name="GND7" library="supply1" deviceset="GND" device=""/>
 </parts>
 <sheets>
 <sheet>
@@ -8032,7 +8035,6 @@ Basic schematic elements and footprints for 0603, 1206, and PTH resistors.</desc
 <instance part="R3" gate="G$1" x="63.5" y="116.84" rot="R90"/>
 <instance part="R4" gate="G$1" x="81.28" y="134.62" rot="R180"/>
 <instance part="R5" gate="G$1" x="96.52" y="134.62" rot="R180"/>
-<instance part="GND7" gate="1" x="63.5" y="109.22"/>
 <instance part="U2" gate="G$1" x="86.36" y="101.6" rot="MR0"/>
 <instance part="R6" gate="G$1" x="121.92" y="114.3" rot="R90"/>
 <instance part="R7" gate="G$1" x="132.08" y="119.38" rot="R90"/>
@@ -8046,6 +8048,10 @@ Basic schematic elements and footprints for 0603, 1206, and PTH resistors.</desc
 <instance part="R13" gate="G$1" x="193.04" y="152.4" rot="R90"/>
 <instance part="R10" gate="G$1" x="162.56" y="137.16" rot="R90"/>
 <instance part="GND8" gate="1" x="17.78" y="73.66"/>
+<instance part="R14" gate="G$1" x="45.72" y="116.84" rot="R90"/>
+<instance part="R15" gate="G$1" x="45.72" y="106.68" rot="R90"/>
+<instance part="SUPPLY2" gate="G$1" x="45.72" y="121.92"/>
+<instance part="GND7" gate="1" x="45.72" y="99.06"/>
 </instances>
 <busses>
 </busses>
@@ -8080,6 +8086,10 @@ Basic schematic elements and footprints for 0603, 1206, and PTH resistors.</desc
 <segment>
 <pinref part="IC3" gate="P" pin="V+"/>
 <pinref part="SUPPLY1" gate="G$1" pin="5V"/>
+</segment>
+<segment>
+<pinref part="R14" gate="G$1" pin="2"/>
+<pinref part="SUPPLY2" gate="G$1" pin="5V"/>
 </segment>
 </net>
 <net name="GND" class="0">
@@ -8149,10 +8159,6 @@ Basic schematic elements and footprints for 0603, 1206, and PTH resistors.</desc
 <pinref part="GND6" gate="1" pin="GND"/>
 </segment>
 <segment>
-<pinref part="R3" gate="G$1" pin="1"/>
-<pinref part="GND7" gate="1" pin="GND"/>
-</segment>
-<segment>
 <wire x1="104.14" y1="55.88" x2="91.44" y2="55.88" width="0.1524" layer="91"/>
 <wire x1="91.44" y1="55.88" x2="91.44" y2="76.2" width="0.1524" layer="91"/>
 <wire x1="91.44" y1="76.2" x2="78.74" y2="76.2" width="0.1524" layer="91"/>
@@ -8173,6 +8179,10 @@ Basic schematic elements and footprints for 0603, 1206, and PTH resistors.</desc
 <wire x1="78.74" y1="96.52" x2="78.74" y2="76.2" width="0.1524" layer="91"/>
 <junction x="78.74" y="76.2"/>
 <pinref part="GND8" gate="1" pin="GND"/>
+</segment>
+<segment>
+<pinref part="R15" gate="G$1" pin="1"/>
+<pinref part="GND7" gate="1" pin="GND"/>
 </segment>
 </net>
 <net name="N$1" class="0">
@@ -8438,8 +8448,10 @@ Basic schematic elements and footprints for 0603, 1206, and PTH resistors.</desc
 <label x="81.28" y="17.78" size="1.27" layer="95" xref="yes"/>
 </segment>
 <segment>
-<wire x1="142.24" y1="132.08" x2="142.24" y2="152.4" width="0.1524" layer="91"/>
+<wire x1="142.24" y1="132.08" x2="142.24" y2="137.16" width="0.1524" layer="91"/>
 <pinref part="R8" gate="G$1" pin="2"/>
+<label x="142.24" y="137.16" size="1.27" layer="95" rot="R180" xref="yes"/>
+<label x="142.24" y="137.16" size="1.27" layer="95" rot="R180" xref="yes"/>
 </segment>
 </net>
 <net name="SW7" class="0">
@@ -8449,8 +8461,9 @@ Basic schematic elements and footprints for 0603, 1206, and PTH resistors.</desc
 <label x="50.8" y="17.78" size="1.27" layer="95" rot="R180" xref="yes"/>
 </segment>
 <segment>
-<wire x1="121.92" y1="119.38" x2="121.92" y2="147.32" width="0.1524" layer="91"/>
+<wire x1="121.92" y1="119.38" x2="121.92" y2="124.46" width="0.1524" layer="91"/>
 <pinref part="R6" gate="G$1" pin="2"/>
+<label x="121.92" y="124.46" size="1.27" layer="95" rot="R180" xref="yes"/>
 </segment>
 </net>
 <net name="SW6" class="0">
@@ -8460,8 +8473,9 @@ Basic schematic elements and footprints for 0603, 1206, and PTH resistors.</desc
 <label x="81.28" y="7.62" size="1.27" layer="95" xref="yes"/>
 </segment>
 <segment>
-<wire x1="132.08" y1="124.46" x2="132.08" y2="134.62" width="0.1524" layer="91"/>
+<wire x1="132.08" y1="124.46" x2="132.08" y2="129.54" width="0.1524" layer="91"/>
 <pinref part="R7" gate="G$1" pin="2"/>
+<label x="132.08" y="129.54" size="1.27" layer="95" rot="R180" xref="yes"/>
 </segment>
 </net>
 <net name="SW5" class="0">
@@ -8471,8 +8485,9 @@ Basic schematic elements and footprints for 0603, 1206, and PTH resistors.</desc
 <label x="50.8" y="7.62" size="1.27" layer="95" rot="R180" xref="yes"/>
 </segment>
 <segment>
-<wire x1="152.4" y1="137.16" x2="152.4" y2="149.86" width="0.1524" layer="91"/>
+<wire x1="152.4" y1="137.16" x2="152.4" y2="144.78" width="0.1524" layer="91"/>
 <pinref part="R9" gate="G$1" pin="2"/>
+<label x="152.4" y="144.78" size="1.27" layer="95" rot="R180" xref="yes"/>
 </segment>
 </net>
 <net name="SW4" class="0">
@@ -8484,6 +8499,7 @@ Basic schematic elements and footprints for 0603, 1206, and PTH resistors.</desc
 <segment>
 <wire x1="172.72" y1="144.78" x2="172.72" y2="154.94" width="0.1524" layer="91"/>
 <pinref part="R11" gate="G$1" pin="2"/>
+<label x="172.72" y="154.94" size="1.27" layer="95" rot="R180" xref="yes"/>
 </segment>
 </net>
 <net name="SW3" class="0">
@@ -8493,8 +8509,9 @@ Basic schematic elements and footprints for 0603, 1206, and PTH resistors.</desc
 <label x="50.8" y="5.08" size="1.27" layer="95" rot="R180" xref="yes"/>
 </segment>
 <segment>
-<wire x1="193.04" y1="157.48" x2="193.04" y2="170.18" width="0.1524" layer="91"/>
+<wire x1="193.04" y1="157.48" x2="193.04" y2="165.1" width="0.1524" layer="91"/>
 <pinref part="R13" gate="G$1" pin="2"/>
+<label x="193.04" y="165.1" size="1.27" layer="95" rot="R180" xref="yes"/>
 </segment>
 </net>
 <net name="SW2" class="0">
@@ -8505,8 +8522,9 @@ Basic schematic elements and footprints for 0603, 1206, and PTH resistors.</desc
 <label x="50.8" y="53.34" size="1.27" layer="95" rot="R180" xref="yes"/>
 </segment>
 <segment>
-<wire x1="182.88" y1="152.4" x2="182.88" y2="162.56" width="0.1524" layer="91"/>
+<wire x1="182.88" y1="152.4" x2="182.88" y2="160.02" width="0.1524" layer="91"/>
 <pinref part="R12" gate="G$1" pin="2"/>
+<label x="182.88" y="160.02" size="1.27" layer="95" rot="R180" xref="yes"/>
 </segment>
 </net>
 <net name="SW1" class="0">
@@ -8519,6 +8537,7 @@ Basic schematic elements and footprints for 0603, 1206, and PTH resistors.</desc
 <segment>
 <wire x1="162.56" y1="142.24" x2="162.56" y2="149.86" width="0.1524" layer="91"/>
 <pinref part="R10" gate="G$1" pin="2"/>
+<label x="162.56" y="149.86" size="1.27" layer="95" rot="R180" xref="yes"/>
 </segment>
 </net>
 <net name="N$27" class="0">
@@ -8742,6 +8761,15 @@ Basic schematic elements and footprints for 0603, 1206, and PTH resistors.</desc
 <pinref part="U$6" gate="G$1" pin="CTL"/>
 <pinref part="R10" gate="G$1" pin="1"/>
 <wire x1="162.56" y1="124.46" x2="162.56" y2="132.08" width="0.1524" layer="91"/>
+</segment>
+</net>
+<net name="N$35" class="0">
+<segment>
+<pinref part="R3" gate="G$1" pin="1"/>
+<wire x1="63.5" y1="111.76" x2="45.72" y2="111.76" width="0.1524" layer="91"/>
+<pinref part="R14" gate="G$1" pin="1"/>
+<pinref part="R15" gate="G$1" pin="2"/>
+<junction x="45.72" y="111.76"/>
 </segment>
 </net>
 </nets>
