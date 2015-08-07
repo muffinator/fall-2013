@@ -7,15 +7,16 @@ from pylab import *
 
 ser = serial.Serial("/dev/ttyACM0")
 
-def medicine(chan,freq=1000):
-    ser.write(['g',0xff&(~(1<<chan))])
-    ser.write(['w',chan+1])
+def medicine(drive,chan,freq=1000,adc=0):
+    ser.write(['g',0xff&(~((1<<chan)|(1<<drive)))])
+    ser.write(['w',drive+1])
     freq = int(freq)
     f=[freq&0xff,(freq&0xff00)>>8,(freq&0xff0000)>>16]
     # print freq, f
     ser.write(['m',chan])
     ser.flushInput()
-    ser.write((['s']+f))
+    ser.write((['s']+f+[adc]))
+    # adc value of 0 is for voltage and 1 for current
     a = ser.read(2000)
     b = [5*((ord(a[2*x+1])<<8)+ord(a[2*x]))/1024. for x in range(len(a)/2)]
     b = b[2:]
@@ -85,50 +86,55 @@ def medicine(chan,freq=1000):
     return ft[aind]
 
 
-#for x in range(8):
- #   medicine(x)
-#medicine(5)
-# medicine(2,900)
-# medicine(4,900)
-# show()
-# medicine(2,5000)
-# medicine(4,5000)
-# show()
-# medicine(2,40000)
-# medicine(4,40000)
-# show()
+# for x in range(8):
+#    print medicine(x,10000,0)
+#    print medicine(x,10000,1)
 
-print(medicine(6))
-"""
+
 tps=10
-v=[]
-i=[]
-z=[]
+zm=[]
 rs=[]
 ls=[]
 cs=[]
-w = logspace(2,5,tps)
-for x in w:
-    compv = medicine(2,x)
-    compi = medicine(4,x)
-    v+=[abs(compv)/500]
-    i+=[abs(compi)/500]
-    z+=[v[-1]/i[-1]*90]
-
-for n in range(len(z)-1):
-    slope = (log(z[n+1])-log(z[n]))/(log(w[n+1])-log(w[n]))
-    if slope < -.8:
-        if slope > -1.2:
-            cs+=[1/(z[n]*2*3.1415*w[n])]
-            print 1/(z[n]*2*3.1415*w[n]),"F", w[n]
-    if slope < .2:
-        if slope > -.2:
-            rs+=[z[n]]
-            print z[n], "ohm", w[n]
-    if slope > .8:
-        if slope < 1.2:
-            ls+=[z[n]*2*3.1415*w[n]]
-            print z[n]*2*3.1415*w[n],"H", w[n]
+w = logspace(4,5,tps)
+pins = [0,1,2,3,4,5,6,7]
+for p in pins:
+    npins = range(8)
+    npins.remove(p)
+    zn=[]
+    for n in npins:
+        vp=[]
+        ip=[]
+        vn=[]
+        rs=[]
+        ls=[]
+        cs=[]
+        z=[]
+        for x in w:
+            compvp = medicine(p,p,x,0)
+            compip = medicine(p,p,x,1)
+            #compvn = medicine(n,p,x,0)
+            vp+=[abs(compvp)/500]
+            ip+=[abs(compip)/500]
+            #vn+=[abs(compvn)/500]
+            z+=[vp[-1]/ip[-1]*90]
+        for f in range(len(z)-1):
+            slope = (log(z[f+1])-log(z[f]))/(log(w[f+1])-log(w[f]))
+            if slope < -.8:
+                if slope > -1.2:
+                    cs+=[1/(z[f]*2*3.1415*w[f])]
+                    print 1/(z[f]*2*3.1415*w[f]),"F", w[f]
+            if slope < .2:
+                if slope > -.2:
+                    rs+=[z[f]]
+                    print z[f], "ohm", w[f]
+            if slope > .8:
+                if slope < 1.2:
+                    ls+=[z[f]*2*3.1415*w[f]]
+                    print z[f]*2*3.1415*w[f],"H", w[f]
+    print ""
+    zn+=[z]
+    zm+=[zn]
 
 fig, ax1 = plt.subplots()
 
@@ -151,5 +157,5 @@ ax1.set_xlabel('Frequench (Hz) data')
 ax1.set_ylabel('Voltage (yellow) Current (Green)', color='g')
 ax2.set_ylabel('Impedance (Ohms)', color='b')
 plt.savefig("/home/muffin/Documents/fall-2013/thesis/tsp/plots/fig.png")
-"""
+
 ser.close()
