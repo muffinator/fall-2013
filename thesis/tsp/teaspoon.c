@@ -246,11 +246,11 @@ void dma2_stream1_isr(void)
         /* Toggle PC1 just to keep aware of activity and frequency. */
         //gpio_toggle(GPIOD, GPIO12);
         gpio_toggle(GPIOD, red);
-        timer1_setup();
-        timer5_setup();
+        // timer1_setup();
+        // timer5_setup();
         timer_disable_counter(TIM5);
-        timer_disable_counter(TIM1);
-        dma2_setup();
+        // timer_disable_counter(TIM1);
+        // dma2_setup();
         //maximum packet size of 64 bytes
         int n;
         int in;
@@ -305,8 +305,7 @@ void dma1_stream5_isr(void)
             dma_set_memory_address(DMA1, DMA_STREAM5, (uint32_t) dacData);
             dma_enable_stream(DMA1, DMA_STREAM5);
             timer_enable_counter(TIM5);
-            timer_enable_counter(TIM2);
-            timer_enable_counter(TIM1);
+            //timer_enable_counter(TIM1);
             swap=0;
         }
     }
@@ -400,7 +399,7 @@ int main(void)
     timer1_setup();
     timer5_setup();
     timer_disable_counter(TIM5);
-    timer_disable_counter(TIM1);
+    // timer_disable_counter(TIM1);
     dma2_setup();
     dma1_setup();
     dac_setup();
