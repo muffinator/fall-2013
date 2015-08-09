@@ -1,5 +1,6 @@
 import serial
 from random import *
+from sim import *
 import time
 import numpy as np
 import matplotlib.pyplot as plt
@@ -8,7 +9,8 @@ from pylab import *
 ser = serial.Serial("/dev/ttyACM0")
 
 def medicine(drive,chan,freq=1000,adc=0):
-    ser.write(['g',0xff&(~((1<<chan)|(1<<drive)))])
+    ser.write(['g',0x00])
+    #ser.write(['g',0xff&(~((1<<chan)|(1<<drive)))])
     ser.write(['w',drive+1])
     freq = int(freq)
     f=[freq&0xff,(freq&0xff00)>>8,(freq&0xff0000)>>16]
@@ -20,57 +22,7 @@ def medicine(drive,chan,freq=1000,adc=0):
     a = ser.read(2000)
     b = [5*((ord(a[2*x+1])<<8)+ord(a[2*x]))/1024. for x in range(len(a)/2)]
     b = b[2:]
-    # t=linspace(0,1000,1000)
-    # b = [100*cos(90*3.1415/1000*x)+150+10*random() for x in t]
-    # bx=[0]
-    # nmax=0
-    # nmin=0
-    # look=1
-    # dur = 10
     ft=fft(b)
-    # if (freq > 6000):
-    #     dur=4
-    # xlist=[]
-    # h=[]
-    # l=[]
-    # for n in range(len(b)):
-    #     bx+=[bx[n]]
-    #     if look==1:
-    #         if b[n] > bx[n]:
-    #             bx[n+1]=b[n]
-    #             nmax=n+1
-    #         if nmax<n-dur:
-    #             look=0
-    #             h+=[bx[n]]
-    #     else:
-    #         if b[n] < bx[n]:
-    #             bx[n+1]=b[n]
-    #             nmin=n+1
-    #         if nmin<n-dur:
-    #             look=1
-    #             l+=[bx[n]]
-    # ah=(sum(h[2:])/len(h[2:]))
-    # al=(sum(l[2:])/len(l[2:]))
-    # print(x,a[0:10])
-    # if (freq<1000):
-    #     split=8
-    #     ivl=125
-    # elif (freq<15000):
-    #     split=10
-    #     ivl=100
-    # else:
-    #     split=40
-    #     ivl=25
-    # amax=0
-    # amin=0
-    # for x in range(split):
-    #     amax+=max(b[(ivl*x):ivl*(x+1)])
-    #     amin+=min(b[(ivl*x):ivl*(x+1)])
-    # amax = amax/split
-    # amin = amin/split
-    # print amax-amin
-    #plot(t,b,'k',t,bx[1:],'b')
-    # plot(abs(ft)/500)
     aind=argmax(abs(ft[1:]))+1
     amp = abs(ft[aind])/500
     phase = angle(ft[aind])
@@ -80,66 +32,73 @@ def medicine(drive,chan,freq=1000,adc=0):
     # show()
     # print amp
     # show()
-    # plot(range(len(b)+7),b+7*[b[-1]],'r',label=chan)
-    # show()
+    plot(range(len(b)+7),b+7*[b[-1]],'r',label=chan)
+    show()
     # print ":".join("{:02x}".format(ord(c)) for c in a)
-    return ft[aind]
+    return abs(ft[aind])/500
 
+# print medicine(2,5,100000,0)
+# print medicine(2,5,100000,1)
+zp=[]
+n=3
+w=logspace(2,5,1)
+for x in range(n):
+    zp+=[[90*medicine(x,x,f,1) for f in w]]
+    # loglog(w,zp[x])
+show()
 
-# for x in range(8):
-#    print medicine(x,10000,0)
-#    print medicine(x,10000,1)
+# zm = [[None for q in range(n)] for e in range(n)]
+# print zm
+# for x in range(n):
+#     o = range(n)
+#     o.remove(x)
+#     zm[x][x]=zp[x]
+#     for y in o:
+#         zm[x][y]=[zp[x][f]/medicine(y,x,w[f],0)*500 for f in range(len(w))]
+#     try:
+#         loglog(w,zm[x][x],label=str(x)+','+str(x))
+#     except:
+#         continue
+# printMatrix(zm)
+# legend()
+# show()
 
-
-tps=10
-zm=[]
+"""
+v=[]
+i=[]
+vn=[]
 rs=[]
 ls=[]
 cs=[]
-w = logspace(4,5,tps)
-pins = [0,1,2,3,4,5,6,7]
-for p in pins:
-    npins = range(8)
-    npins.remove(p)
-    zn=[]
-    for n in npins:
-        vp=[]
-        ip=[]
-        vn=[]
-        rs=[]
-        ls=[]
-        cs=[]
-        z=[]
-        for x in w:
-            compvp = medicine(p,p,x,0)
-            compip = medicine(p,p,x,1)
-            #compvn = medicine(n,p,x,0)
-            vp+=[abs(compvp)/500]
-            ip+=[abs(compip)/500]
-            #vn+=[abs(compvn)/500]
-            z+=[vp[-1]/ip[-1]*90]
-        for f in range(len(z)-1):
-            slope = (log(z[f+1])-log(z[f]))/(log(w[f+1])-log(w[f]))
-            if slope < -.8:
-                if slope > -1.2:
-                    cs+=[1/(z[f]*2*3.1415*w[f])]
-                    print 1/(z[f]*2*3.1415*w[f]),"F", w[f]
-            if slope < .2:
-                if slope > -.2:
-                    rs+=[z[f]]
-                    print z[f], "ohm", w[f]
-            if slope > .8:
-                if slope < 1.2:
-                    ls+=[z[f]*2*3.1415*w[f]]
-                    print z[f]*2*3.1415*w[f],"H", w[f]
-    print ""
-    zn+=[z]
-    zm+=[zn]
+z=[]
+for x in w:
+    compv = medicine(1,1,x,0)
+    compi = medicine(1,1,x,1)
+    #compvn = medicine(n,p,x,0)
+    v+=[abs(compv)/500]
+    i+=[abs(compi)/500]
+    #vn+=[abs(compvn)/500]
+    z+=[v[-1]/i[-1]*90]
+for f in range(len(z)-1):
+    slope = (log(z[f+1])-log(z[f]))/(log(w[f+1])-log(w[f]))
+    if slope < -.8:
+        if slope > -1.2:
+            cs+=[1/(z[f]*2*3.1415*w[f])]
+            print 1/(z[f]*2*3.1415*w[f]),"F", w[f]
+    if slope < .2:
+        if slope > -.2:
+            rs+=[z[f]]
+            print z[f], "ohm", w[f]
+    if slope > .8:
+        if slope < 1.2:
+            ls+=[z[f]*2*3.1415*w[f]]
+            print z[f]*2*3.1415*w[f],"H", w[f]
+
 
 fig, ax1 = plt.subplots()
 
 ax2 = ax1.twinx()
-ax1.semilogx(w, v, 'y-', w,i, 'g-')
+ax1.semilogx(w, vp, 'y-', w,ip, 'g-')
 
 if(cs):
     c = [1/(mean(cs)*2*3.1415*s) for s in w]
@@ -157,5 +116,5 @@ ax1.set_xlabel('Frequench (Hz) data')
 ax1.set_ylabel('Voltage (yellow) Current (Green)', color='g')
 ax2.set_ylabel('Impedance (Ohms)', color='b')
 plt.savefig("/home/muffin/Documents/fall-2013/thesis/tsp/plots/fig.png")
-
+"""
 ser.close()
