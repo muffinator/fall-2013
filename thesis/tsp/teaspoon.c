@@ -70,7 +70,8 @@ static void gpio_setup(void)
     PD0-PD7 = ground gates
     PB6-PB8,PB9 = S0-S2,SE
     PE0 = D0
-    PC13 = !CS
+    PE1 = D1
+    PA0 = !CS
     */
     //------------	PC13: !CS  P6-11, P14-15: switches
     rcc_periph_clock_enable(RCC_GPIOC);
@@ -92,7 +93,7 @@ static void gpio_setup(void)
     gpio_set_output_options(GPIOD, GPIO_OTYPE_PP, GPIO_OSPEED_50MHZ, GPIO_ALL);
     gpio_set(cs);
 
-    //------------	A8: Clock  A4: DAC
+    //------------	A0: !CS A8: Clock  A4: DAC
     rcc_periph_clock_enable(RCC_GPIOA);
     rcc_periph_clock_enable(RCC_OTGFS);
 
@@ -101,10 +102,11 @@ static void gpio_setup(void)
     gpio_mode_setup(GPIOA, GPIO_MODE_AF, GPIO_PUPD_NONE, GPIO11 | GPIO12);
     gpio_set_af(GPIOA, GPIO_AF10, GPIO11 | GPIO12);
 
-    gpio_mode_setup(GPIOA, GPIO_MODE_AF, GPIO_PUPD_NONE, GPIO8);
+    gpio_mode_setup(GPIOA, GPIO_MODE_AF, GPIO_PUPD_NONE, GPIO8|GPIO0);
     gpio_mode_setup(GPIOA, GPIO_MODE_OUTPUT, GPIO_PUPD_NONE, GPIO15);
-    gpio_set_output_options(GPIOA, GPIO_OTYPE_PP, GPIO_OSPEED_50MHZ, GPIO8 | GPIO15);
+    gpio_set_output_options(GPIOA, GPIO_OTYPE_PP, GPIO_OSPEED_50MHZ, GPIO8|GPIO15|GPIO0);
     gpio_set_af(GPIOA, GPIO_AF1, GPIO8);
+    gpio_set_af(GPIOA, GPIO_AF2, GPIO0);
 }
 
 
@@ -177,94 +179,53 @@ static void dac_setup(void)
 static void timer1_setup(void)
 {
     rcc_periph_clock_enable(RCC_TIM1);
-    //nvic_enable_irq(NVIC_TIM1_UP_TIM10_IRQ);
-    //nvic_enable_irq(NVIC_TIM1_CC_IRQ);
     timer_reset(TIM1);
     timer_set_mode(TIM1, TIM_CR1_CKD_CK_INT, TIM_CR1_CMS_EDGE, TIM_CR1_DIR_UP);
+    timer_set_repetition_counter(TIM1,15);
+    timer_one_shot_mode(TIM1);
     timer_set_prescaler(TIM1,0);
-    timer_set_period(TIM1, 10);
+    timer_set_period(TIM1, 10);//8
     //dma stuff
     timer_set_dma_on_compare_event(TIM1);
-    timer_enable_irq(TIM1, TIM_DIER_CC1DE);
     //timer_update_on_overflow(TIM1);
 
-    timer_slave_set_mode(TIM1, TIM_SMCR_TS_ITR1 | TIM_SMCR_SMS_GM);
-    timer_set_master_mode(TIM1, TIM_CR2_MMS_UPDATE);
+    timer_slave_set_mode(TIM1, TIM_SMCR_SMS_TM);
+    timer_slave_set_trigger(TIM1, TIM_SMCR_TS_ITR0);
 
-    timer_set_oc_mode(TIM1, TIM_OC1, TIM_OCM_PWM2);
+    timer_set_oc_mode(TIM1, TIM_OC1, TIM_OCM_PWM1);
     timer_enable_oc_output(TIM1, TIM_OC1);
     timer_enable_break_main_output(TIM1);
 
-    timer_set_oc_fast_mode(TIM1, TIM_OC1);
-    timer_set_oc_value(TIM1, TIM_OC1, 5);
+    //timer_set_oc_fast_mode(TIM1, TIM_OC1);
+    timer_set_oc_value(TIM1, TIM_OC1, 5);//4
     timer_enable_counter(TIM1);
-}
-
-static void timer2_setup(void)
-{
-    rcc_periph_clock_enable(RCC_TIM2);
-    //nvic_enable_irq(NVIC_TIM2_IRQ);
-    timer_reset(TIM2);
-    timer_slave_set_mode(TIM2, TIM_SMCR_TS_ITR0 | TIM_SMCR_SMS_ECM1);
-
-    timer_set_master_mode(TIM2, TIM_CR2_MMS_COMPARE_OC1REF);
-    timer_set_mode(TIM2, TIM_CR1_CKD_CK_INT,TIM_CR1_CMS_EDGE,TIM_CR1_DIR_UP);
-    timer_set_prescaler(TIM2, 0);
-    timer_disable_preload(TIM2);
-    //timer_continuous_mode(TIM2);
-    timer_set_period(TIM2, 15);
-    //timer_set_oc_mode(TIM2, TIM_OC2, TIM_OCM_FROZEN);
-    //timer_disable_oc_output(TIM2, TIM_OC2);
-
-    //timer_update_on_overflow(TIM2);
-    //timer_set_dma_on_update_event(TIM2);
-    timer_set_oc_mode(TIM2, TIM_OC1, TIM_OCM_PWM2);
-    timer_disable_oc_output(TIM2, TIM_OC1);
-
-    timer_set_oc_fast_mode(TIM2, TIM_OC1);
-    timer_set_oc_value(TIM2, TIM_OC1, 15);
-
-    //timer_disable_oc_clear(TIM2, TIM_OC1);
-    //timer_disable_oc_preload(TIM2, TIM_OC1);
-    //timer_set_oc_fast_mode(TIM2, TIM_OC2);
-    //timer_set_oc_value(TIM2, TIM_OC2, 10);
-    //timer_disable_preload(TIM2);
-    timer_enable_counter(TIM2);
 }
 
 static void timer5_setup(void)
 {
 	rcc_periph_clock_enable(RCC_TIM5);
-	nvic_enable_irq(NVIC_TIM5_IRQ);
 	timer_reset(TIM5);
 	timer_set_mode(TIM5, TIM_CR1_CKD_CK_INT,TIM_CR1_CMS_EDGE,TIM_CR1_DIR_UP);
 	timer_set_prescaler(TIM5, 0);
 	timer_disable_preload(TIM5);
 	timer_continuous_mode(TIM5);
 	timer_set_period(TIM5, 165);
-    //timer_disable_oc_output(TIM5, TIM_OC2);
-    // timer_update_on_overflow(TIM5);
-	//timer_set_dma_on_update_event(TIM5);
+
 	timer_set_oc_mode(TIM5, TIM_OC1, TIM_OCM_PWM2);
-	timer_disable_oc_output(TIM5, TIM_OC2 | TIM_OC3 | TIM_OC4);
+	//timer_disable_oc_output(TIM5, TIM_OC2 | TIM_OC3 | TIM_OC4);
     timer_enable_oc_output(TIM5, TIM_OC1);
-    timer_disable_oc_clear(TIM5, TIM_OC1);
-    timer_disable_oc_preload(TIM5, TIM_OC1);
+    timer_enable_break_main_output(TIM5);
+    //timer_disable_oc_clear(TIM5, TIM_OC1);
+    //timer_disable_oc_preload(TIM5, TIM_OC1);
 	timer_set_oc_fast_mode(TIM5, TIM_OC1);
 	timer_set_oc_value(TIM5, TIM_OC1, 145);
-    timer_set_master_mode(TIM5, TIM_CR2_MMS_COMPARE_OC1REF);
-	//timer_disable_oc_clear(TIM5, TIM_OC1);
-	//timer_disable_oc_preload(TIM5, TIM_OC1);
-    // timer_set_oc_fast_mode(TIM5, TIM_OC2);
-    // timer_set_oc_value(TIM5, TIM_OC2, 10);
-	//timer_disable_preload(TIM5);
+    timer_set_master_mode(TIM5, TIM_CR2_MMS_UPDATE);
 	timer_enable_counter(TIM5);
 }
 
 static void timer4_setup(void)
 {
 	rcc_periph_clock_enable(RCC_TIM4);
-	nvic_enable_irq(NVIC_TIM4_IRQ);
 	timer_reset(TIM4);
 	timer_set_mode(TIM4, TIM_CR1_CKD_CK_INT,TIM_CR1_CMS_EDGE,TIM_CR1_DIR_UP);
 	timer_set_prescaler(TIM4, 0);
@@ -273,21 +234,6 @@ static void timer4_setup(void)
 	timer_set_period(TIM4, 11);
 	timer_set_master_mode(TIM4, TIM_CR2_MMS_UPDATE);
 	timer_enable_counter(TIM4);
-}
-
-void tim5_isr(void)
-{
-    if (timer_get_flag(TIM5, TIM_SR_UIF)){
-        timer_clear_flag(TIM5, TIM_SR_UIF);
-        TIM1_EGR |= TIM_EGR_UG;
-        gpio_clear(cs);
-        //TIM2_EGR |= TIM_EGR_UG;
-    }
-
-    if (timer_get_flag(TIM5, TIM_SR_CC1IF)) {
-        timer_clear_flag(TIM5, TIM_SR_CC1IF);
-        gpio_set(cs);
-    }
 }
 
 /* DMA ISR */
@@ -300,12 +246,9 @@ void dma2_stream1_isr(void)
         /* Toggle PC1 just to keep aware of activity and frequency. */
         //gpio_toggle(GPIOD, GPIO12);
         gpio_toggle(GPIOD, red);
-        timer2_setup();
         timer1_setup();
         timer5_setup();
-        timer_enable_irq(TIM5, TIM_DIER_UIE|TIM_DIER_CC1IE);
         timer_disable_counter(TIM5);
-        timer_disable_counter(TIM2);
         timer_disable_counter(TIM1);
         dma2_setup();
         //maximum packet size of 64 bytes
@@ -328,8 +271,8 @@ void dma2_stream1_isr(void)
         }
         for(n=0;n<63;n++)		//we want 30 packets
         {
-            while (usbd_ep_write_packet(usb_device, 0x82, (const void *)&rearranged[n*16],32)==0);
-            //While (usbd_ep_write_packet(usb_device, 0x82, (const void *)&(datas[n*32]), 64)==0);
+        while(usbd_ep_write_packet(usb_device,0x82,(const void *)&rearranged[n*16],32)==0);
+    //While (usbd_ep_write_packet(usb_device, 0x82, (const void *)&(datas[n*32]), 64)==0);
         }
         //printf("hi");
         uint8_t test[6];
@@ -454,12 +397,9 @@ int main(void)
     rcc_clock_setup_hse_3v3(&hse_8mhz_3v3[CLOCK_3V3_168MHZ]);
     gpio_setup();
 
-    timer2_setup();
     timer1_setup();
     timer5_setup();
-    timer_enable_irq(TIM5, TIM_DIER_UIE|TIM_DIER_CC1IE);
     timer_disable_counter(TIM5);
-    timer_disable_counter(TIM2);
     timer_disable_counter(TIM1);
     dma2_setup();
     dma1_setup();
