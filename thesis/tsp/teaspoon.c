@@ -107,6 +107,7 @@ static void gpio_setup(void)
     gpio_set_af(GPIOA, GPIO_AF1, GPIO8);
 }
 
+
 static void dma2_setup(void)
 {
     /* DAC channel 1 uses DMA controller 1 Stream 5 Channel 7. */
@@ -210,7 +211,7 @@ static void timer2_setup(void)
     timer_set_mode(TIM2, TIM_CR1_CKD_CK_INT,TIM_CR1_CMS_EDGE,TIM_CR1_DIR_UP);
     timer_set_prescaler(TIM2, 0);
     timer_disable_preload(TIM2);
-    timer_continuous_mode(TIM2);
+    //timer_continuous_mode(TIM2);
     timer_set_period(TIM2, 15);
     //timer_set_oc_mode(TIM2, TIM_OC2, TIM_OCM_FROZEN);
     //timer_disable_oc_output(TIM2, TIM_OC2);
@@ -278,9 +279,9 @@ void tim5_isr(void)
 {
     if (timer_get_flag(TIM5, TIM_SR_UIF)){
         timer_clear_flag(TIM5, TIM_SR_UIF);
-        TIM2_EGR |= TIM_EGR_UG;
-        gpio_clear(cs);
         TIM1_EGR |= TIM_EGR_UG;
+        gpio_clear(cs);
+        //TIM2_EGR |= TIM_EGR_UG;
     }
 
     if (timer_get_flag(TIM5, TIM_SR_CC1IF)) {
@@ -299,7 +300,14 @@ void dma2_stream1_isr(void)
         /* Toggle PC1 just to keep aware of activity and frequency. */
         //gpio_toggle(GPIOD, GPIO12);
         gpio_toggle(GPIOD, red);
+        timer2_setup();
+        timer1_setup();
+        timer5_setup();
+        timer_enable_irq(TIM5, TIM_DIER_UIE|TIM_DIER_CC1IE);
         timer_disable_counter(TIM5);
+        timer_disable_counter(TIM2);
+        timer_disable_counter(TIM1);
+        dma2_setup();
         //maximum packet size of 64 bytes
         int n;
         int in;
@@ -333,7 +341,7 @@ void dma2_stream1_isr(void)
         test[5]='n';
         while (usbd_ep_write_packet(usb_device, 0x82, (const void *)&test[2], 2)==0);
         //dac_disable(CHANNEL_1);
-        TIM5_EGR |= TIM_EGR_UG;
+        //TIM5_EGR |= TIM_EGR_UG;
     }
     if (dma_get_interrupt_flag(mydma, mystream, DMA_DMEIF)) {
         dma_clear_interrupt_flags(mydma, mystream, DMA_DMEIF);
