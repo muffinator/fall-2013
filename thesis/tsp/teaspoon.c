@@ -58,7 +58,7 @@ static volatile uint8_t muxpin[8]={5,7,6,4,2,1,0,3};
 static volatile uint8_t swpin[9]={4,6,14,7,15,8,11,9,10};
 static volatile uint16_t testt = 168;
 static volatile uint32_t *dacData = (volatile uint32_t *)&cos250;
-static volatile uint8_t adc=0;
+static volatile uint16_t adc=0;
 static volatile int edge=1;
 static volatile int swap=0;
 volatile uint16_t idx=0;
@@ -75,8 +75,10 @@ static void gpio_setup(void)
     */
     //------------	PC13: !CS  P6-11, P14-15: switches
     rcc_periph_clock_enable(RCC_GPIOC);
-    gpio_mode_setup(GPIOC, GPIO_MODE_OUTPUT, GPIO_PUPD_NONE, GPIO_ALL);
-    gpio_set_output_options(GPIOC, GPIO_OTYPE_PP, GPIO_OSPEED_50MHZ, GPIO_ALL);
+
+    gpio_mode_setup(GPIOC, GPIO_MODE_OUTPUT, GPIO_PUPD_NONE, GPIO_ALL&(~GPIO13));
+    gpio_set_output_options(GPIOC,GPIO_OTYPE_PP,GPIO_OSPEED_50MHZ,GPIO_ALL&(~GPIO13));
+    gpio_mode_setup(GPIOC, GPIO_MODE_INPUT, GPIO_PUPD_NONE, GPIO13);
 
     //------------	PB6-PB8,PB9: S0-S2,SE
 	rcc_periph_clock_enable(RCC_GPIOB);
@@ -104,7 +106,7 @@ static void gpio_setup(void)
 
     gpio_mode_setup(GPIOA, GPIO_MODE_AF, GPIO_PUPD_NONE, GPIO8|GPIO0);
     gpio_mode_setup(GPIOA, GPIO_MODE_OUTPUT, GPIO_PUPD_NONE, GPIO15);
-    gpio_set_output_options(GPIOA, GPIO_OTYPE_PP, GPIO_OSPEED_50MHZ, GPIO8|GPIO15|GPIO0);
+    gpio_set_output_options(GPIOA, GPIO_OTYPE_PP,GPIO_OSPEED_50MHZ,GPIO8|GPIO15|GPIO0);
     gpio_set_af(GPIOA, GPIO_AF1, GPIO8);
     gpio_set_af(GPIOA, GPIO_AF2, GPIO0);
 }
@@ -187,14 +189,14 @@ static void timer1_setup(void)
     timer_set_period(TIM1, 10);//8
     //dma stuff
     timer_set_dma_on_compare_event(TIM1);
-    //timer_update_on_overflow(TIM1);
+    timer_enable_irq(TIM1, TIM_DIER_CC1DE); //need this
 
     timer_slave_set_mode(TIM1, TIM_SMCR_SMS_TM);
     timer_slave_set_trigger(TIM1, TIM_SMCR_TS_ITR0);
 
     timer_set_oc_mode(TIM1, TIM_OC1, TIM_OCM_PWM1);
     timer_enable_oc_output(TIM1, TIM_OC1);
-    timer_enable_break_main_output(TIM1);
+    timer_enable_break_main_output(TIM1); //need this
 
     //timer_set_oc_fast_mode(TIM1, TIM_OC1);
     timer_set_oc_value(TIM1, TIM_OC1, 5);//4
@@ -203,7 +205,7 @@ static void timer1_setup(void)
 
 static void timer5_setup(void)
 {
-	rcc_periph_clock_enable(RCC_TIM5);
+    rcc_periph_clock_enable(RCC_TIM5);
 	timer_reset(TIM5);
 	timer_set_mode(TIM5, TIM_CR1_CKD_CK_INT,TIM_CR1_CMS_EDGE,TIM_CR1_DIR_UP);
 	timer_set_prescaler(TIM5, 0);
@@ -212,11 +214,10 @@ static void timer5_setup(void)
 	timer_set_period(TIM5, 165);
 
 	timer_set_oc_mode(TIM5, TIM_OC1, TIM_OCM_PWM2);
-	//timer_disable_oc_output(TIM5, TIM_OC2 | TIM_OC3 | TIM_OC4);
+
     timer_enable_oc_output(TIM5, TIM_OC1);
     timer_enable_break_main_output(TIM5);
-    //timer_disable_oc_clear(TIM5, TIM_OC1);
-    //timer_disable_oc_preload(TIM5, TIM_OC1);
+
 	timer_set_oc_fast_mode(TIM5, TIM_OC1);
 	timer_set_oc_value(TIM5, TIM_OC1, 145);
     timer_set_master_mode(TIM5, TIM_CR2_MMS_UPDATE);
@@ -238,6 +239,25 @@ static void timer4_setup(void)
 
 /* DMA ISR */
 
+void dma1_stream5_isr(void)
+{
+    if (dma_get_interrupt_flag(DMA1, DMA_STREAM5, DMA_TCIF)) {
+        dma_clear_interrupt_flags(DMA1, DMA_STREAM5, DMA_TCIF);
+        /* Toggle PC1 just to keep aware of activity and frequency. */
+        gpio_toggle(GPIOD, green);
+        if(swap)
+        {
+            gpio_toggle(GPIOD, blue);
+            dma_disable_stream(DMA1, DMA_STREAM5);
+            dma_set_memory_address(DMA1, DMA_STREAM5, (uint32_t) dacData);
+            dma_enable_stream(DMA1, DMA_STREAM5);
+            timer_enable_counter(TIM5);
+            timer_enable_counter(TIM1);
+            swap=0;
+        }
+    }
+}
+
 void dma2_stream1_isr(void)
 {
     if (dma_get_interrupt_flag(mydma, mystream, DMA_TCIF))
@@ -253,25 +273,57 @@ void dma2_stream1_isr(void)
         // dma2_setup();
         //maximum packet size of 64 bytes
         int n;
-        int in;
-        char pin=(adc<<0);
+        uint32_t wave=0;
+        // for(wave=0;wave<1000;wave++)
+        // {
+        //     char r=0;
+        //     for(r=0;r<16;r++)
+        //     {
+        //         datas[wave*16+r]=0;
+        //         datas[wave*16+r]|=(((cos250[wave]>>(15-r))&1)<<0);
+        //         datas[wave*16+r]|=((((2*cos250[wave])>>(15-r))&1)<<1);
+        //         datas[wave*16+r]|=((((3*cos250[wave])>>(15-r))&1)<<2);
+        //     }
+        //
+        // }
         for(n=0;n<1000;n++)
         {
             rearranged[n]=0;
-            for(in=0;in<16;in++)
+            char r=0;
+            for(r=0;r<16;r++)
             {
-                rearranged[n]|=(((datas[n*16+in+4]>>pin)&1)<<(9-in));
-                //we need to go retrieve all of the bits across datas, since the
-                //'serial' data is stored in 'parallel' blocks...
-                //the 9-in gives us 10 bits of data.  I think if we changed that
-                //to 11 it'd give us 12 bits.
-                //rearranged[n]|=(((datas[in+n*16]>>pin)&1)<<(15-in));
+                rearranged[n]|= (((datas[n*16+r]>>adc)&1)<<(15-r));
             }
+            // rearranged[n]|= ((datas[n*16]>>1)&1)<<15;
+            // rearranged[n]|= ((datas[n*16+1]>>1)&1)<<14;
+            // rearranged[n]|= ((datas[n*16+2]>>1)&1)<<13;
+            // rearranged[n]|= ((datas[n*16+3]>>1)&1)<<12;
+            // rearranged[n]|= ((datas[n*16+4]>>1)&1)<<11;
+            // rearranged[n]|= ((datas[n*16+5]>>1)&1)<<10;
+            // rearranged[n]|= ((datas[n*16+6]>>1)&1)<<9;
+            // rearranged[n]|= ((datas[n*16+7]>>1)&1)<<8;
+            // rearranged[n]|= ((datas[n*16+8]>>1)&1)<<7;
+            // rearranged[n]|= ((datas[n*16+9]>>1)&1)<<6;
+            // rearranged[n]|= ((datas[n*16+10]>>1)&1)<<5;
+            // rearranged[n]|= ((datas[n*16+11]>>1)&1)<<4;
+            // rearranged[n]|= ((datas[n*16+12]>>1)&1)<<3;
+            // rearranged[n]|= ((datas[n*16+13]>>1)&1)<<2;
+            // rearranged[n]|= ((datas[n*16+14]>>1)&1)<<1;
+            // rearranged[n]|= ((datas[n*16+15]>>1)&1);
+            // for(in=0;in<10;in++)
+            // {
+            //     rearranged[n]|=(((datas[n*16+in+4]>>pin)&1)<<(9-in));
+            //     //we need to go retrieve all of the bits across datas, since the
+            //     //'serial' data is stored in 'parallel' blocks...
+            //     //the 9-in gives us 10 bits of data.  I think if we changed that
+            //     //to 11 it'd give us 12 bits.
+            //     //rearranged[n]|=(((datas[in+n*16]>>pin)&1)<<(15-in));
+            // }
             //rearranged[n]=rearranged[n]>>1;
         }
         for(n=0;n<63;n++)		//we want 30 packets
         {
-        while(usbd_ep_write_packet(usb_device,0x82,(const void *)&rearranged[n*16],32)==0);
+    while(usbd_ep_write_packet(usb_device,0x82,(const void *)&rearranged[n*16],32)==0);
     //While (usbd_ep_write_packet(usb_device, 0x82, (const void *)&(datas[n*32]), 64)==0);
         }
         //printf("hi");
@@ -293,23 +345,6 @@ void dma2_stream1_isr(void)
     }
 }
 
-void dma1_stream5_isr(void)
-{
-    if (dma_get_interrupt_flag(DMA1, DMA_STREAM5, DMA_TCIF)) {
-        dma_clear_interrupt_flags(DMA1, DMA_STREAM5, DMA_TCIF);
-        /* Toggle PC1 just to keep aware of activity and frequency. */
-        gpio_toggle(GPIOD, green);
-        if(swap)
-        {
-            dma_disable_stream(DMA1, DMA_STREAM5);
-            dma_set_memory_address(DMA1, DMA_STREAM5, (uint32_t) dacData);
-            dma_enable_stream(DMA1, DMA_STREAM5);
-            timer_enable_counter(TIM5);
-            //timer_enable_counter(TIM1);
-            swap=0;
-        }
-    }
-}
 
 static void cdcacm_data_rx_cb(usbd_device *usbd_dev, uint8_t ep)
 {
@@ -321,9 +356,9 @@ static void cdcacm_data_rx_cb(usbd_device *usbd_dev, uint8_t ep)
         //while (usbd_ep_write_packet(usbd_dev, 0x82, buf, len)==0);
         if(buf[0]=='s')
         {
-            adc = buf[4]&1;
             uint32_t clork = 84000000;
             uint32_t freq=(((uint32_t)buf[3]<<16)+((uint32_t)buf[2]<<8)+(uint32_t)buf[1]);
+            adc = buf[4]&0xff;
             uint32_t spd=168;
             uint16_t dpd=12;
             if(freq < 3000){
@@ -405,6 +440,7 @@ int main(void)
     dac_setup();
     timer4_setup();
     //dac_disable(CHANNEL_1);
+
 
     usb_device = usbd_init(&otgfs_usb_driver, &dev, &config,usb_strings, 3,
         usbd_control_buffer, sizeof(usbd_control_buffer));

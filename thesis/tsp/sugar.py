@@ -33,7 +33,6 @@ def medicine(drive,chan,freq=1000,adc=0):
     # print amp
     # show()
     plot(range(len(b)+7),b+7*[b[-1]],'r',label=chan)
-    show()
     # print ":".join("{:02x}".format(ord(c)) for c in a)
     return abs(ft[aind])/500
 
@@ -41,9 +40,12 @@ def medicine(drive,chan,freq=1000,adc=0):
 # print medicine(2,5,100000,1)
 zp=[]
 n=3
-w=logspace(2,5,1)
+# w=logspace(2,5,2)
+w=[1000]
 for x in range(n):
-    zp+=[[90*medicine(x,x,f,1) for f in w]]
+    zp+=[[90*medicine(x,x,f,0) for f in w]]
+    #zp+=[[90*medicine(x,x,f,1) for f in w]]
+    show()
     # loglog(w,zp[x])
 show()
 
