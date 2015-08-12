@@ -32,13 +32,13 @@
 #define red GPIO14
 #define blue GPIO15
 
-static volatile uint32_t mydma =DMA2;
-static volatile uint32_t mystream= DMA_STREAM1;
-static volatile uint32_t mychannel= DMA_SxCR_CHSEL_6;
+// static volatile uint32_t mydma =DMA2;
+// static volatile uint32_t mystream= DMA_STREAM1;
+// static volatile uint32_t mychannel= DMA_SxCR_CHSEL_6;
 
-// #define mydma DMA2
-// #define mystream DMA_STREAM1
-// #define mychannel DMA_SxCR_CHSEL_6
+#define mydma DMA2
+#define mystream DMA_STREAM1
+#define mychannel DMA_SxCR_CHSEL_6
 
 static volatile uint16_t datas[16000];
 
@@ -106,7 +106,7 @@ static void dma2_setup(void)
     dma_enable_transfer_complete_interrupt(mydma, mystream);
     dma_enable_direct_mode_error_interrupt(mydma, mystream);
     dma_enable_stream(mydma, mystream);
-
+    nvic_enable_irq(NVIC_DMA2_STREAM1_IRQ);
     // mystream=DMA_STREAM3;
     // dma_stream_reset(mydma, mystream);
     // dma_set_priority(mydma, mystream, DMA_SxCR_PL_HIGH);
@@ -130,7 +130,6 @@ static void dma2_setup(void)
     // dma_enable_stream(mydma, mystream);
     //
     // mystream=DMA_STREAM1;
-    nvic_enable_irq(NVIC_DMA2_STREAM1_IRQ);
 
 }
 
@@ -144,7 +143,7 @@ static void timer1_setup(void)
     timer_set_repetition_counter(TIM1,15);
     timer_one_shot_mode(TIM1);
     timer_set_prescaler(TIM1,0);
-    timer_set_period(TIM1, 8);//8
+    timer_set_period(TIM1, 10);//8
     //dma stuff
     timer_set_dma_on_compare_event(TIM1);
     timer_enable_irq(TIM1, TIM_DIER_CC1DE);
@@ -156,10 +155,10 @@ static void timer1_setup(void)
 
     timer_set_oc_mode(TIM1, TIM_OC1, TIM_OCM_PWM1);
     timer_enable_oc_output(TIM1, TIM_OC1);
-    timer_enable_break_main_output(TIM1);
+    //timer_enable_break_main_output(TIM1);
 
     //timer_set_oc_fast_mode(TIM1, TIM_OC1);
-    timer_set_oc_value(TIM1, TIM_OC1, 4);//4
+    timer_set_oc_value(TIM1, TIM_OC1, 5);//4
     timer_enable_counter(TIM1);
 }
 
@@ -168,22 +167,22 @@ static void timer1_setup(void)
 static void timer5_setup(void)
 {
 	rcc_periph_clock_enable(RCC_TIM5);
-	nvic_enable_irq(NVIC_TIM5_IRQ);
+	//nvic_enable_irq(NVIC_TIM5_IRQ);
 	timer_reset(TIM5);
 	timer_set_mode(TIM5, TIM_CR1_CKD_CK_INT,TIM_CR1_CMS_EDGE,TIM_CR1_DIR_UP);
 	timer_set_prescaler(TIM5, 0);
 	timer_disable_preload(TIM5);
 	timer_continuous_mode(TIM5);
-	timer_set_period(TIM5, 90);
+	timer_set_period(TIM5, 165);
 
 	timer_set_oc_mode(TIM5, TIM_OC1, TIM_OCM_PWM2);
 	//timer_disable_oc_output(TIM5, TIM_OC2 | TIM_OC3 | TIM_OC4);
     timer_enable_oc_output(TIM5, TIM_OC1);
-    timer_enable_break_main_output(TIM5);
+    //timer_enable_break_main_output(TIM5);
     //timer_disable_oc_clear(TIM5, TIM_OC1);
     //timer_disable_oc_preload(TIM5, TIM_OC1);
 	timer_set_oc_fast_mode(TIM5, TIM_OC1);
-	timer_set_oc_value(TIM5, TIM_OC1, 85);
+	timer_set_oc_value(TIM5, TIM_OC1, 145);
     timer_set_master_mode(TIM5, TIM_CR2_MMS_UPDATE);
 	timer_enable_counter(TIM5);
 }
@@ -194,12 +193,12 @@ void tim5_isr(void)
 {
     if (timer_get_flag(TIM5, TIM_SR_UIF)){
         timer_clear_flag(TIM5, TIM_SR_UIF);
-        gpio_set(GPIOD, orange);
+        gpio_set(GPIOD, green);
     }
 
     if (timer_get_flag(TIM5, TIM_SR_CC1IF)) {
         timer_clear_flag(TIM5, TIM_SR_CC1IF);
-        gpio_clear(GPIOD, orange);
+        gpio_clear(GPIOD, green);
     }
 }
 
@@ -219,8 +218,6 @@ int main(void)
     rcc_clock_setup_hse_3v3(&hse_8mhz_3v3[CLOCK_3V3_168MHZ]);
     gpio_setup();
 
-    //timer2_setup();
-    //timer_enable_irq(TIM2, TIM_DIER_UIE|TIM_DIER_CC1IE);
     timer1_setup();
     timer5_setup();
     dma2_setup();
@@ -233,7 +230,7 @@ int main(void)
     }
     while (1)
     {
-        for (testt=90;testt<95;testt++)
+        for (testt=165;testt<195;testt++)
         {
             for (i = 0; i<2000000; i++)
             {
@@ -245,7 +242,7 @@ int main(void)
             timer_set_period(TIM5, testt);
             //timer_enable_counter(TIM5);
         }
-        for (testt=95;testt>90;testt--)
+        for (testt=195;testt>165;testt--)
         {
             for (i = 0; i<2000000; i++)
             {
