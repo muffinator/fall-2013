@@ -33,7 +33,7 @@ Modern solderless breadboards have come a long way from their namesake wooden an
 The shortcomings of solderless breadboards lie entirely within the art of breadboarding.
 The intent of breadboarding is to physically realize a circuit.
 Often, this involves designing or using a reference schematic to guide construction, but circuit improvisation is not uncommon.
-Inserting components and jumper wires into contact points is straightforward, but poor contacts, broken wires (inside insulation), and mis-inserting leads can plague designers for hours on end or even destroy components.
+Inserting components and jumper wires into contact points is straightforward, but poor contacts, broken wires (inside insulation), and mis-inserting leads can plague designers for hours on end and potentially destroy components.
 A meticulous breadboarder can successfully realize a circuit without error, but for the uninitiated it is difficult to justify the additional time and care required to plan and build.
 Breadboarding is a skill that is learned over time, but small errors can lead to excessive frustration and turn students off to the field.
 To satisfy the requirements of the Masters in Engineering program, I propose a solution to some of the issues with the solderless breadboard.
@@ -62,47 +62,20 @@ Designing a circuit-sensing breadboard requires a substantial amount of hardware
 Fortunately, the majority of this infrastructure is useful in its own right. 
 
 A hardware test-bench was constructed to interface each of the 130 rails on the breadboard. 
-The test-bench is composed of a pcb-mounted breadboard, an ADC and DAC multiplexing board, a micrcontroller, firmware to control sampling and stimulating the breadboard, and software to stream the sampling data to a computer for display.
+The test-bench is composed of a pcb-mounted breadboard, an ADC and DAC multiplexing board, a microcontroller, firmware to control sampling and stimulating the breadboard, and software to stream the sampling data to a computer for display.
 Effectively, the test-bench is a 130-channel digital breadboard-oscilloscope/function generator. 
-Since software is faster to prototype with, the theoretical circuit topology work was first implelemted in software. 
+Since software is faster to prototype with, the theoretical circuit topology work was first implemented in software. 
 A circuit simulator test-bench was written to provide the circuit-sensing algorithm in development with data.
 This test-bench allows the circuit-sensing algorithm to probe, stimulate, and ground every node of a randomly generated circuit, as if the circuit were built on a breadboard attached to the hardware test bench mentioned above.
 The software test-bench also had the ability to print out a circuit network solution to a schematic display.
 
 \section{Work to Date}
-\subsection{Software Test-bench}
-
-A software test-bench was written to quickly iterate and test the circuit-sensing algorithm.
-The test-bench uses NGspice, an open-source circuit simulator, to simulate a circuit and return only the data that would be accessible to the hardware test bench.
-It includes a method to generate a random circuit with a specified number of nodes and types of circuit element, a method to insert probes, ground nodes, and voltage sources into an existing circuit, and a method to execute the simulation and format the results into a python-friendly output.
-[I sincerely regret using python to implement this algorithm and intend to port the algorithm to julia or another, friendlier, language.]
-
-Circuits are described by netlists (text descriptions of a circuit) where each line specifies a new branch in the network.
-Each branch is composed of a circuit element (resistor, voltage source, etc.) with specified circuit parameter(s) (resistance, voltage, etc.), connected between a set of nodes.
-Netlists are convenient here because they allow for insertion of circuit elelments, voltage sources, probes, and grounds with the addition of simple strings to a text file.
-
-To write a random circuit netlist, the test-bench generates a random symmetric n-by-n matrix for each desired circuit element type, where n is the desired number of nodes in the circuit, excluding 'ground'.
-The circuit elements explored in the scope of this thesis are resistors, capacitors, and inductors.
-Each matrix is interpreted as a graph connecting the nodes in one dimension of the matrix to the nodes in the other dimension of the matrix.
-The value at each location in the matrix is the circuit parameter for that particular element.  
-%----------------------Matrix -> Circuit -> Netlist Example---------------------
-The matrix is used to generate a list of strings that are then inserted into a spice netlist.
-At this point, the netlist only describes the random circuit generated and contains none of the 'machinery' required to reverse-engineer the circuit.
-
-The circuit sensing algorithm conducts experiments on the circuit at hand and uses the data recorded to reverse-engineer the circuit.
-These experiments are implemented by simulating the effect of adding voltage sources, grounding nodes, reading node voltages, and reading the current through the voltage sources.
-
-Voltage sources are added by inserting a voltage source into the existing circuit netlist with an AC or a DC voltage.
-Nodes are grounded by inserting a voltage source with zero DC voltage with respect to ground.
-In the hardware test bench, nodes are grounded by a MOSFET connecting each rail to ground.
-On the other hand, voltage sources are driven by a buffered DAC and multiplexed out to all of the nodes.
-Since we have access to the voltage source, we can measure the current supplied by the buffered DAC and use that to gain information about the circuit in question.
-This is a better idea as there are fewer current sensors required.
-
 
 \subsection{Impedance network sensing algorithm}
 
-Given the ability to probe any node voltage, the ability to add a voltage source with a current meter to any node, and the ability to ground any node, an algorithm to reverse engineer any RLC network was written.
+
+The impedance network sensing algorithm relies on the ability to probe any node voltage, add a voltage source with a current meter to any node, and ground any node.
+In particular, the ability to ground any node in the network significantly reduces the network's complexity, which makes designing an algorithm to determine any branch impedance rather straightforward.
 The impedance network sensing algorithm works as follows:
 \begin{figure}[h]
   \begin{center}
@@ -205,10 +178,36 @@ An open circuit between two nodes will be indicated by an extremely high resisti
 Diodes are indicated by asymmetric resistances.
 For example, if $R_{12}=100\Omega$ and $R_{21}=1\Omega$, there is likely a diode between nodes 1 and 2.
 
+\subsection{Software Test-bench}
+
+A software test-bench was written to quickly iterate and test the circuit-sensing algorithm.
+The test-bench uses NGspice, an open-source circuit simulator, to simulate a circuit and return only the data that would be accessible to the hardware test bench.
+It includes a method to generate a random circuit with a specified number of nodes and types of circuit element, a method to insert probes, ground nodes, and voltage sources into an existing circuit, and a method to execute the simulation and format the results into a python-friendly output.
+[I sincerely regret using python to implement this algorithm and intend to port the algorithm to julia or another, friendlier, language.]
+
+Circuits are described by netlists (text descriptions of a circuit) where each line specifies a new branch in the network.
+Each branch is composed of a circuit element (resistor, voltage source, etc.) with specified circuit parameter(s) (resistance, voltage, etc.), connected between a set of nodes.
+Netlists are convenient here because they allow for insertion of circuit elelments, voltage sources, probes, and grounds with the addition of simple strings to a text file.
+
+To write a random circuit netlist, the test-bench generates a random symmetric n-by-n matrix for each desired circuit element type, where n is the desired number of nodes in the circuit, excluding 'ground'.
+The circuit elements explored in the scope of this thesis are resistors, capacitors, and inductors.
+Each matrix is interpreted as a graph connecting the nodes in one dimension of the matrix to the nodes in the other dimension of the matrix.
+The value at each location in the matrix is the circuit parameter for that particular element.  
+%----------------------Matrix -> Circuit -> Netlist Example---------------------
+The matrix is used to generate a list of strings that are then inserted into a spice netlist.
+At this point, the netlist only describes the random circuit generated and contains none of the 'machinery' required to reverse-engineer the circuit.
+
+The circuit sensing algorithm conducts experiments on the circuit at hand and uses the data recorded to reverse-engineer the circuit.
+These experiments are implemented by simulating the effect of adding voltage sources, grounding nodes, reading node voltages, and reading the current through the voltage sources.
+
+Voltage sources are added by inserting a voltage source into the existing circuit netlist with an AC or a DC voltage.
+Nodes are grounded by inserting a voltage source with zero DC voltage with respect to ground.
+In the hardware test bench, nodes are grounded by a MOSFET connecting each rail to ground.
+On the other hand, voltage sources are driven by a buffered DAC and multiplexed out to all of the nodes.
+Since we have access to the voltage source, we can measure the current supplied by the buffered DAC and use that to gain information about the circuit in question.
+This is a better idea as there are fewer current sensors required.
 
 
-
-\begin{comment}
 \subsection{PCB integration of Breadboard}
 
 Tool design is an art.
@@ -269,7 +268,6 @@ There are several timers to choose from on our microcontroller of choice, but we
 \subsubsection{STM32 stuff}
 
 \subsubsection{Arduino stuff}
-\end{comment}
 \begin{thebibliography}{1}
 \end{thebibliography}
 \end{document}
