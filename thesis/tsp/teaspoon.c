@@ -128,7 +128,7 @@ static void dma2_setup(void)
     //	dma_set_peripheral_address(mydma, mystream, (uint32_t) datas);
     dma_set_peripheral_address(mydma, mystream, (uint32_t) &GPIOE_IDR);
     /* The array v[] is filled with the waveform data to be output */
-    //	dma_set_memory_address(mydma, mystream, (uint32_t) &GPIOB_ODR);
+    // dma_set_memory_address(mydma, mystream, (uint32_t) &GPIOB_ODR);
     dma_set_memory_address(mydma, mystream, (uint32_t) datas);
     dma_set_number_of_data(mydma, mystream, 16000);
     //dma_disable_transfer_complete_interrupt(mydma, mystream);
@@ -194,7 +194,7 @@ static void timer1_setup(void)
     timer_slave_set_mode(TIM1, TIM_SMCR_SMS_TM);
     timer_slave_set_trigger(TIM1, TIM_SMCR_TS_ITR0);
 
-    timer_set_oc_mode(TIM1, TIM_OC1, TIM_OCM_PWM1);
+    timer_set_oc_mode(TIM1, TIM_OC1, TIM_OCM_PWM2);
     timer_enable_oc_output(TIM1, TIM_OC1);
     timer_enable_break_main_output(TIM1); //need this
 
@@ -247,7 +247,6 @@ void dma1_stream5_isr(void)
         gpio_toggle(GPIOD, green);
         if(swap)
         {
-            gpio_toggle(GPIOD, blue);
             dma_disable_stream(DMA1, DMA_STREAM5);
             dma_set_memory_address(DMA1, DMA_STREAM5, (uint32_t) dacData);
             dma_enable_stream(DMA1, DMA_STREAM5);
@@ -273,7 +272,7 @@ void dma2_stream1_isr(void)
         // dma2_setup();
         //maximum packet size of 64 bytes
         int n;
-        uint32_t wave=0;
+        // uint32_t wave=0;
         // for(wave=0;wave<1000;wave++)
         // {
         //     char r=0;
@@ -290,9 +289,9 @@ void dma2_stream1_isr(void)
         {
             rearranged[n]=0;
             char r=0;
-            for(r=0;r<16;r++)
+            for(r=0;r<15;r++)
             {
-                rearranged[n]|= (((datas[n*16+r]>>adc)&1)<<(15-r));
+                rearranged[n]|= (((datas[n*16+r]>>adc)&1)<<(14-r));
             }
             // rearranged[n]|= ((datas[n*16]>>1)&1)<<15;
             // rearranged[n]|= ((datas[n*16+1]>>1)&1)<<14;
@@ -441,6 +440,9 @@ int main(void)
     timer4_setup();
     //dac_disable(CHANNEL_1);
 
+    gpio_clear(GPIOD,0xff);
+    gpio_clear(GPIOC,swpins);
+    //gpio_clear(GPIOB, 0b1111<<6); //reset mux
 
     usb_device = usbd_init(&otgfs_usb_driver, &dev, &config,usb_strings, 3,
         usbd_control_buffer, sizeof(usbd_control_buffer));
