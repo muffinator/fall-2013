@@ -32,6 +32,11 @@
 #define red GPIO14
 #define blue GPIO15
 
+#define ckpd 16
+#define ckint ckpd/2
+#define sampmin ckpd*16
+#define sampmax ckpd*30
+
 // static volatile uint32_t mydma =DMA2;
 // static volatile uint32_t mystream= DMA_STREAM1;
 // static volatile uint32_t mychannel= DMA_SxCR_CHSEL_6;
@@ -67,7 +72,7 @@ static void gpio_setup(void)
     gpio_set_output_options(GPIOD, GPIO_OTYPE_PP, GPIO_OSPEED_50MHZ, GPIO_ALL);
 
     rcc_periph_clock_enable(RCC_GPIOE);
-    gpio_mode_setup(GPIOE, GPIO_MODE_INPUT, GPIO_PUPD_NONE, GPIO_ALL);
+    gpio_mode_setup(GPIOE, GPIO_MODE_INPUT, GPIO_PUPD_PULLUP, GPIO_ALL);
 
     rcc_periph_clock_enable(RCC_GPIOA);
     rcc_periph_clock_enable(RCC_OTGFS);
@@ -91,14 +96,15 @@ static void dma2_setup(void)
     dma_set_memory_size(mydma, mystream, DMA_SxCR_MSIZE_16BIT);
     dma_set_peripheral_size(mydma, mystream, DMA_SxCR_PSIZE_16BIT);
     dma_disable_peripheral_increment_mode(mydma, mystream);
-    dma_enable_memory_increment_mode(mydma, mystream);
+    // dma_enable_memory_increment_mode(mydma, mystream);
     dma_enable_circular_mode(mydma, mystream);
     dma_set_transfer_mode(mydma, mystream, DMA_SxCR_DIR_PERIPHERAL_TO_MEM);
     //dma_set_transfer_mode(mydma, mystream, DMA_SxCR_DIR_MEM_TO_PERIPHERAL);
     //dma_set_peripheral_address(mydma, mystream, (uint32_t) &GPIOB_ODR);
     dma_set_peripheral_address(mydma, mystream, (uint32_t) &GPIOE_IDR);
     /* The array v[] is filled with the waveform data to be output */
-    dma_set_memory_address(mydma, mystream, (uint32_t) datas);
+    dma_set_memory_address(mydma, mystream, (uint32_t) &GPIOB_ODR);
+    // dma_set_memory_address(mydma, mystream, (uint32_t) datas);
     dma_set_number_of_data(mydma, mystream, 16000);
     //dma_disable_transfer_complete_interrupt(mydma, mystream);
     dma_channel_select(mydma, mystream, mychannel);
@@ -143,7 +149,7 @@ static void timer1_setup(void)
     timer_set_repetition_counter(TIM1,15);
     timer_one_shot_mode(TIM1);
     timer_set_prescaler(TIM1,0);
-    timer_set_period(TIM1, 10);//8
+    timer_set_period(TIM1, ckpd);//8
     //dma stuff
     timer_set_dma_on_compare_event(TIM1);
     timer_enable_irq(TIM1, TIM_DIER_CC1DE);
@@ -153,12 +159,12 @@ static void timer1_setup(void)
     timer_slave_set_trigger(TIM1, TIM_SMCR_TS_ITR0);
     //timer_set_master_mode(TIM1, TIM_CR2_MMS_UPDATE);
 
-    timer_set_oc_mode(TIM1, TIM_OC1, TIM_OCM_PWM1);
+    timer_set_oc_mode(TIM1, TIM_OC1, TIM_OCM_PWM2);
     timer_enable_oc_output(TIM1, TIM_OC1);
-    //timer_enable_break_main_output(TIM1);
+    timer_enable_break_main_output(TIM1);
 
     //timer_set_oc_fast_mode(TIM1, TIM_OC1);
-    timer_set_oc_value(TIM1, TIM_OC1, 5);//4
+    timer_set_oc_value(TIM1, TIM_OC1, ckint);//4
     timer_enable_counter(TIM1);
 }
 
@@ -173,7 +179,7 @@ static void timer5_setup(void)
 	timer_set_prescaler(TIM5, 0);
 	timer_disable_preload(TIM5);
 	timer_continuous_mode(TIM5);
-	timer_set_period(TIM5, 165);
+	timer_set_period(TIM5, sampmax);
 
 	timer_set_oc_mode(TIM5, TIM_OC1, TIM_OCM_PWM2);
 	//timer_disable_oc_output(TIM5, TIM_OC2 | TIM_OC3 | TIM_OC4);
@@ -182,7 +188,7 @@ static void timer5_setup(void)
     //timer_disable_oc_clear(TIM5, TIM_OC1);
     //timer_disable_oc_preload(TIM5, TIM_OC1);
 	timer_set_oc_fast_mode(TIM5, TIM_OC1);
-	timer_set_oc_value(TIM5, TIM_OC1, 145);
+	timer_set_oc_value(TIM5, TIM_OC1, sampmin);
     timer_set_master_mode(TIM5, TIM_CR2_MMS_UPDATE);
 	timer_enable_counter(TIM5);
 }
@@ -230,7 +236,7 @@ int main(void)
     }
     while (1)
     {
-        for (testt=165;testt<195;testt++)
+        for (testt=sampmin;testt<sampmax;testt++)
         {
             for (i = 0; i<2000000; i++)
             {
@@ -242,7 +248,7 @@ int main(void)
             timer_set_period(TIM5, testt);
             //timer_enable_counter(TIM5);
         }
-        for (testt=195;testt>165;testt--)
+        for (testt=sampmax;testt>sampmin;testt--)
         {
             for (i = 0; i<2000000; i++)
             {
