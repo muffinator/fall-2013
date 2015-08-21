@@ -9,8 +9,8 @@ from pylab import *
 ser = serial.Serial("/dev/ttyACM0")
 
 def medicine(drive,chan,freq=1000,adc=0):
-    ser.write(['g',0x00])
-    #ser.write(['g',0xff&(~((1<<chan)|(1<<drive)))])
+    #ser.write(['g',0x00])
+    ser.write(['g',0xff&(~((1<<chan)|(1<<drive)))])
     ser.write(['w',drive+1])
     freq = int(freq)
     f=[freq&0xff,(freq&0xff00)>>8,(freq&0xff0000)>>16]
@@ -32,22 +32,26 @@ def medicine(drive,chan,freq=1000,adc=0):
     # show()
     # print amp
     # show()
-    plot(range(len(b)+7),b+7*[b[-1]],'r',label=chan)
+    # plot(range(len(b)+7),b+7*[b[-1]],'r',label=chan)
     # print ":".join("{:02x}".format(ord(c)) for c in a)
     return abs(ft[aind])/500
 
 # print medicine(2,5,100000,0)
 # print medicine(2,5,100000,1)
-zp=[]
-n=3
-# w=logspace(2,5,2)
-w=[1000]
-for x in range(n):
-    zp+=[[90*medicine(x,x,f,0) for f in w]]
-    #zp+=[[90*medicine(x,x,f,1) for f in w]]
-    show()
-    # loglog(w,zp[x])
-show()
+
+""" making sure medicine works.... """
+
+# for y in range(1):
+#     zp=[]
+#     n=1
+#     w=logspace(2,5,100)
+#     for x in range(n):
+#         zp+=[[90*medicine(x,x,f,0)/medicine(x,x,f,1) for f in w]]
+#         # zp+=[[90*medicine(x,x,f,1) for f in w]]
+#         # show()
+#         loglog(w,zp[x])
+# show()
+
 
 # zm = [[None for q in range(n)] for e in range(n)]
 # print zm
@@ -65,7 +69,7 @@ show()
 # legend()
 # show()
 
-"""
+w=concatenate((logspace(2,3.9,10),logspace(4,5,10)))
 v=[]
 i=[]
 vn=[]
@@ -74,11 +78,11 @@ ls=[]
 cs=[]
 z=[]
 for x in w:
-    compv = medicine(1,1,x,0)
-    compi = medicine(1,1,x,1)
+    compv = medicine(0,0,x,0)
+    compi = medicine(0,0,x,1)
     #compvn = medicine(n,p,x,0)
-    v+=[abs(compv)/500]
-    i+=[abs(compi)/500]
+    v+=[abs(compv)]
+    i+=[abs(compi)]
     #vn+=[abs(compvn)/500]
     z+=[v[-1]/i[-1]*90]
 for f in range(len(z)-1):
@@ -93,14 +97,14 @@ for f in range(len(z)-1):
             print z[f], "ohm", w[f]
     if slope > .8:
         if slope < 1.2:
-            ls+=[z[f]*2*3.1415*w[f]]
+            ls+=[z[f]/(2*3.1415*w[f])]
             print z[f]*2*3.1415*w[f],"H", w[f]
 
 
 fig, ax1 = plt.subplots()
 
 ax2 = ax1.twinx()
-ax1.semilogx(w, vp, 'y-', w,ip, 'g-')
+ax1.semilogx(w, v, 'y-', w,i, 'g-')
 
 if(cs):
     c = [1/(mean(cs)*2*3.1415*s) for s in w]
@@ -118,5 +122,5 @@ ax1.set_xlabel('Frequench (Hz) data')
 ax1.set_ylabel('Voltage (yellow) Current (Green)', color='g')
 ax2.set_ylabel('Impedance (Ohms)', color='b')
 plt.savefig("/home/muffin/Documents/fall-2013/thesis/tsp/plots/fig.png")
-"""
+
 ser.close()
