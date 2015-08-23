@@ -19,12 +19,13 @@ text {
 */
 </style>
 <body>
-<script src="/home/muffin/Documents/fall-2013/thesis/d3.v3.min.js"></script>
-<script src="/home/muffin/Documents/fall-2013/thesis/jquery-1.11.3.min.js"></script>
+<div id="grapes"></div>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/d3/3.5.5/d3.min.js"></script>
+<script src="https://code.jquery.com/jquery-1.11.3.min.js"></script>
 <script>
 
 function onFileChange(url, callback, delay, last) {
-  delay = delay || 500;
+  delay = delay || 1000;
   last = last || null;
 
 
@@ -36,7 +37,7 @@ function onFileChange(url, callback, delay, last) {
     url: url
   }).done(function(message, text, request) {
     var t = new Date(request.getResponseHeader('Last-Modified'));
-   print(t);
+  // console.log(t);
     if (last == null || t > last) {
       callback()
     }
@@ -65,8 +66,7 @@ function drawGraph(name){
 	    .linkDistance( function(link) {return Math.log(link.value);} )
 	    .size([width, height]);
 
-
-	var svg = d3.select("body").append("svg")
+	var svg = d3.select("#grapes").append("svg")
 	    .attr("width", width)
 	    .attr("height", height);
 
@@ -171,12 +171,13 @@ function drawGraph(name){
 	});
 }
 
-onFileChange("/home/muffin/Documents/fall-2013/thesis/", function() {
-  drawGraph("/home/muffin/Documents/fall-2013/thesis/resistor.json");
+onFileChange("/resistor.json", function() {
+  $('#grapes').empty();
+  drawGraph("/resistor.json");
 });   
 
-onFileChange("/home/muffin/Documents/fall-2013/thesis/", function() {
-  drawGraph("/home/muffin/Documents/fall-2013/thesis/given.json");
+onFileChange("/given.json", function() {
+  drawGraph("/given.json");
 });
 </script>
 </body>
