@@ -28,7 +28,10 @@ for n in nodelist:
     zm+=[zt]
 flist=runSim(net+'-t',out,'AC')['f']
 
+
 subprocess.call("clear")
+
+printMatrix(zm)
 print("R:")
 printMatrix(rmatrix)
 print("L:")

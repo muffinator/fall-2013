@@ -29,7 +29,7 @@ def runSim(target,results,source='DC'):
                 continue
             if "mynetlist" in line:
                 takedata=0
-            if "Index" in line: 
+            if "Index" in line:
                 takedata=1
                 if datas!=[]:
                     vars.update({var:datas})
@@ -40,9 +40,9 @@ def runSim(target,results,source='DC'):
             if takedata:
                 line=line.replace(',','').split('\t')
                 datas+=[complex(float(line[2]),float(line[3]))]
-                flist+=[float(line[1])]   
+                flist+=[float(line[1])]
         vars.update({var:datas})
-        vars.update({'f':flist})        
+        vars.update({'f':flist})
     return vars
 
 def insertProbe(target,node,source='DC'):
@@ -83,20 +83,20 @@ def printMatrix(m):
                     if entry[freq] == None:
                         print None,'\t\t',
                     else:
-                        print('{:.2e}'.format(entry[freq]))+'\t',
+                        print('{:.2e}'.format(float(entry[freq])))+'\t',
                 print''
             print ''
-    else:                        
-        for row in m: 
+    else:
+        for row in m:
             for entry in row:
-                concat='' 
-                if entry==None: 
-                    print entry,'   ', 
-                else: 
-                    print('{:.2e}'.format(entry)), 
+                concat=''
+                if entry==None:
+                    print entry,'   ',
+                else:
+                    print('{:.2e}'.format(entry)),
             print ' '
-	pass  
-	
+	pass
+
 
 def genMatrix(num):
     seed()
@@ -200,4 +200,3 @@ def writeJason(name,network,group,elem):
             jason.write('\n')
     jason.write(']\n}')
     jason.close()
-

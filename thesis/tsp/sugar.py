@@ -84,7 +84,7 @@ for x in w:
     v+=[abs(compv)]
     i+=[abs(compi)]
     #vn+=[abs(compvn)/500]
-    z+=[v[-1]/i[-1]*90]
+    z+=[v[-1]/i[-1]*100]
 for f in range(len(z)-1):
     slope = (log(z[f+1])-log(z[f]))/(log(w[f+1])-log(w[f]))
     if slope < -.8:

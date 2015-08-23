@@ -4,7 +4,7 @@ from random import *
 from math import *
 net = 'rlc'
 out = 'output'
-nodenum=4
+nodenum=6
 nodelist=range(1,nodenum+1)
 print nodelist
 [rmatrix,cmatrix]=writeRandomNet(net,nodenum,['R','C'])
