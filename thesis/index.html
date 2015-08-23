@@ -41,7 +41,7 @@ function onFileChange(url, callback, delay, last) {
     if (last == null || t > last) {
       callback()
     }
-   
+
     setTimeout(function() {
       onFileChange(url, callback, delay, t);
     }, delay);
@@ -62,8 +62,8 @@ function drawGraph(name){
 
 	var force = d3.layout.force()
 
-	    .charge(-2000)
-	    .linkDistance( function(link) {return Math.log(link.value);} )
+	    .charge(-600)
+	    .linkDistance( function(link) {return 10*Math.log(link.value);} )
 	    .size([width, height]);
 
 	var svg = d3.select("#grapes").append("svg")
@@ -171,10 +171,10 @@ function drawGraph(name){
 	});
 }
 
-onFileChange("/resistor.json", function() {
+onFileChange("/oz/resistor.json", function() {
   $('#grapes').empty();
-  drawGraph("/resistor.json");
-});   
+  drawGraph("/oz/resistor.json");
+});
 
 onFileChange("/given.json", function() {
   drawGraph("/given.json");
