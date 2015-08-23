@@ -8,6 +8,10 @@ from pylab import *
 
 ser = serial.Serial("/dev/ttyACM0")
 
+# def slope(m,w):
+#     for e in range(1,len(m)):
+#
+
 def medicine(drive,chan,freq=1000,adc=0,uglist=[]):
     nog=0
     for x in uglist:
@@ -32,37 +36,60 @@ def medicine(drive,chan,freq=1000,adc=0,uglist=[]):
 
 """ making sure medicine works.... """
 
-n=4
-zp=[]
-w=logspace(2,5,10)
-for x in range(n):
-    zp+=[[100*medicine(x,x,f,0)/medicine(x,x,f,1) for f in w]]
-    # zp+=[[90*medicine(x,x,f,1) for f in w]]
+for x in range(20):
+    nodenum=6
+    n=range(nodenum)
+    blist=[]
+    zp=[]
+    w=logspace(2,5,10)
+    for x in n:
+        zp+=[[100*medicine(x,x,f,0)/medicine(x,x,f,1) for f in w]]
+        if any([i>5E4 for i in zp[-1]]):
+            blist+=[x]
+        # zp+=[[90*medicine(x,x,f,1) for f in w]]
+        # show()
+        # loglog(w,zp[x])
     # show()
-    # loglog(w,zp[x])
-# show()
-
-zm = [[None for q in range(n)] for e in range(n)]
-printMatrix(zm)
-for x in range(n):
-    o = range(n)
-    o.remove(x)
-    zm[x][x]=zp[x]
-    for y in o:
-        zm[x][y]=[zp[x][f]/medicine(y,x,w[f],0)*medicine(y,y,w[f],0,[x]) for f in range(len(w))]
-        try:
-            if(all(i <= 10000 for i in zm[x][y])):
-                loglog(w,zm[x][y],label=str(x)+','+str(y))
-        except:
+    # print blist
+    zm = [[[] for q in range(nodenum)] for e in range(nodenum)]
+    rm = [[None for q in range(nodenum)] for e in range(nodenum)]
+    for x in range(nodenum):
+        o = range(nodenum)
+        o.remove(x)
+        if x in blist:
+            zm[x][x]=[None]*len(w)
+            for y in o:
+                zm[x][y]=[None]*len(w)
             continue
-    try:
-        if(all(i <= 10000 for i in zm[x][x])):
-            loglog(w,zm[x][x],label=str(x)+','+str(x))
-    except:
-        continue
-printMatrix(zm)
-legend()
-show()
+        zm[x][x]=zp[x]
+        for y in o:
+            diff=[]
+            for f in range(len(w)):
+                zm[x][y]+=[zp[x][f]/medicine(y,x,w[f],0)*medicine(y,y,w[f],0,[x])]
+                if f>1:
+                    diff+=[log(zm[x][y][-1]/zm[x][y][-3])/log(w[f]/w[f-2])]
+                if zm[x][y][-1]>5E4:
+                    zm[x][y]=[None]*(len(w))
+                    break
+            rtemp=[]
+            for n in range(len(diff)):
+                if (diff[n]>-0.2)and(diff[n]<0.2):
+                    rtemp+=[zm[x][y][n+1]]
+            if rtemp:
+                rm[x][y]=sum(rtemp)/len(rtemp)
+        #     try:
+        #         loglog(w,zm[x][y],label=str(x)+','+str(y))
+        #     except:
+        #         continue
+        # try:
+        #     loglog(w,zm[x][x],label=str(x)+','+str(x))
+        # except:
+        #     continue
+    # printMatrix(zm)
+    writeJason('resistor',rm,1,1)
+    printMatrix(rm)
+    # legend()
+    # show()
 
 # w=concatenate((logspace(2,3.9,10),logspace(4,5,10)))
 # v=[]
