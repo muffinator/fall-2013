@@ -41,7 +41,7 @@ for x in range(20):
     n=range(nodenum)
     blist=[]
     zp=[]
-    w=logspace(2,5,10)
+    w=logspace(3,5,5)
     for x in n:
         zp+=[[100*medicine(x,x,f,0)/medicine(x,x,f,1) for f in w]]
         if any([i>5E4 for i in zp[-1]]):
