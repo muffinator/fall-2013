@@ -1,0 +1,48 @@
+\documentclass[11pt, a4paper]{article}
+\usepackage{tikz}
+\usepackage{circuitikz}
+\usepackage{float}
+\usepackage{amsmath}
+\usepackage{graphicx,epsfig}
+\usepackage{verbatim}
+\usepackage{enumerate}
+\usepackage[margin=.8in]{geometry}
+\providecommand{\e}[1]{\ensuremath{\times 10^{#1}}}
+
+\title{MEng Thesis \\ Circuit Sensing Breadboard}
+\author{Josh Gordonson}
+
+\begin{document}
+
+\section{Network Sensing Algorithm}
+To develop a network sensing algorithm, a solution to the following problem must be found:
+Given electrical access to an n-node network of linear and time-invariant circuit elements\footnote{ie. resistors, inductors, and capacitors}, determine the elements between any two nodes.
+To solve this problem, the networks are broken into small chunks  the set of circuits constructed out of resistors.
+
+\begin{figure}[h]
+  \begin{center}
+    \begin{circuitikz}
+		\draw (0,0)
+		node[label={below:$1$}] {}
+		to[R=$Z_{13}$] (1.5,2.584)
+		node[label={above:$3$}] {}
+		to[R=$Z_{35}$] (3,0) % The resistor
+		node[label={below:$5$}] {}
+		to[R=$Z_{15}$] (0,0)
+		to[R=$Z_{12}$] (-1.5,2.584)
+		node[label={above:$2$}] {}
+		to[R=$Z_{23}$] (1.5,2.584)
+		to[R=$Z_{34}$] (4.5,2.584)
+		node[label={above:$4$}] {}
+		to[R=$Z_{45}$] (3,0);
+		\fill (0,0) circle (1mm);
+		\fill (3,0) circle (1mm);
+		\fill (1.5,2.584) circle (1mm);
+		\fill (4.5,2.584) circle (1mm);
+		\fill (-1.5,2.584) circle (1mm);
+    \end{circuitikz}
+   \caption{Example Circuit}
+  \end{center}
+\end{figure}
+
+\end{document}
