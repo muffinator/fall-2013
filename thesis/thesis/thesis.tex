@@ -17,14 +17,14 @@
 
 \section{Motivation}
 The breadboard has been a staple substrate for electronic construction over the last century.
-At the dawn of a growing interest in amatuer radio, resourceful tinkerers used planks of wood to secure and ruggedize their electrical handiwork.
+At the dawn of a growing interest in amateur radio, resourceful tinkerers used planks of wood to secure and ruggedize their electrical handiwork.
 %Breadboarding was a construction technique that enabled reconfigurable experiments or permanent electrical machines
 %---------------------------------BREADBOARD FIGURE-------------------------------
 Conductive nodes, such as nails or copper rails, were driven into the non-conductive boards, providing anchors and contact points that were electrically isolated from the rest of the circuit.
 Components were soldered or wire-wrapped to the nodes, and sometimes secured by non-energized nails or screws.
 This construction technique provided a lot of artistic freedom in circuit construction, but was time consuming and required relatively heavy hand tools such as a hammer or drill.
 
-The solderless breadboard is the cannonical tool given to students taking introductory courses in the field.
+The solderless breadboard is the canonical tool given to students taking introductory courses in the field.
 Rather than driving nodes into arbitrary locations, component leads are inserted into contact points arranged on a grid that allow rapid semi-rigid construction of circuits with no other tools.
 %-------------------------------BREADBOARD FIGURE-----------------------------
 The layout of a solderless breadboard is designed to be compatible with a plethora of powerful integrated circuits, enabling complex designs.
@@ -50,20 +50,23 @@ Many of the inherent problems with breadboards stem from this open-loop nature o
 A symptom of open-loop construction techniques is a mismatch between the mental model and the physical realization of the system at hand.
 I seek to close this loop by designing and implementing a circuit-sensing breadboard.
 
-At first glance, the proposed problem is straightforward.
-A standard-issue breadboard has 130 conductive rails.
-Each of these rails can be connected to an array of ADCs (analog to digital convert-
-ers) and DACs (digital to analog converters) controlled by a microcontroller.
-With access to every node in the circuit, it is possible to determine a constructed circuit's topology by iteratively stimulating and probing the circuit.
-Further, a schematic representation of the circuit topology can be drawn on an available display.
-This visual display provides an accurate depiction of the electrical circuit at hand, effectively closing the loop on breadboard construction.
-%---------------------BREADBOARD VS BUTTERBOARD FIGURE-------------------------
-Designing a circuit-sensing breadboard requires a substantial amount of hardware and software infrastructure.
-Fortunately, the majority of this infrastructure is useful in its own right.
 
-A hardware test-bench was constructed to interface each of the 130 rails on the breadboard.
-The test-bench is composed of a pcb-mounted breadboard, an ADC and DAC multiplexing board, a microcontroller, firmware to control sampling and stimulating the breadboard, and software to stream the sampling data to a computer for display.
-Effectively, the test-bench is a 130-channel digital breadboard-oscilloscope/function generator.
+
+
+%At first glance, the proposed problem is straightforward.
+% I-V characteristics 
+%A standard-issue breadboard has 130 conductive rails.
+%Each of these rails can be connected to an array of ADCs (analog to digital converters) and DACs (digital to analog converters) controlled by a microcontroller.
+%With access to every node in the circuit, it is possible to determine a constructed circuit's topology by iteratively stimulating and probing the circuit.
+%Further, a schematic representation of the circuit topology can be drawn on an available display.
+%This visual display provides an accurate depiction of the electrical circuit at hand, effectively closing the loop on breadboard construction.
+%---------------------BREADBOARD VS BUTTERBOARD FIGURE-------------------------
+%Designing a circuit-sensing breadboard requires a substantial amount of hardware and software infrastructure.
+%Fortunately, the majority of this infrastructure is useful in its own right.
+
+A hardware test-bench was constructed to interface with 8 rails on a breadboard.
+The test-bench is composed of a pcb-mounted breadboard, an ADC and DAC multiplexing board, a microcontroller development board, firmware to control sampling and stimulating the breadboard, and software to stream the sampling data to a computer for display.
+%Effectively, the test-bench is an 8-channel digital breadboard-oscilloscope/function generator.
 Since software is faster to prototype with, the theoretical circuit topology work was first implemented in software.
 A circuit simulator test-bench was written to provide the circuit-sensing algorithm in development with data.
 This test-bench allows the circuit-sensing algorithm to probe, stimulate, and ground every node of a randomly generated circuit, as if the circuit were built on a breadboard attached to the hardware test bench mentioned above.
@@ -72,6 +75,11 @@ The software test-bench also had the ability to print out a circuit network solu
 \section{Work to Date}
 
 \subsection{RLC network sensing algorithm}
+
+We've covered what a breadboard is, it's shortcomings, and how we'd like to fix it.
+To formalize the theoretical problem at hand:
+Given electrical access to an n-node network, find the branch elements between any two nodes in the network.
+Let's temporarily simplify that , "Find the resistance betw
 
 Electrical impedance is a measure of the complex voltage $\tilde{V}$ across two nodes divided by the complex current $\tilde{I}$ through those nodes.
 The magnitude of the impedance is
