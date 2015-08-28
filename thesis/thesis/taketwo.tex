@@ -168,8 +168,49 @@ $\displaystyle R_{AB} =
 V_t\frac{R_{A{||}}} {V_A}$ \\
 This procedure is repeated for the remaining branches to determine the entire network.
 
+A resistive network with any number of nodes can be reduced to a resistive network with three nodes by grounding the nodes that are not of interest.
+The resulting network does not modify the branch of interest, but connects the remaining branches attached to the nodes of interest in parallel.
+This collapses the network into a three node network or three branch equivalent circuit.
+\begin{figure}[h]
+  \begin{center}
+    \begin{circuitikz}
+    %\ctikzset{label/align = straight}
+		\draw (0,0)
+		node[label={above:$A$}] {}
+		to[R, l=$R_{AC}$] (1.5,-2.584)
+		node[label={below:$C$}] {}
+		to[R, l=$R_{EC}$] (3,0) % The resistor
+		node[label={above:$E$}] {}
+		to[R, l_=$R_{AE}$] (0,0)
+		to[R, l^=$R_{AB}$] (-1.5,-2.584)
+		node[label={below:$B$}] {}
+		to[R, l_=$R_{BD}$] (1.5,-2.584)
+		to[R, l_=$R_{CD}$] (4.5,-2.584)
+		node[label={below:$D$}] {}
+		to[R, l=$R_{ED}$] (3,0);
+		\fill (0,0) circle (1mm);
+		\fill (3,0) circle (1mm);
+		\fill (1.5,-2.584) circle (1mm);
+		\fill (4.5,-2.584) circle (1mm);
+		\fill (-1.5,-2.584) circle (1mm);
+    \end{circuitikz}
+   \caption{Five node network}
+  \end{center}
+\end{figure}
+Consider a resistive network with five nodes: A-E.  
+To determine the resistance between nodes A and E, the network is reduced to a three-node network by connecting all nodes except nodes A and E to ground.
+The three resistances of the branches that remain are $R_{AE}$, $R_{AB}||R_{AC}$, and $R_{EC}||R_{ED}$.
+The reduced newtork is then solved using the three node network method, and this procedure is repeated for all branches in the network.
 
-Consider a resistive network with n-nodes: 1, 2, ... .  To determine the resistance between nodes 1 and 2, the network is reduced to a three-node network by connecting all nodes except nodes 1 and 2 to ground and solved using the three node network method.
+Networks composed of elements with complex impedance can be analyzed with the same algorithm.
+By replacing the test DC voltage sources with AC voltage sources, the imaginary reactance of capacitors and inductors can be measured in addition to the real resistance of resistors.
+
+$
+Z(\omega)=Resistance+Reluctance(\omega) j  = \frac{V_t(t)}{I_t(t)} \\
+V_t(t) = sin(\omega t)\\
+I_t(t) = A sin(\omega t + \phi)
+$\\
+
 
 
 
