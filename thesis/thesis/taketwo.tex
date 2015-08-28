@@ -15,34 +15,163 @@
 \begin{document}
 
 \section{Network Sensing Algorithm}
-To develop a network sensing algorithm, a solution to the following problem must be found:
-Given electrical access to an n-node network of linear and time-invariant circuit elements\footnote{ie. resistors, inductors, and capacitors}, determine the elements between any two nodes.
-To solve this problem, the networks are broken into small chunks  the set of circuits constructed out of resistors.
+%To develop a network sensing algorithm, a solution to the following problem must be found:
+%Given electrical access to an n-node network of linear and time-invariant circuit elements\footnote{ie. resistors, inductors, and capacitors}, determine the elements between any two nodes.
+%To solve this problem, the networks are broken into small chunks  the set of circuits constructed out of resistors.
+
+Given access to the set of nodes in an electrical network, the objective of a network sensing algorithm is to determine the set of branches and the elements that compose them. 
+In order to illustrate how a network sensing algorithm operates, it is necessary to begin with a simple example and then build in complexity. 
+Take the example of a network with two nodes below:
 
 \begin{figure}[h]
   \begin{center}
-    \begin{circuitikz}
-		\draw (0,0)
-		node[label={below:$1$}] {}
-		to[R=$Z_{13}$] (1.5,2.584)
-		node[label={above:$3$}] {}
-		to[R=$Z_{35}$] (3,0) % The resistor
-		node[label={below:$5$}] {}
-		to[R=$Z_{15}$] (0,0)
-		to[R=$Z_{12}$] (-1.5,2.584)
-		node[label={above:$2$}] {}
-		to[R=$Z_{23}$] (1.5,2.584)
-		to[R=$Z_{34}$] (4.5,2.584)
-		node[label={above:$4$}] {}
-		to[R=$Z_{45}$] (3,0);
+    \begin{circuitikz}[american]
+		\draw (0,3)
+		node[label={right:$A$}] {}
+		to[R=$R_{AB}$] (0,0)
+		node[label={right:$B$}] {};
+		\fill (0,3) circle (1mm);
 		\fill (0,0) circle (1mm);
-		\fill (3,0) circle (1mm);
-		\fill (1.5,2.584) circle (1mm);
-		\fill (4.5,2.584) circle (1mm);
-		\fill (-1.5,2.584) circle (1mm);
+		
+		\draw (3,0)
+		to[short]
+		node[sground] {} (3,0);
+		\draw (3,0)
+		to[V,v=$V_t$,i=$I_t$] (3,3)
+		to[short](5,3)
+		node[label={right:$A$}] {}
+		to[R=${R_{AB}=\frac{V_t}{I_t}}$] (5,0)
+		node[label={right:$B$}] {}
+		to[short](3,0); 
+		
+		\draw (9,0)
+		to[short]
+		node[sground] {} (9,0);
+		\draw (9,0)
+		to[V,v=$V_t$,i=$I_t$] (9,3)
+		to[short](11,3)
+		node[label={right:$B$}] {}
+		to[R=${R_{BA}=\frac{V_t}{I_t}}$] (11,0)
+		node[label={right:$A$}] {}
+		to[short](9,0);
+		\fill (5,3) circle (1mm);
+		\fill (5,0) circle (1mm);
+		\fill (11,3) circle (1mm);
+		\fill (11,0) circle (1mm);
     \end{circuitikz}
-   \caption{Example Circuit}
+   \caption{Finding $R_{AB}$ in a two node network}
   \end{center}
 \end{figure}
+
+In the case of a resistive network with two nodes, there is only one possible branch in the network and thus one possbile element to characterize.
+From elementary circuit theory, the resistance between two nodes equal to the voltage across the nodes divided by the current through the nodes when power is applied.  
+Here, the resistance $R_{AB}$ is found by placing a test voltage $V_t$ across the nodes and measuring the resulting current, $I_t$, then taking the ratio $\frac{V_t}{I_t}$.
+This measurement is called the driving point impedance \footnote{To measure a driving point impedance, a test voltage is applied between the node of interest and ground, and the resulting current in the voltage source is measured. 
+The driving point impedance is then computed by dividing the test voltage by the resulting current.}.
+If there are no circuit elements between the two nodes, the driving point impedance test will find zero current in the test voltage source, resulting in an infinite resistance between two nodes.
+An infinite resistance between two nodes in a circuit indicates that there are no elements in that branch of the network.
+Thus, the network can subsequently be simplified by removing that branch from the network.
+
+A resistive network with two nodes is simple, but provides an introduction to the methodology used in analyzing larger networks.
+In the case of a resistive network with three nodes, it is insufficient to utilize driving point impedance measurements alone, because each node has more than one path to any other node.
+%Taking the driving point impedance at any node returns a parallel combination of the set of branch resistors, depending on which nodes are grounded.
+\begin{figure}[h]
+  \begin{center}
+    \begin{circuitikz}[american]
+    	\ctikzset{label/align = straight}
+    	\def\offset{0}
+		\draw (\offset,0)
+		node[label={above:$A$}] {}
+		to[R, l=$R_{AB}$] (3+\offset,0)
+		node[label={above:$B$}] {}
+		to[R, l=$R_{BC}$] (1.5+\offset,-2.548)
+		node[label={right:$C$}] {}
+		to[R, l=$R_{AC}$] (0+\offset,0);
+		\fill (\offset,0) circle (1mm);
+		\fill (1.5+\offset,-2.584) circle (1mm);
+		\fill (3+\offset,0) circle (1mm);
+		
+		\def\offset{5.5}
+		\draw (-1+\offset,-2.548)
+		to[short]
+		node[sground] {} (-1+\offset,-2.548);
+		\draw (-1+\offset,-2.548)
+		to[V,v=$V_t$,i=$I_t$] (-1+\offset,0)
+		to[short](0+\offset,0);
+		\draw (\offset,0)
+		node[label={above:$A$}] {}
+		to[R, l=$R_{AB}$] (3+\offset,0)
+		node[label={above:$B$}] {}
+		to[R, l=$R_{BC}$] (1.5+\offset,-2.548)
+		node[label={right:$C$}] {}
+		to[R, l=$R_{AC}$] (0+\offset,0);
+		\draw (1.5+\offset,-2.548)
+		to[short]
+		node[sground] {} (1.5+\offset,-2.548);
+		\draw (3+\offset,0)
+		to[short] (4+\offset,0)
+		to[short] (4+\offset,-2.548)
+		node[sground] {};
+		\fill (\offset,0) circle (1mm);
+		\fill (1.5+\offset,-2.584) circle (1mm);
+		\fill (3+\offset,0) circle (1mm);
+		
+		\def\offset{12}
+		\draw (-1+\offset,-2)
+		to[short,o-] (-1+\offset,-2.548)
+		node[sground] {} (-1+\offset,-2.548);
+		\draw (-.75+\offset,-2)
+		to[open,v^>=$V_A$] (-.75+\offset,-.1)
+		to[open](-1+\offset,0)
+		to[short,o-](0+\offset,0);
+		\draw (\offset,0)
+		node[label={above:$A$}] {}
+		to[R, l=$R_{AB}$] (3+\offset,0)
+		node[label={above:$B$}] {}
+		to[R, l=$R_{BC}$] (1.5+\offset,-2.548)
+		node[label={right:$C$}] {}
+		to[R, l=$R_{AC}$] (0+\offset,0);
+		\draw (1.5+\offset,-2.548)
+		to[short]
+		node[sground] {} (1.5+\offset,-2.548);
+		\draw (4+\offset,-2.548)
+		node[sground] {}
+		to[V,v_>=$V_t$] (4+\offset,0)
+		to[short] (3+\offset,0)
+		;
+		\fill (\offset,0) circle (1mm);
+		\fill (1.5+\offset,-2.584) circle (1mm);
+		\fill (3+\offset,0) circle (1mm);
+		
+    \end{circuitikz}
+   \caption{Finding $R_{AB}$ in a three node network}
+  \end{center}
+\end{figure}
+
+Consider a resistive network with three nodes: A, B, and C. 
+In order to determine the resistance in branch AB, the driving point impedance at node A is measured with nodes B and C grounded. 
+This provides the resistance of the parallel combination of the branches with an endpoint at node A,\\
+$R_{A_{||}} = R_{AB}||R_{AC}$.
+\footnote
+{$
+	\displaystyle R_{1}||R_{2} = 
+	\frac{R_{1}R_{2}}{R_{1}+R_{2}}
+$}
+Next, a test voltage source is applied to node B, node C is grounded, and the voltage at node A, $V_A$, is observed.
+$\displaystyle V_{A} = V_t
+\frac{R_{AC}} {R_{AB}+R_{AC}} = V_t
+\frac{R_{AB}||R_{AC}} {R_{AB}} = V_t
+\frac{R_{A_{||}}} {R_{AB}}
+$\\
+The branch resistance of interest, $R_{AB}$ is calculated using the known quantities $V_t$, $V_{A{||}}$, and $V_A$.
+$\displaystyle R_{AB} = 
+V_t\frac{R_{A{||}}} {V_A}$ \\
+This procedure is repeated for the remaining branches to determine the entire network.
+
+
+Consider a resistive network with n-nodes: 1, 2, ... .  To determine the resistance between nodes 1 and 2, the network is reduced to a three-node network by connecting all nodes except nodes 1 and 2 to ground and solved using the three node network method.
+
+
+
 
 \end{document}
