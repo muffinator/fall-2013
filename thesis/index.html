@@ -53,43 +53,45 @@ function onFileChange(url, callback, delay, last) {
   });
 };
 
+// svg primitives
+var sx = 0
+var sy = 0
+var resistor = [    {'x':sx,     'y':sy}, {'x':sx+18,    'y':sy},
+                    {'x':sx+21,    'y':sy+6}, {'x':sx+27,    'y':sy-6},
+                    {'x':sx+33,    'y':sy+6}, {'x':sx+39,    'y':sy-6},
+                    {'x':sx+42,    'y':sy}, {'x':sx+60,    'y':sy} ];
+
+var capacitor1 = [    {'x':sx,     'y':sy}, {'x':sx+27,    'y':sy},
+                    {'x':sx+27,    'y':sy+6}, {'x':sx+27,    'y':sy-6}];
+
+var capacitor2 = [
+                    {'x':sx+33,    'y':sy+6}, {'x':sx+33,    'y':sy-6},
+                    {'x':sx+33,    'y':sy}, {'x':sx+60,    'y':sy} ];
+
+var inductor= "m0,0 h16 c0,-10 10,-10 10,0 0,-10 10,-10 10,0 0,-10 10,-10 10,0 h16";
+
+// setup stuff
+var width = 350,
+    height = 500;
+
+var color = d3.scale.category20();
+
+var svg = d3.select("#grapes").append("svg")
+    .attr("width", width)
+    .attr("height", height);
+
+var force = d3.layout.force()
+    .charge(-600)
+    .linkDistance( function(link) {return 10*Math.log(link.value);} )
+    .size([width, height]);
 
 function drawGraph(name){
-	var width = 350,
-	    height = 500;
-
-	var color = d3.scale.category20();
-
-	var force = d3.layout.force()
-
-	    .charge(-600)
-	    .linkDistance( function(link) {return 10*Math.log(link.value);} )
-	    .size([width, height]);
-
-	var svg = d3.select("#grapes").append("svg")
-	    .attr("width", width)
-	    .attr("height", height);
-
 	d3.json(name, function(error, graph) {
 	  force
 	      .nodes(graph.nodes)
 	      .links(graph.links)
 	      .start();
-    var sx = 0
-    var sy = 0
-    var resistor = [    {'x':sx,     'y':sy}, {'x':sx+18,    'y':sy},
-                        {'x':sx+21,    'y':sy+6}, {'x':sx+27,    'y':sy-6},
-                        {'x':sx+33,    'y':sy+6}, {'x':sx+39,    'y':sy-6},
-                        {'x':sx+42,    'y':sy}, {'x':sx+60,    'y':sy} ];
 
-    var capacitor1 = [    {'x':sx,     'y':sy}, {'x':sx+27,    'y':sy},
-                        {'x':sx+27,    'y':sy+6}, {'x':sx+27,    'y':sy-6}];
-
-    var capacitor2 = [
-                        {'x':sx+33,    'y':sy+6}, {'x':sx+33,    'y':sy-6},
-                        {'x':sx+33,    'y':sy}, {'x':sx+60,    'y':sy} ];
-
-    var inductor= "m0,0 h16 c0,-10 10,-10 10,0 0,-10 10,-10 10,0 0,-10 10,-10 10,0 h16";
 
     var line = d3.svg.line()
         .x(function(d) {return d.x;})
@@ -169,6 +171,35 @@ function drawGraph(name){
     });
 	  });
 	});
+}
+
+function update(data) {
+
+  // DATA JOIN
+  // Join new data with old elements, if any.
+  var text = svg.selectAll("text")
+      .data(data, function(d) { return d; });
+
+  // UPDATE
+  // Update old elements as needed.
+  text.attr("class", "update");
+
+  // ENTER
+  // Create new elements as needed.
+  text.enter().append("text")
+      .attr("class", "enter")
+      .attr("dy", ".35em")
+      .text(function(d) { return d; });
+
+  // ENTER + UPDATE
+  // Appending to the enter selection expands the update selection to include
+  // entering elements; so, operations on the update selection after appending to
+  // the enter selection will apply to both entering and updating nodes.
+  text.attr("x", function(d, i) { return i * 32; })
+
+  // EXIT
+  // Remove old elements as needed.
+  text.exit().remove();
 }
 
 onFileChange("/oz/resistor.json", function() {
