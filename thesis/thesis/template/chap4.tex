@@ -66,18 +66,18 @@ Vcg 0 C 0
 \end{verbatim}
 
 The first letter of each element line designates the element to simulate: \\
-V start stop value$\rightarrow$ Voltage Source between start and stop nodes, value Volts [V]\\
-R start stop value$\rightarrow$ Resistor between start and stop nodes, value Ohms [$\Omega$]\\
-L start stop value$\rightarrow$ Inductor between start and stop nodes , value Henries [H]\\
-C start stop value$\rightarrow$ Capacitor between start and stop nodes, value Farads [F]\\
+\texttt{V start stop value}$\rightarrow$ Voltage Source between \texttt{start} and \texttt{stop} nodes, \texttt{value} Volts [V]\\
+\texttt{R start stop value}$\rightarrow$ Resistor between \texttt{start} and \texttt{stop} nodes, \texttt{value} Ohms [$\Omega$]\\
+\texttt{L start stop value}$\rightarrow$ Inductor between \texttt{start} and \texttt{stop} nodes, \texttt{value} Henries [H]\\
+\texttt{C start stop value}$\rightarrow$ Capacitor between \texttt{start} and \texttt{stop} nodes, \texttt{value} Farads [F]\\
 
 Node 0 is always designated as ground, and all simulations require a ground node.
 
 The control commands are as follows:\\
-op $\rightarrow$ Operating Point Simulation
-print() $\rightarrow$ Print the relevant data passed as an argument
-v(N) $\rightarrow$ The voltage at node N
-i(E) $\rightarrow$ The current through element E
+\texttt{op} $\rightarrow$ Operating Point Simulation
+\texttt{print()} $\rightarrow$ Print the relevant data passed as an argument
+\texttt{v(N)} $\rightarrow$ The voltage at node N
+\texttt{i(E)} $\rightarrow$ The current through element E
 
 \section{Methods}
 The NSA simulator was written in python and uses the methods below.
