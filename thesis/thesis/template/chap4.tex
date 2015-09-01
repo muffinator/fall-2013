@@ -1,8 +1,9 @@
-\documentclass[11pt,twoside]{mitthesis}
-\usepackage{tikz}
-\usepackage{circuitikz}
-\usepackage{amsmath}
-\begin{document}
+%\documentclass[11pt,twoside]{mitthesis}
+%\usepackage{tikz}
+%\usepackage{circuitikz}
+%\usepackage{amsmath}
+%\begin{document}
+
 \chapter{Simulation}
 
 A simulation was built to test the Network Sensing Algorithm before embarking on hardware design.
@@ -72,14 +73,22 @@ C start stop value$\rightarrow$ Capacitor between start and stop nodes, value Fa
 
 Node 0 is always designated as ground, and all simulations require a ground node.
 
+The control commands are as follows:\\
+op $\rightarrow$ Operating Point Simulation
+print() $\rightarrow$ Print the relevant data passed as an argument
+v(N) $\rightarrow$ The voltage at node N
+i(E) $\rightarrow$ The current through element E
 
 \section{Methods}
-\subsection{Generate Random Netlist}
-Generates a random graph with no self-linking nodes (symmetric matrix with zeros on the diagonal) for each element type (R,L,C).
-Then assign random values between two realistic limits to each edge in each graph.
-10-10k ohms, 1nF-10uF, 1uH-10mH.
+The NSA simulator was written in python and uses the methods below.
 
-When writing the capacitive netlist and the inductive netlist, care must be taken to prevent a DC operating point simulation from failing.
+\subsection{Generate Random Netlist}
+\texttt{writeRandomNet(netlist,num,elements):}\\
+Generates \texttt{num}-node random graph with no self-linking nodes (symmetric matrix with zeros on the diagonal) for each \texttt{[elements]} type (R,L,C).
+Subsequently assigns random values between two realistic limits for each element and writes the network to netlist \texttt{netlist}.
+1-1k ohms, 10nF-10uF, 100uH-100mH.
+
+When writing the capacitive and inductive elements, care must be taken to prevent a DC operating point simulation from failing.
 The infinite resistance across a capacitor and zero resistance across an inductor are responsible for DC operating point simulation failure, and can be fixed by including a small resistor in series with inductors and a large resistor in parallel with capacitors. 
 
 \begin{tabular}{ c c  p{3cm} }
@@ -89,19 +98,65 @@ The infinite resistance across a capacitor and zero resistance across an inducto
 \texttt{C0 1 2 1e-6F} & $\rightarrow$ & \texttt{C0 1 2 1e-6F Rc0 1 2 1e8} \\
 \end{tabular}
 
-\subsection{Inserting Voltage Sources}
+\subsection{Inserting Voltage Sources, Grounds and Probes}
+\texttt{insertProbe2(target,nodes,groundNodes,probes,source='DC'):}\\
+Inserts a 1V voltage source from ground to each node in \texttt{[nodes]}, grounds each node in \texttt{[groundNodes]}, and adds a voltage print statement for each node in \texttt{[probes]}.
+By default, the voltage sources are written as DC sources, but if 'AC' is passed into the last argument the sources are written as AC sources and the AC control statement is added.\\
+\texttt{AC dec 1 1 100000}\\
+Which runs a small-signal AC simulation and returns the amplitudes of the resulting voltage and current waveforms, one sample point per decade from 1Hz to 100kHz.
 
-Voltage sources are inserted by adding a voltage source line 
-\subsection{Inserting Voltage Probes}
-\subsection{Inserting Grounds}
+\subsection{Run Simulation}
+\texttt{def runSim(target,results,source='DC'):}\\
+Makes a system call to NgSpice in batch mode with netlist \texttt{target} and outputs the result to text file \texttt{results}.
+The last argument indicates how to parse the resulting data, as NgSpice returns DC data in the following format:\\
+\texttt{
+No. of Data Rows : 1\\
+i(v) = -1.18295e-01\\
+v(5) = 2.532846e-07}\\
+and AC data is returned in this format:\\
+\texttt{
+No. of Data Rows : 6\\
+                                   mynetlist\\
+                                   AC Analysis  Sun Aug 30 18:35:07  2015\\
+--------------------------------------------------------------------------------\\
+Index   frequency       i(v)                            \\
+--------------------------------------------------------------------------------\\
+0	1.000000e+00	-1.72598e+00,	3.978810e+02	\\
+1	1.000000e+01	-1.58689e-01,	3.978827e+01	\\
+2	1.000000e+02	-1.43015e-01,	3.974287e+00	\\
+3	1.000000e+03	-1.42859e-01,	3.520201e-01	\\
+4	1.000000e+04	-1.42857e-01,	-4.18884e-01	\\
+5	1.000000e+05	-1.42857e-01,	-4.58275e+00	\\
+\\
+                                   mynetlist\\
+                                   AC Analysis  Sun Aug 30 18:35:07  2015\\
+--------------------------------------------------------------------------------\\
+Index   frequency       v(3)                            \\
+--------------------------------------------------------------------------------\\
+0	1.000000e+00	1.000000e+00,	0.000000e+00	\\
+1	1.000000e+01	1.000000e+00,	0.000000e+00	\\
+2	1.000000e+02	1.000000e+00,	0.000000e+00	\\
+3	1.000000e+03	1.000000e+00,	0.000000e+00	\\
+4	1.000000e+04	1.000000e+00,	0.000000e+00	\\
+5	1.000000e+05	1.000000e+00,	0.000000e+00\\
+}
+
+\subsection{Print Matrix}
+\texttt{def printMatrix(m):}
+Prints matrix \texttt{m} in nice command-line output.
 
 \section{Executing NSA}
-Wouldn't we all?
-\subsection{Calculate $Z_{||}(f)$}
+\subsection{Calculate $Z_{n{||}}(f)$}
+$Z_{n{||}}(f)$ is found by grounding all nodes except for node n and adding a voltage source to that node, then taking the ratio of the amplitudes of the resulting current into the node of interest and the voltage source.
 \subsection{Calculate $V_n(f)$}
+$V_n(f)$ is found by grounding all nodes except for nodes n and m, adding a voltage source to node m, and measuring the amplitude of the voltage at node n.
 \subsection{Calculate $Z_{nm}(f)$}
+$Z_{nm}(f)$ is calculated by the ratio of $Z_{n{||}}(f)$ to $V_n(f)$ scaled by $V_t$.
+In the case of this simulation, $V_t$ is one.
 \subsection{Finite Difference}
+
 \subsection{Element Identification}
+
 \subsection{Network Reconstruction}
 
 \section{Output to JSON}
@@ -110,4 +165,4 @@ Blah Blah
 \section{D3?}
 ???? maybe
 
-\end{document}
+%\end{document}

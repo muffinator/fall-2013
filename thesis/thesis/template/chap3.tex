@@ -1,8 +1,3 @@
-\documentclass[12pt,twoside,vi]{mitthesis}
-\usepackage{tikz}
-\usepackage{circuitikz}
-\usepackage{amsmath}
-\begin{document}
 \chapter{Network Sensing Algorithm}
 
 Given access to the set of nodes in an electrical network, the objective of a network sensing algorithm is to determine the set of branches and the elements that compose them.
@@ -10,7 +5,8 @@ In order to illustrate how a network sensing algorithm operates, it is necessary
 
 \section{Grounding Clause}
 
-Blah Blah
+The ability to ground arbitrary nodes of a network greatly simplifies the process of analyzing and reverse-engineering a network.
+The NSA relies on the ability to shrink the effective network by conglomerating nodes into the ground node.
 
 \section{Two Node Network}
 Take the example of a network with two nodes below:
@@ -256,17 +252,17 @@ $\displaystyle Z_{RLC}$ has a zero at $\frac{1}{RL}$ and two poles at $\frac{-L^
 
 If we look at the plots above, we can see that varying the resistance changes the maximum impedance over all frequencies, varying the inductance drops the asymptotic impedance at low frequencies, and varying the capacitance drops the asymptotic impedance at high frequencies.
 We can imagine there are three regimes on the impedance vs frequency plot that divide the operation of an RLC tank into three elements:\\
-When the slope is +1, the tank behaves like an inductor
-$L=|Z|/(j\omega)$.
-When the slope is -1, the tank behaves like a capacitor
-$C=j\omega |Z|$.
-When the slope is 0, the tank behaves like a resistor
+When the slope is +1, the tank behaves like an inductor\\
+$L=|Z|/(j\omega)$.\\
+When the slope is -1, the tank behaves like a capacitor\\
+$C=j\omega |Z|$.\\
+When the slope is 0, the tank behaves like a resistor\\
 $R=|Z|$.
 
 
 \subsection{Finite Difference Stencil}
 To reliably determine the regions of effective resistance, inductance, and capacitance, the slope of the $log{|Z_{nm}|}$ vs. $log{(\omega)}$ is computed via the Midpoint Method.
-The Midpoint Finite Difference Stencil takes the two points on either side of the point of interest and computes the slope between them.
+The Midpoint Finite Difference Stencil takes the two points on either side of the point of interest and computes the slope between them.\\
 Z'[n]=$\frac{1}{2}$(Z[n+1]-Z[n-1]).
 
 \subsection{Component Value Calculation}
@@ -281,4 +277,3 @@ The resulting resistances, inductances, and capacitances are averaged to counter
 
 \section{Reconstructing the Network}
 With a record of all of the elements and their connections in the network, the network is reconstructed.
-\end{document}
