@@ -180,26 +180,28 @@ static void dac_setup(void)
 
 static void timer1_setup(void)
 {
-    rcc_periph_clock_enable(RCC_TIM1);
-    timer_reset(TIM1);
+    rcc_periph_clock_enable(RCC_TIM1);  //route APB1 to timer1
+    timer_reset(TIM1);                  //reset timer 1
+    //Set Timer 1 as an up-counting timer with APB1 clock source (84MHz)
     timer_set_mode(TIM1, TIM_CR1_CKD_CK_INT, TIM_CR1_CMS_EDGE, TIM_CR1_DIR_UP);
-    timer_set_repetition_counter(TIM1,15);
-    timer_one_shot_mode(TIM1);
+    timer_set_repetition_counter(TIM1,15);      //Enable repetition counter
+    timer_one_shot_mode(TIM1); //Enable one-shot mode (finishes after rep. count.)
     timer_set_prescaler(TIM1,0);
-    timer_set_period(TIM1, 10);//8
-    //dma stuff
+    timer_set_period(TIM1, 10);
+
+    //DMA stuff
     timer_set_dma_on_compare_event(TIM1);
     timer_enable_irq(TIM1, TIM_DIER_CC1DE); //need this
-
+    //Set TRIG0 to enable/trigger Timer 1
     timer_slave_set_mode(TIM1, TIM_SMCR_SMS_TM);
-    timer_slave_set_trigger(TIM1, TIM_SMCR_TS_ITR0);
+    timer_slave_set_trigger(TIM1, TIM_SMCR_TS_ITR0);    //sets TIM5 as Master
 
-    timer_set_oc_mode(TIM1, TIM_OC1, TIM_OCM_PWM2);
-    timer_enable_oc_output(TIM1, TIM_OC1);
-    timer_enable_break_main_output(TIM1); //need this
-
+    timer_set_oc_mode(TIM1, TIM_OC1, TIM_OCM_PWM2);     //UP-> low COMP->high
+    timer_enable_oc_output(TIM1, TIM_OC1);              //enable output
+    timer_enable_break_main_output(TIM1);   //allows output module to toggle pin
     //timer_set_oc_fast_mode(TIM1, TIM_OC1);
-    timer_set_oc_value(TIM1, TIM_OC1, 5);//4
+    timer_set_oc_value(TIM1, TIM_OC1, 5);
+    
     timer_enable_counter(TIM1);
 }
 
