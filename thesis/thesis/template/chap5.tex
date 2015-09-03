@@ -1,9 +1,9 @@
-%\documentclass[11pt,twoside]{mitthesis}
-%\usepackage{tikz}
-%\usepackage{circuitikz}
-%\usepackage{amsmath}
-%\newcommand{\ohm}{$\Omega$ }
-%\begin{document}
+\documentclass[11pt,twoside]{mitthesis}
+\usepackage{tikz}
+\usepackage{circuitikz}
+\usepackage{amsmath}
+\newcommand{\ohm}{$\Omega$ }
+\begin{document}
 \chapter{Hardware}
 
 
@@ -39,6 +39,14 @@ No bits are wasted in the ADCS7476 A/D converter.
 Additionally, the input circuitry to the ADC is a 100$\Omega$ resistor in series with a 26pF capacitor.  
 This places a pole at 61MHz, causing a .03\% error at 100KHz and .3\% error at 1MHz.
 The additional performance is well worth the additional cost of \$1.56375 in quantities of 1Ku.
+
+\begin{figure}[h!]
+  \begin{center}
+      \includegraphics[width=.5\textwidth]{../adc-input-equiv.png}
+      \caption{ADCS7476 Equivalent Input Circuit}
+  \end{center}
+\end{figure}
+
 
 The ADC is connected to the common pin of a CD4051 1:8 analog multiplexer.
 The multiplexer is connected to eight breadboard rails, which allows the ADC to measure the voltage on any of the eight rails, one rail at a time.
@@ -93,11 +101,49 @@ The high and low side switches are the main limits of bandwidth due to their hig
 The low-side switches have a low logic-level threshold voltage, low drain-source on-resistance, can handle up to 30V, and are low-cost.
 The IRLML2803 N-FETs have an $R_{DS_{ON}}$ of about 1\ohm with a $V_{GS}$ of 3.3V.
 With 10V $V_{GS}$, $R_{DS_{ON}}$ drops to 250m\ohm.
-
-
-HIGH $C_{DS}$.
+The downside of these FETs is the high $C_{DS}$ that comes from a wide transistor.
+$C_{DC}$ is on the order of 60pF for each transistor.
+When combined with the additional capacitances mentioned above, each breadboard rail has a total of 140pF to ground.  
+This has a significant impact on the maximum usable frequency for even moderate impedances on the breadboard.
+For example, consider a 10k\ohm-10k\ohm resistor divider.
+At 100kHz, the 140 pF capacitance on each rail has 11k\ohm of impedance.
+\begin{figure}[h]
+  \begin{center}
+    \begin{circuitikz}[american]
+    %\ctikzset{label/align = straight}
+	
+		\draw (0,0)
+		node[sground] {}
+		to[V,v^>=$V_t$] (0,3)
+		to[short] (2,3)
+		to[R,l_=$10k\Omega$] (2,1.5)
+		to[R,l_=$10k\Omega$] (2,0)
+		to[short] (0,0);
+		\draw(2,1.5)
+		to[short] (4,1.5)
+		to[C,l_=$140pF$] (4,0)
+		to[short] (2,0);
+		\fill (2,1.5) circle (1mm);
+		
+		\draw (8,0)
+		node[sground] {}
+		to[V,v^>=$V_tsin(100KHz)$] (8,3)
+		to[short] (10,3)
+		to[R,l_=$10k\Omega$] (10,1.5)
+		to[R,l_=$10k\Omega$] (10,0)
+		to[short] (8,0);
+		\draw(10,1.5)
+		to[short] (11,1.5)
+		to[R,l=$11k\Omega$] (11,0)
+		to[short] (10,0);
+		\fill (10,1.5) circle (1mm);
+		
+    \end{circuitikz}
+   \caption{Resistor Divider Parasitic Capacitance}
+  \end{center}
+\end{figure}
 
 \section{PCB Mounted Breadboard}
 
 \section{Hardware Prototypes}
-%\end{document}
+\end{document}
