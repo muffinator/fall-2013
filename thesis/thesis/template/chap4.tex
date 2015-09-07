@@ -1,15 +1,21 @@
-%\documentclass[11pt,twoside]{mitthesis}
-%\usepackage{tikz}
-%\usepackage{circuitikz}
-%\usepackage{amsmath}
-%\usepackage{fancyvrb}
-%\begin{document}
+\def\DEBUG{1}
+\ifdefined\DEBUG
+\documentclass[11pt,twoside]{mitthesis}
+\usepackage{tikz}
+\usepackage{circuitikz}
+\usepackage{amsmath}
+\usepackage{fancyvrb}
+\usepackage{float}
+\newcommand{\ohm}{$\Omega$ }
+\begin{document}
+\fi
+
 
 \chapter{Simulation}
-
-A simulation was built to test the Network Sensing Algorithm before embarking on hardware design.
-In addition to the rapid prototyping cycle, the implementation of NSA and automated schematic drawing were directly used later on.
-The simulation generates random networks of resistors, inductors, and capacitors, and proceeds to analyze and reconstruct the network using NSA.
+In this chapter, a hardware simulation of the circuit sensing breadboard is described.
+A simulated circuit sensing breadboard is useful for rapid iteration of hardware topologies and validation of network sensing algorithms.
+The simulator is also not limited by the hardware complexity, so simulating circuits with more than eight nodes and elements other than resistors, capacitors, and inductors is possible.
+The simulator generates random networks of resistors, inductors, and capacitors, and proceeds to analyze, reconstruct, and draw a schematic of the network using the network sensing algorithm.
 
 \section{NgSpice and Netlists}
 
@@ -52,7 +58,7 @@ An example netlist is shown below.
   \end{center}
 \end{figure}
 
-\begin{verbatim}
+\begin{Verbatim}[fontsize=\footnotesize]
 fiveNodeNetlist
 Vt	0 B 1
 Rab A B 10k
@@ -64,7 +70,7 @@ Vcg 0 C 0
 	print(v(A))
 	.endc
 .end
-\end{verbatim}
+\end{Verbatim}
 
 The first letter of each element line designates the element to simulate: \\
 \texttt{V start stop value}$\rightarrow$ Voltage Source between \texttt{start} and \texttt{stop} nodes, \texttt{value} Volts [V]\\
@@ -104,7 +110,7 @@ The infinite resistance across a capacitor and zero resistance across an inducto
 Inserts a 1V voltage source from ground to each node in \texttt{[nodes]}, grounds each node in \texttt{[groundNodes]}, and adds a voltage print statement for each node in \texttt{[probes]}.
 By default, the voltage sources are written as DC sources, but if 'AC' is passed into the last argument the sources are written as AC sources and the AC control statement is added.\\
 \texttt{AC dec 5 10m 10meg}\\
-Which runs a small-signal AC simulation and returns the amplitudes of the resulting voltage and current waveforms, five sample point per decade from 10mHz to 10MHz.
+Which runs a small-signal AC simulation and returns the amplitudes of the resulting voltage and current waveforms, five sample points per decade from 10mHz to 10MHz.
 
 \subsection{Run Simulation}
 \texttt{def runSim(target,results,source='DC'):}\\
@@ -142,9 +148,21 @@ Index   frequency       v(3)
 4	1.000000e+04	1.000000e+00,	0.000000e+00	
 5	1.000000e+05	1.000000e+00,	0.000000e+00
 \end{Verbatim}
+DC data is returned as a dictionary with indices for the voltage source current and each node of interest:\\ \texttt{['i':i(V),'1':v(1),'2':v(2),..]}\\
+AC data is returned as a dictionary of lists with indices for the voltage source current and each node of interest:\\ \texttt{['i':[i($V_{f_1}$), i($V_{f_2}$),..., i($V_{f_n}$)], '1':[v($1_{f_1}$), v($1_{f_2}$),..., v($1_{f_n}$)], ...]}
+
 \subsection{Print Matrix}
 \texttt{def printMatrix(m):}
 Prints matrix \texttt{m} in nice command-line output.
+It can handle both 2-dimensional and 3-dimensional matrices, for n-by-n matrices with lists of impedances over many frequencies.
+
+\subsection{Write JSON}
+\texttt{def writeJSON(name, network,group, elem):}
+Writes a JSON file named \texttt{name.json} of the n-by-n symmetric matrix \texttt{network}.
+Three separate JSON files are written, one for each element \texttt{[resistor.json, capacitor.json, and inductor.json]}.
+The \texttt{group} parameter is used when drawing multiple schematics on one page.
+The \texttt{elem} parameter is used to specify what type of element the network represents.
+
 \section{Executing NSA}
 \subsection{Calculate $Z_{n{||}}(f)$}
 $Z_{n{||}}(f)$ is found by grounding all nodes except for node n and adding a voltage source to that node, then taking the ratio of the amplitudes of the resulting current into the node of interest and the voltage source.
@@ -154,15 +172,22 @@ $V_n(f)$ is found by grounding all nodes except for nodes n and m, adding a volt
 $Z_{nm}(f)$ is calculated by the ratio of $Z_{n{||}}(f)$ to $V_n(f)$ scaled by $V_t$.
 In the case of this simulation, $V_t$ is one.
 \subsection{Finite Difference}
-
+$Z_{nm}$ is passed through the finite-differencer, returning a list $Z'_{nm}[f]$.
+$Z'_{nm}[f]$ is thresholded to find the frequencies for which $Z'_{nm}[f]\approx-1$, $Z'_{nm}[f]\approx0$, and $Z'_{nm}[f]\approx1$.
 \subsection{Element Identification}
+A list of inductances is calculated from $Z_{nm}[f]$ on all frequencies for which $Z'_{nm}[f]\approx-1$, $[f_L]$.\\
+$\displaystyle L[f_L] = \frac{|Z_{nm}[f_l]|}{(f_l)}$\\
+A list of resistances is calculated from $Z_{nm}[f]$ on all frequencies for which $Z'_{nm}[f]\approx0$, $[f_R]$.\\
+$\displaystyle R[f_R] = |Z_{nm}[f_R]|$\\
+A list of capacitances is characterized from $Z_{nm}[f]$ on all frequencies for which $Z'_{nm}[f]\approx-1$, $[f_C]$.\\
+$\displaystyle C[f_C] = \frac{1}{|Z_{nm}[f_C]|(f_C)}$\\
+
+The element lists are averaged to to filter out inaccurate data.
 
 \subsection{Network Reconstruction}
 
-\section{Output to JSON}
-Blah Blah
+A new matrix is written for each element type, then the matrices are written to JSON and processed by javascript running D3 to display the final schematic.
 
-\section{D3?}
-???? maybe
-
-%\end{document}
+\ifdefined\DEBUG
+\end{document}
+\fi

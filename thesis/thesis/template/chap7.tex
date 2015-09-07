@@ -1,3 +1,14 @@
+\def\DEBUG{1}
+\ifdefined\DEBUG
+\documentclass[11pt,twoside]{mitthesis}
+\usepackage{tikz}
+\usepackage{circuitikz}
+\usepackage{amsmath}
+\usepackage{float}
+\newcommand{\ohm}{$\Omega$ }
+\begin{document}
+\fi
+
 \chapter{Software Control}
 
 \section{Control Routine}
@@ -22,3 +33,6 @@ Yeah, this one works real well.
 
 \section{JSON Update}
 
+\ifdefined\DEBUG
+\end{document}
+\fi

@@ -1,3 +1,15 @@
+\def\DEBUG{1}
+\ifdefined\DEBUG
+\documentclass[11pt,twoside]{mitthesis}
+\usepackage{tikz}
+\usepackage{circuitikz}
+\usepackage{amsmath}
+\usepackage{float}
+\newcommand{\ohm}{$\Omega$ }
+\begin{document}
+\fi
+
+
 %% This is an example first chapter.  You should put chapter/appendix that you
 %% write into a separate file, and add a line \include{yourfilename} to
 %% main.tex, where `yourfilename.tex' is the name of the chapter/appendix file.
@@ -48,7 +60,7 @@ I seek to close this loop by designing and implementing a circuit-sensing breadb
 \section{Proposed Solution}
 
 A circuit-sensing breadboard is able to reverse-engineer circuits built on it by applying test voltages and currents and measuring the results.  
-As a proof-of-concept, the proposed circuit-sensing breadboard completed for this thesis is able to reverse engineer circuits composed of resistors, inductors, and capacitors built on a small section of the breadboard and display the circuits as a schematic in the browser.
+As a proof-of-concept, the proposed circuit-sensing breadboard completed for this thesis is able to reverse engineer circuits composed of resistors built on a small section of the breadboard and display a schematic of the circuit in the browser.
 
 The circuit-sensing breadboard is composed of a hardware system that interfaces various pieces of test equipment with eight rails on a breadboard.
 The system is composed of a pcb-mounted breadboard, a voltage source, current meter, and voltage meter multiplexing board, a microcontroller development board, firmware to control ADC sampling, AC voltage source testing, and streaming data to a computer for analysis and display.
@@ -61,12 +73,6 @@ Once the circuit sensing algorithm reconstructs the entire circuit it generates 
 %This test-bench allows the circuit-sensing algorithm to probe, stimulate, and ground every node of a randomly generated circuit, as if the circuit were built on a breadboard attached to the hardware test bench mentioned above.
 %The software test-bench also had the ability to print out a circuit network solution to a schematic display.
 
-
-\section{Implementation to Date}
-
-
-Made the software test bench, an 8-rail hardware test bench, and got the network sensing algorithm working for resistors with resistance between 100 and 5K $\Omega$.
-
-
-
-
+\ifdefined\DEBUG
+\end{document}
+\fi

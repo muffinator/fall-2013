@@ -1,21 +1,27 @@
-%\documentclass[11pt,twoside]{mitthesis}
-%\usepackage{tikz}
-%\usepackage{circuitikz}
-%\usepackage{amsmath}
-%\usepackage{float}
-%\newcommand{\ohm}{$\Omega$ }
-%\begin{document}
+\def\DEBUG{1}
+\ifdefined\DEBUG
+\documentclass[11pt,twoside]{mitthesis}
+\usepackage{tikz}
+\usepackage{circuitikz}
+\usepackage{amsmath}
+\usepackage{float}
+\newcommand{\ohm}{$\Omega$ }
+\begin{document}
+\fi
 
 \chapter{Theory}
-The design of a Network Sensing Algorithm requires an understanding of the networks to be analyzed.
-In this thesis, the networks of interest are composed of three circuit elements: resistors, capacitors, and inductors.
-The constitutive relations for these electrical circuit elements relate the voltage across an element to the current passing through it as a function of time.
-In this application, it is useful to reinterpret the constitutive relations as a function of frequency by taking the Fourier Transform.
-
+In this chapter, a Network Sensing Algorithm that can reverse-engineer an arbitrary n-node RLC network given access to every node is described.
+First, it is shown how basic circuit theory is used to analyze and reverse engineer n-node resistive circuits.
+These methods are then generalized to reverse-engineer n-node impedance networks down to the individual impedance branch circuits, constructed from resistors, capacitors, and inductors.
+The impedance networks are then further decomposed into their constituent element by method of frequency-domain analysis.
+Finally, the original network is reconstructed.
 
 \section{RLC Elements}
 
-The constitutive equations that define current and voltage relations in the elements of interest are as follows:
+The design of a Network Sensing Algorithm requires an understanding of the networks to be analyzed.
+In this thesis, the networks of interest are composed of three circuit elements: resistors, capacitors, and inductors.
+The constitutive relations for these electrical circuit elements relate the voltage across an element to the current passing through it as a function of time.
+The constitutive relation for resistors, inductors, and capacitors are as follows:
 
 Resistive element behavior is characterized by a linear relationship between current and voltage.
 That is, $v=iR$
@@ -65,19 +71,24 @@ That is, $i=C\frac{dv}{dt}$
   \end{center}
 \end{figure}
 
-\section{Frequency Domain Perspective}
-
-Taking the 
-Laplace transform of:\\
-$v=iR, v=L\frac{di}{dt},$ and $i=C\frac{dv}{dt}$\\
-$V=IR, V=LsI, I=CsV$
-
-Impedance:\\
-$Z_R=R, Z_L=Ls, Z_C=\frac{1}{Cs}$
+When combined to form larger networks these constitutive relations hold, but two other laws of conservation are useful for further analysis.
 
 \section{Network Analysis}
 
-KVL
-KCL
+\subsubsection{Kirchoff's Current Law}
+Kirchoff's current law comes from the idea of conservation of charge.
+That is, charge is neither created nor destroyed.
+The amount of charge moving along a conductor away from a circuit node is equal to the amount of charge moving along a conductor into that same circuit node.
+More succinctly, The sum of the currents going into a node are equal to the sum of currents coming out of that node.
 
-%\end{document}
+\subsubsection{Kirchoff's Voltage Law}
+Kirchoff's voltage law can be derived from conservation of energy.
+KVL states that the total amount of energy put into a circuit is equal to the amount of energy lost in that circuit.
+Since voltage is a measure of the amount of energy per unit charge, the voltage across a circuit branch is indicative of the amount of energy dissipated as work or provided by an electromotive force.
+Following the last two statements, the sum of all of the voltages around a loop in a circuit is zero.
+
+The following sections will use KVL. KCL, and the constitutive relations to reverse-engineer an n-node network.
+
+\ifdefined\DEBUG
+\end{document}
+\fi

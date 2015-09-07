@@ -1,3 +1,14 @@
+\def\DEBUG{1}
+\ifdefined\DEBUG
+\documentclass[11pt,twoside]{mitthesis}
+\usepackage{tikz}
+\usepackage{circuitikz}
+\usepackage{amsmath}
+\usepackage{float}
+\newcommand{\ohm}{$\Omega$ }
+\begin{document}
+\fi
+
 \chapter{Results}
 
 \section{Simulation Performance}
@@ -25,3 +36,7 @@ Capacitors
 Try Transistors
 \subsection{Better Schematic Display}
 \subsection{Faster Algorithm}
+
+\ifdefined\DEBUG
+\end{document}
+\fi

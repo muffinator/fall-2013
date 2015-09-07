@@ -1,9 +1,15 @@
-%\documentclass[11pt,twoside]{mitthesis}
-%\usepackage{tikz}
-%\usepackage{circuitikz}
-%\usepackage{amsmath}
-%\newcommand{\ohm}{$\Omega$ }
-%\begin{document}
+\def\DEBUG{1}
+\ifdefined\DEBUG
+\documentclass[11pt,twoside]{mitthesis}
+\usepackage{tikz}
+\usepackage{circuitikz}
+\usepackage{amsmath}
+\usepackage{float}
+\newcommand{\ohm}{$\Omega$ }
+\begin{document}
+\fi
+
+
 \chapter{Hardware}
 
 
@@ -15,10 +21,6 @@ Block diagram / Schematic
       \includegraphics[width=1\textwidth]{../circuit.png}
   \end{center}
 \end{figure}
-\section{Low Cost}
-
-Keeping the cost of production low makes butterboard accessible to the largest population of people.
-Using multiplexed ADCs where possible keeps the cost down by reducing the quantity of high price-tag components, like ADCs.
 
 \section{Node Voltage Reading}
 An ADCS7476 12-bit A/D converter is used to measure the voltages at each node.
@@ -127,7 +129,7 @@ At 100kHz, the 140 pF capacitance on each rail has 11k\ohm of impedance.
 		
 		\draw (8,0)
 		node[sground] {}
-		to[V,v^>=$V_tsin(100KHz)$] (8,3)
+		to[sV,v^>=$V_tsin(100KHz)$] (8,3)
 		to[short] (10,3)
 		to[R,l_=$10k\Omega$] (10,1.5)
 		to[R,l_=$10k\Omega$] (10,0)
@@ -146,4 +148,13 @@ At 100kHz, the 140 pF capacitance on each rail has 11k\ohm of impedance.
 \section{PCB Mounted Breadboard}
 
 \section{Hardware Prototypes}
-%\end{document}
+
+\section{Low Cost}
+
+Keeping the cost of production low makes butterboard accessible to the largest population of people.
+Using multiplexed ADCs where possible keeps the cost down by reducing the quantity of high price-tag components, like ADCs.
+
+
+\ifdefined\DEBUG
+\end{document}
+\fi

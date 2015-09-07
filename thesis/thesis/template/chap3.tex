@@ -1,3 +1,13 @@
+\def\DEBUG{1}
+\ifdefined\DEBUG
+\documentclass[11pt,twoside]{mitthesis}
+\usepackage{tikz}
+\usepackage{circuitikz}
+\usepackage{amsmath}
+\usepackage{float}
+\newcommand{\ohm}{$\Omega$ }
+\begin{document}
+\fi
 %\documentclass[11pt,twoside]{mitthesis}
 %\usepackage{tikz}
 %\usepackage{circuitikz}
@@ -10,9 +20,6 @@
 
 Given access to the set of nodes in an electrical network, the objective of a network sensing algorithm is to determine the set of branches and the elements that compose them.
 In order to illustrate how a network sensing algorithm operates, it is necessary to begin with a simple example and then build in complexity.  
-
-The ability to ground arbitrary nodes of a network greatly simplifies the process of analyzing and reverse-engineering a network.
-The network-sensing algorithm relies on the ability to shrink the effective network by conglomerating nodes into the ground node.
 
 \subsection{Two Node Network}
 Take the example of a network with two nodes below:
@@ -58,7 +65,7 @@ Take the example of a network with two nodes below:
 \end{figure}
 
 In the case of a resistive network with two nodes, there is only one possible branch in the network and thus one possible element to characterize.
-From elementary circuit theory, the resistance between two nodes equal to the voltage across the nodes divided by the current through the nodes when power is applied.  
+From Section 2.1, the resistance between two nodes equal to the voltage across the nodes divided by the current through the nodes when power is applied.  
 Here, the resistance $R_{AB}$ is found by placing a test voltage $V_t$ across the nodes and measuring the resulting current, $I_t$, then taking the ratio $\frac{V_t}{I_t}$.
 This measurement is called the driving point impedance \footnote{To measure a driving point impedance, a test voltage is applied between the node of interest and ground, and the resulting current in the voltage source is measured. 
 The driving point impedance is then computed by dividing the test voltage by the resulting current.}.
@@ -72,6 +79,8 @@ Thus, the network can subsequently be simplified by removing that branch from th
 A resistive network with two nodes is simple, but provides an introduction to the methodology used in analyzing larger networks.
 In the case of a resistive network with three nodes, it is insufficient to utilize driving point impedance measurements alone, because each node has more than one path to any other node.
 %Taking the driving point impedance at any node returns a parallel combination of the set of branch resistors, depending on which nodes are grounded.
+The ability to ground arbitrary nodes of a network greatly simplifies the process of analyzing and reverse-engineering a network.
+The network-sensing algorithm relies on the ability to shrink the effective network by conglomerating nodes into the ground node.
 \begin{figure}[h]
   \begin{center}
     \begin{circuitikz}[american]
@@ -150,7 +159,8 @@ In order to determine the resistance in branch AB, the driving point impedance a
 This provides the resistance of the parallel combination of the branches with an endpoint at node A:\footnote
 {$
 	\displaystyle R_{1}||R_{2} = 
-	\frac{R_{1}R_{2}}{R_{1}+R_{2}}
+	\frac{R_{1}R_{2}}{R_{1}+R_{2}} =
+	\frac{1}{\frac{1}{R_1}+\frac{1}{R_2}}
 $}
 \begin{equation*}
 R_{A_{||}} = R_{AB}||R_{AC}
@@ -164,8 +174,10 @@ V_{A} \quad=\quad V_t
 \end{equation*}
 The branch resistance of interest, $R_{AB}$ is calculated using the known quantities $V_t$, $V_{A{||}}$, and $V_A$.
 \begin{equation*}
-R_{AB} = 
 V_t\frac{R_{A{||}}} {V_A}
+\quad = \quad V_t\frac{R_{AB}||R_{AC}}{V_t\frac{R_{AC}}{R_{AB}+R_{AC}}}
+\quad = \quad \frac{\frac{R_{AB}R_{AC}}{R_{AB}+R_{AC}}}{\frac{R_{AC}}{R_{AB}+R_{AC}}}
+\quad = \quad R_{AB}
 \end{equation*}
 This procedure is repeated for the remaining branches to determine the entire network.
 
@@ -266,11 +278,13 @@ The total number of measurements required to reverse-engineer an n-node circuit 
 \subsection{Element Identification}
 
 Networks composed of elements with complex impedance can be analyzed with the same algorithm.
-By replacing the test DC voltage sources with AC voltage sources, the imaginary reactance of capacitors and inductors can be measured in addition to the real resistance of resistors.
+By replacing the test DC voltage sources with AC voltage sources, the reactance of capacitors and inductors can be measured in addition to the resistance of resistors.
 
 \subsubsection{From Resistance to Impedance}
 
-Chapter 2 described the use of the Laplace Transform to characterize the behavior of circuit elements in the frequency domain.
+
+Impedance is a complex valued ratio of the voltage across a circuit to the current flowing through that circuit.
+source the sum of resistance and reactance.
 Here, frequency-domain complex impedance is useful for identifying circuit elements based on the change in branch impedance over inputs of various frequencies.
 
 
@@ -364,7 +378,7 @@ In figure \ref{fd2}, the resistance is not represented in the finite difference 
 The parallel resistance of an underdamped RLC tank is the maximum recorded impedance across all frequencies.
 In a simulation, using the maximum recorded impedance is a valid solution because measurement accuracy has a large (64-bit floating point) dynamic range, producing results that are accurate of ideal systems.
 In practice, spurious noise and lack of dynamic range over measurement data can cause poor results.
-Occasionally these poor results include large spikes of inaccurate impedance readings, which can range from $10^{12}$ to $10^{-12}$.
+Occasionally these poor results include large spikes of inaccurate impedance readings.
 In this case, a practical approach would be to use the finite difference stencil where possible and when an LC network is discovered, sample at the resonant frequency to find R. 
 In the case of figure \ref{fig:fd2}, the sampling frequency would be 17KHz.
 \begin{equation*}
@@ -373,7 +387,7 @@ f_{0} = \frac{1}{\sqrt{2\pi L C}} \approx 17000 Hz
 
 \subsubsection{Component Value Calculation}
 Once the regions of the impedance plot are thresholded, the sampling frequency domains corresponding to those regions are assigned to an element type [$\omega_r[n]$ for R, $\omega_l[n]$ for L, $\omega_c[n]$ for C].
-The for each sampling frequency, the component values are computed and then averaged to counter noisy data.
+Then for each sampling frequency the component values are computed and averaged to filter noisy data.
 \begin{align*}
 R[\omega_r] = Z[\omega_r] \qquad
 L[\omega_l] = \frac{Z[\omega_l]}{\omega_l} \qquad
@@ -388,6 +402,8 @@ C=\frac{1}{cnum}\sum_{\omega_c}{\frac{1}{\omega_c Z[\omega_c]}}
 Where $rnum$, $lnum$, and $cnum$ are the number of sample frequencies in the R, L, and C regions, respectively.
 
 \subsection{Reconstructing the Network}
-With a record of all of the elements and their connections in the network, the network can be reconstructed and a schematic of the original circuit is drawn.
+With a record of all of the elements and their connections in the network, the network can be reconstructed and a schematic of the original circuit, drawn.
 
-%\end{document}
+\ifdefined\DEBUG
+\end{document}
+\fi

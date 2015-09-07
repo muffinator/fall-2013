@@ -1,10 +1,14 @@
-%\documentclass[11pt,twoside]{mitthesis}
-%\usepackage{tikz}
-%\usepackage{circuitikz}
-%\usepackage{amsmath}
-%\usepackage{float}
-%\newcommand{\ohm}{$\Omega$ }
-%\begin{document}
+\def\DEBUG{1}
+\ifdefined\DEBUG
+\documentclass[11pt,twoside]{mitthesis}
+\usepackage{tikz}
+\usepackage{circuitikz}
+\usepackage{amsmath}
+\usepackage{float}
+\newcommand{\ohm}{$\Omega$ }
+\begin{document}
+\fi
+
 \chapter{Firmware}
 
 The firmware is structured in three sections - USB data reception and transmission, DAC operation, and ADC operation.
@@ -191,4 +195,8 @@ The different-sized wavetables are necessary to maintain high-fidelity output si
 
 
 \subsection{Command List}
-%\end{document}
+
+
+\ifdefined\DEBUG
+\end{document}
+\fi
