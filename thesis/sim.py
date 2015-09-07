@@ -67,7 +67,7 @@ def insertProbe2(target,nodes,groundNodes,probes,source='DC'):
     voltages=''.join(['v('+x+') ' for x in probes])
     control=''
     if source=='AC':
-        control='    AC dec 3 1 100000 \n'
+        control='    AC dec 5 10m 10meg \n'
     contents.insert(1,sources+grounds)
     contents.insert(-4,control+currents+voltages+'\n')
     netlist=open(target+'-t.cir', 'w')
