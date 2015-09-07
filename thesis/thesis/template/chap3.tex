@@ -1,14 +1,20 @@
-\chapter{Network Sensing Algorithm}
+%\documentclass[11pt,twoside]{mitthesis}
+%\usepackage{tikz}
+%\usepackage{circuitikz}
+%\usepackage{amsmath}
+%\usepackage{float}
+%\newcommand{\ohm}{$\Omega$ }
+%\begin{document}
+
+\section{Network Sensing Algorithm}
 
 Given access to the set of nodes in an electrical network, the objective of a network sensing algorithm is to determine the set of branches and the elements that compose them.
 In order to illustrate how a network sensing algorithm operates, it is necessary to begin with a simple example and then build in complexity.  
 
-\section{Grounding Clause}
-
 The ability to ground arbitrary nodes of a network greatly simplifies the process of analyzing and reverse-engineering a network.
-The NSA relies on the ability to shrink the effective network by conglomerating nodes into the ground node.
+The network-sensing algorithm relies on the ability to shrink the effective network by conglomerating nodes into the ground node.
 
-\section{Two Node Network}
+\subsection{Two Node Network}
 Take the example of a network with two nodes below:
 
 \begin{figure}[h]
@@ -61,7 +67,7 @@ An infinite resistance between two nodes in a circuit indicates that there are n
 Thus, the network can subsequently be simplified by removing that branch from the network.
 
 
-\section{Three Node Network}
+\subsection{Three Node Network}
 
 A resistive network with two nodes is simple, but provides an introduction to the methodology used in analyzing larger networks.
 In the case of a resistive network with three nodes, it is insufficient to utilize driving point impedance measurements alone, because each node has more than one path to any other node.
@@ -141,26 +147,29 @@ In the case of a resistive network with three nodes, it is insufficient to utili
 
 Consider a resistive network with three nodes: A, B, and C. 
 In order to determine the resistance in branch AB, the driving point impedance at node A is measured with nodes B and C grounded. 
-This provides the resistance of the parallel combination of the branches with an endpoint at node A,\\
-$R_{A_{||}} = R_{AB}||R_{AC}$.
-\footnote
+This provides the resistance of the parallel combination of the branches with an endpoint at node A:\footnote
 {$
 	\displaystyle R_{1}||R_{2} = 
 	\frac{R_{1}R_{2}}{R_{1}+R_{2}}
 $}
+\begin{equation*}
+R_{A_{||}} = R_{AB}||R_{AC}
+\end{equation*}
 Next, a test voltage source is applied to node B, node C is grounded, and the voltage at node A, $V_A$, is observed.
-$\displaystyle V_{A} = V_t
-\frac{R_{AC}} {R_{AB}+R_{AC}} = V_t
-\frac{R_{AB}||R_{AC}} {R_{AB}} = V_t
+\begin{equation*}
+V_{A} \quad=\quad V_t
+\frac{R_{AC}} {R_{AB}+R_{AC}} \quad = \quad V_t
+\frac{R_{AB}||R_{AC}} {R_{AB}} \quad = \quad V_t
 \frac{R_{A_{||}}} {R_{AB}}
-$\\
+\end{equation*}
 The branch resistance of interest, $R_{AB}$ is calculated using the known quantities $V_t$, $V_{A{||}}$, and $V_A$.
-$\displaystyle R_{AB} = 
-V_t\frac{R_{A{||}}} {V_A}$ \\
+\begin{equation*}
+R_{AB} = 
+V_t\frac{R_{A{||}}} {V_A}
+\end{equation*}
 This procedure is repeated for the remaining branches to determine the entire network.
 
-
-\section{N Node Network}
+\subsection{N Node Network}
 
 A resistive network with any number of nodes can be reduced to a resistive network with three nodes by grounding the nodes that are not of interest.
 The resulting network does not modify the branch of interest, but connects the remaining branches attached to the nodes of interest in parallel.
@@ -187,8 +196,37 @@ This collapses the network into a three node network or three branch equivalent 
 		\fill (1.5,-2.584) circle (1mm);
 		\fill (4.5,-2.584) circle (1mm);
 		\fill (-1.5,-2.584) circle (1mm);
+		
+		\def\offset{5.5}
+		\draw (1.5+\offset,-2.548)
+		to[short]
+		node[sground] {} (1.5+\offset,-2.548);
+		\draw (\offset,0)
+		node[label={above:$A$}] {}
+		to[R, l=$R_{AE}$] (3+\offset,0)
+		node[label={above:$E$}] {}
+		to[R, l=$R_{EC}||R_{ED}$] (1.5+\offset,-2.548)
+		to[R, l=$R_{AC}||R_{AB}$] (0+\offset,0);
+		\fill (\offset,0) circle (1mm);
+		\fill (1.5+\offset,-2.584) circle (1mm);
+		\fill (3+\offset,0) circle (1mm);
+		
+		\def\offset{10}
+		\draw (1.5+\offset,-2.548)
+		to[short]
+		node[sground] {} (1.5+\offset,-2.548);
+		\draw (\offset,0)
+		node[label={above:$B$}] {}
+		to[R, l=$R_{BC}$] (3+\offset,0)
+		node[label={above:$C$}] {}
+		to[R, l=$R_{AC}||R_{EC}||R_{CD}$] (1.5+\offset,-2.548)
+		to[R, l=$R_{AB}$] (0+\offset,0);
+		\fill (\offset,0) circle (1mm);
+		\fill (1.5+\offset,-2.584) circle (1mm);
+		\fill (3+\offset,0) circle (1mm);
+		
     \end{circuitikz}
-   \caption{Five node network}
+   \caption{Collapsing five node network, collapsed to find $R_{AE}$ and $R_{BC}$}
   \end{center}
 \end{figure}
 Consider a resistive network with five nodes: A-E.  
@@ -196,12 +234,41 @@ To determine the resistance between nodes A and E, the network is reduced to a t
 The three resistances of the branches that remain are $R_{AE}$, $R_{AB}||R_{AC}$, and $R_{EC}||R_{ED}$.
 The reduced network is then solved using the three node network method, and this procedure is repeated for all branches in the network.
 
-\section{Element Identification}
+The above thought experiment satisfies the problem at hand intuitively, but it can also be shown mathematically.
+
+To find $R_{AB}$ of an n-node complete network, first the driving point impedance at node A, $R_{A_{||}}$, is measured with all other nodes grounded.
+\begin{align*}
+R_{A_{||}} 
+\quad = \quad R_{AB}||R_{AC}||R_{AD}||... 
+\quad &= \quad \frac{1}{\frac{1}{R_{AB}}+\frac{1}{R_{AC}}+\frac{1}{R_{AD}}+...}\\
+\quad &= \quad \frac{1}{\frac{1}{R_{AB}}+\frac{1}
+{(\frac{1}{\frac{1}{R_{AC}}+\frac{1}{R_{AD}}+...})}}\\
+\quad &= \quad R_{AB}||(R_{AC}||R_{AD}||...)
+\end{align*}
+To find $V_A$ from node B, the voltage at node A is measured when a test source is placed at node B with all other nodes grounded.
+\begin{align*}
+V_A
+\quad = \quad V_t \frac{(R_{AC}||R_{AD}||...)}{R_{AB}+(R_{AC}||R_{AD}||...)}
+\end{align*}
+Dividing $R_{A_{||}}$ by $V_A$ and multiplying by $V_t$:
+\begin{equation*}
+V_t \frac{R_{A_{||}}}{V_A}
+\quad = \quad V_t \frac{\frac{R_{AB}(R_{AC}||R_{AD}||...)}{R_{AB}+(R_{AC}||R_{AD}||...)}}
+	{V_t \frac{(R_{AC}||R_{AD}||...)}{R_{AB}+(R_{AC}||R_{AD}||...)}}
+\quad = \quad R_{AB} 
+\end{equation*}
+
+Finding a resistive element in an n-node network requires two measurements. 
+The number of branches in a complete graph with n nodes is equal to $\frac{n(n-1)}{2}$.
+The total number of measurements required to reverse-engineer an n-node circuit is $n(n-1)$.
+
+
+\subsection{Element Identification}
 
 Networks composed of elements with complex impedance can be analyzed with the same algorithm.
 By replacing the test DC voltage sources with AC voltage sources, the imaginary reactance of capacitors and inductors can be measured in addition to the real resistance of resistors.
 
-\subsection{From Resistance to Impedance}
+\subsubsection{From Resistance to Impedance}
 
 Chapter 2 described the use of the Laplace Transform to characterize the behavior of circuit elements in the frequency domain.
 Here, frequency-domain complex impedance is useful for identifying circuit elements based on the change in branch impedance over inputs of various frequencies.
@@ -209,9 +276,9 @@ Here, frequency-domain complex impedance is useful for identifying circuit eleme
 
 MAKE NOTE ABOUT USING THE AMPLITUDE OF THE MEASURED SIGNALS
 
-\subsection{Parallel RLC Branches}
+\subsubsection{Parallel RLC Branches}
 
-To determine if there are multiple element types [in parallel] between two nodes, we can select a few frequencies to scan through and analyze the resulting change in impedance.
+To determine if there are multiple element types [in parallel] between two nodes, the impedance is measured over a range of frequencies, and the resulting changes in impedance are measured.
 
 \begin{figure}[h]
   \begin{center}
@@ -233,13 +300,15 @@ To determine if there are multiple element types [in parallel] between two nodes
    \caption{Example RLC Tank Circuit}
   \end{center}
 \end{figure}
-
 The impedance of a parallel RLC 'tank' circuit can be characterized and analyzed over all frequencies.
-
-\begin{align}
-Z_C = \frac{1}{j\omega C} \qquad Z_R = R \qquad Z_L = j\omega L \\
+\begin{equation*}
+ Z_R = R 
+ \qquad Z_L = j\omega L 
+ \qquad Z_C = \frac{1}{j\omega C} 
+\end{equation*}
+\begin{align*}
 Z_{RLC}=Z_C||Z_R||Z_L = \frac{1}{j\omega C+\frac{1}{R}+\frac{1}{j\omega L}}= \frac{j\omega RL}{-\omega^2RLC+j\omega L+R}
-\end{align}
+\end{align*}
 
 $\displaystyle Z_{RLC}$ has a zero at $\frac{1}{RL}$ and two poles at $\frac{-L^{+}_{-}\sqrt{L^2+4R^2LC}}{-2RLC}$\\
 \includegraphics[width=0.35\textwidth]{../inductors.png}
@@ -250,30 +319,75 @@ $\displaystyle Z_{RLC}$ has a zero at $\frac{1}{RL}$ and two poles at $\frac{-L^
 \includegraphics[width=0.35\textwidth]{../rC.png}\\
 
 
-If we look at the plots above, we can see that varying the resistance changes the maximum impedance over all frequencies, varying the inductance drops the asymptotic impedance at low frequencies, and varying the capacitance drops the asymptotic impedance at high frequencies.
-We can imagine there are three regimes on the impedance vs frequency plot that divide the operation of an RLC tank into three elements:\\
-When the slope is +1, the tank behaves like an inductor\\
-$L=|Z|/(j\omega)$.\\
-When the slope is -1, the tank behaves like a capacitor\\
-$C=j\omega |Z|$.\\
-When the slope is 0, the tank behaves like a resistor\\
-$R=|Z|$.
+The plots above illustrate various RLC tank circuits where one component value changes over several orders of magnitude.
+In the top-center and bottom-center plots, a decrease in resistance drops the maximum impedance over all frequencies.
+In the top-left and bottom-left plots, a decrease in inductance drops the asymptotic impedance at low frequencies
+In the top-right and bottom-right plots a decrease in capacitance drops the asymptotic impedance at high frequencies.
+As illustrated above, there are three regimes on the impedance vs frequency plot that divide the operation of an RLC tank into three elements:\\
+When the slope of \emph{$|Z|$ vs. $f$} is +1, the tank behaves like an inductor with inductance
+\begin{equation*}
+L=|Z|/(j\omega)
+\end{equation*}
+When the slope of \emph{$|Z|$ vs. $f$} is -1, the tank behaves like a capacitor with capacitance
+\begin{equation*}
+C=j\omega |Z|
+\end{equation*}
+When the slope of \emph{$|Z|$ vs. $f$} is 0, the tank behaves like a resistor with resistance
+\begin{equation*}
+R=|Z|
+\end{equation*}
 
+\subsubsection{Finite Difference Stencil}
+To reliably determine the regions of effective resistance, inductance, and capacitance, the slope of the $log{(|Z_{nm}|)}$ vs. $log{(\omega)}$ is computed via the midpoint method.
+The midpoint finite difference stencil takes the two points on either side of the point of interest and computes the slope between them.\\
+\begin{equation*}
+Z'[n]=\frac{1}{2}(Z[n+1]-Z[n-1])
+\end{equation*}
+\begin{figure}[H]
+\includegraphics[width=0.5\textwidth]{../fd4.png}
+\includegraphics[width=0.5\textwidth]{../fd3.png}
+\caption{Finite difference of an RLC tank where R=6$\Omega$, L=20mH, and C=500nF}
+\label{fig:fd}
+\end{figure}
 
-\subsection{Finite Difference Stencil}
-To reliably determine the regions of effective resistance, inductance, and capacitance, the slope of the $log{|Z_{nm}|}$ vs. $log{(\omega)}$ is computed via the Midpoint Method.
-The Midpoint Finite Difference Stencil takes the two points on either side of the point of interest and computes the slope between them.\\
-Z'[n]=$\frac{1}{2}$(Z[n+1]-Z[n-1]).
+In figure \ref{fig:fd} the distinct regions of inductance, resistance, and capacitance are clearly visible and easily found by setting thresholds for the finite difference.
+The thresholds on the region of inductance are between 1.1 and 0.9, the thresholds on the region of resistance are between 0.1 and -0.1, and the thresholds on the region of capacitance are between -0.9 and -1.1.
 
-\subsection{Component Value Calculation}
-Once the regions of the impedance plot are identified and assigned to component, the component value is calculated for each sample taken on the impedance plot:\\
-$R = Z[\omega]\\
-L = \frac{Z[\omega]}{\omega}\\
-C = \frac{1}{\omega Z[\omega]} 
-$ 
+\begin{figure}[H]
+\includegraphics[width=0.5\textwidth]{../fd2.png}
+\includegraphics[width=0.5\textwidth]{../fd1.png}
+\caption{Finite difference of an RLC tank where R=44$\Omega$, L=1.1mH, and C=500nF}
+\label{fig:fd2}
+\end{figure}
 
-The resulting resistances, inductances, and capacitances are averaged to counter noisy data.
+In figure \ref{fd2}, the resistance is not represented in the finite difference of \texttt{Z[n]}.
+The parallel resistance of an underdamped RLC tank is the maximum recorded impedance across all frequencies.
+In a simulation, using the maximum recorded impedance is a valid solution because measurement accuracy has a large (64-bit floating point) dynamic range, producing results that are accurate of ideal systems.
+In practice, spurious noise and lack of dynamic range over measurement data can cause poor results.
+Occasionally these poor results include large spikes of inaccurate impedance readings, which can range from $10^{12}$ to $10^{-12}$.
+In this case, a practical approach would be to use the finite difference stencil where possible and when an LC network is discovered, sample at the resonant frequency to find R. 
+In the case of figure \ref{fig:fd2}, the sampling frequency would be 17KHz.
+\begin{equation*}
+f_{0} = \frac{1}{\sqrt{2\pi L C}} \approx 17000 Hz
+\end{equation*}
 
+\subsubsection{Component Value Calculation}
+Once the regions of the impedance plot are thresholded, the sampling frequency domains corresponding to those regions are assigned to an element type [$\omega_r[n]$ for R, $\omega_l[n]$ for L, $\omega_c[n]$ for C].
+The for each sampling frequency, the component values are computed and then averaged to counter noisy data.
+\begin{align*}
+R[\omega_r] = Z[\omega_r] \qquad
+L[\omega_l] = \frac{Z[\omega_l]}{\omega_l} \qquad
+C[\omega_c] = \frac{1}{\omega_c Z[\omega_c]}  
+\end{align*}
 
-\section{Reconstructing the Network}
-With a record of all of the elements and their connections in the network, the network is reconstructed.
+\begin{align*}
+R=\frac{1}{rnum}\sum_{\omega_r}{Z[\omega_r]} \qquad
+L=\frac{1}{lnum}\sum_{\omega_l}{\frac{Z[\omega_l]}{\omega_l} \qquad}
+C=\frac{1}{cnum}\sum_{\omega_c}{\frac{1}{\omega_c Z[\omega_c]}}
+\end{align*}
+Where $rnum$, $lnum$, and $cnum$ are the number of sample frequencies in the R, L, and C regions, respectively.
+
+\subsection{Reconstructing the Network}
+With a record of all of the elements and their connections in the network, the network can be reconstructed and a schematic of the original circuit is drawn.
+
+%\end{document}

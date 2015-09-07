@@ -1,11 +1,16 @@
-\documentclass[11pt,twoside]{mitthesis}
-\usepackage{tikz}
-\usepackage{circuitikz}
-\usepackage{amsmath}
-\usepackage{float}
-\newcommand{\ohm}{$\Omega$ }
-\begin{document}
+%\documentclass[11pt,twoside]{mitthesis}
+%\usepackage{tikz}
+%\usepackage{circuitikz}
+%\usepackage{amsmath}
+%\usepackage{float}
+%\newcommand{\ohm}{$\Omega$ }
+%\begin{document}
 \chapter{Firmware}
+
+The firmware is structured in three sections - USB data reception and transmission, DAC operation, and ADC operation.
+
+Libopencm3, licensed under the GNU LGPL v3, is used extensively in this firmware.
+
 Block Diagram
 
 \section{ADC}
@@ -104,8 +109,7 @@ Here, each letter represents the data from a particular external ADC.
 \begin{figure}[h]
 \begin{center}
 \begin{tabular}{ r|c c c c c c c c c | }
-
-\multicolumn{1}{r}{bit index}
+\multicolumn{1}{r}{Bit Index}
  &  \multicolumn{1}{c}{$b_{15}$}
  &  \multicolumn{1}{c}{$b_{14}$}
  &  \multicolumn{1}{c}{$b_{13}$}
@@ -143,6 +147,7 @@ $\vdots$\hspace{2em}
  \texttt{datas[16]}
  & $p_{15}$ & $o_{15}$ & $n_{15}$ & $m_{15}$ & ... & $d_{15}$ & $c_{15}$ & $b_{15}$ & $a_{15}$
   \\  \cline{2-10} 
+  
 \end{tabular}
 \end{center}
 \caption{\texttt{datas[0:16]}}
@@ -153,9 +158,12 @@ To reconstruct the data collected from ADC$_a$[0], a routine iterates through \t
 ADC$_a$[0] = ($a_{15}<<15)+(a_{14}<<14)+(a_{13}<<13)+...+(a_{2}<<2)+(a_{1}<<1)+a_0$\\
 To reconstruct all of the waveform recorded, the routine iterates through \texttt{datas[0:16000]}, reconstructing 1000 samples from each ADC.
 
+After reconstruction, the data is sent to a host program over USB for further processing.
+
 \section{DAC}
 
-
+The STM32F407's onboard DAC is used as a signal source for impedance testing.
+The DAC is configured to update on a timer, and is fed new waveform values from a wavetable by DMA1.
 
 \begin{figure}[H]
   \begin{center}
@@ -164,13 +172,23 @@ To reconstruct all of the waveform recorded, the routine iterates through \textt
   \end{center}
 \end{figure}
 
-\subsection{DAC Timer}
 
-\subsection{DAC DMA}
+Timer 4 is configured as a 16-bit up-counting timer with period \texttt{dpd}, set by command over USB.
+On update, Timer 4 is a master to DAC1, and triggers the DAC to output a new value.
+The DAC, in turn, triggers a data transfer from DMA1, which transfers the next value in the cosine wavetable to DAC1.
+
 
 \subsection{DAC Wavetables}
 
+There are three DAC wavetables, each 1000 bytes long.
+The first wavetable has four cycles of cosine, the second has 10, and the last has 40.
+The different-sized wavetables are necessary to maintain high-fidelity output signals at low frequency while still permitting high-frequency output.
+
 \section{USB}
+
+
 \subsection{USBACM}
+
+
 \subsection{Command List}
-\end{document}
+%\end{document}

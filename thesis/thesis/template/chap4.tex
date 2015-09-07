@@ -2,6 +2,7 @@
 %\usepackage{tikz}
 %\usepackage{circuitikz}
 %\usepackage{amsmath}
+%\usepackage{fancyvrb}
 %\begin{document}
 
 \chapter{Simulation}
@@ -102,49 +103,48 @@ The infinite resistance across a capacitor and zero resistance across an inducto
 \texttt{insertProbe2(target,nodes,groundNodes,probes,source='DC'):}\\
 Inserts a 1V voltage source from ground to each node in \texttt{[nodes]}, grounds each node in \texttt{[groundNodes]}, and adds a voltage print statement for each node in \texttt{[probes]}.
 By default, the voltage sources are written as DC sources, but if 'AC' is passed into the last argument the sources are written as AC sources and the AC control statement is added.\\
-\texttt{AC dec 1 1 100000}\\
-Which runs a small-signal AC simulation and returns the amplitudes of the resulting voltage and current waveforms, one sample point per decade from 1Hz to 100kHz.
+\texttt{AC dec 5 10m 10meg}\\
+Which runs a small-signal AC simulation and returns the amplitudes of the resulting voltage and current waveforms, five sample point per decade from 10mHz to 10MHz.
 
 \subsection{Run Simulation}
 \texttt{def runSim(target,results,source='DC'):}\\
 Makes a system call to NgSpice in batch mode with netlist \texttt{target} and outputs the result to text file \texttt{results}.
-The last argument indicates how to parse the resulting data, as NgSpice returns DC data in the following format:\\
-\texttt{
-No. of Data Rows : 1\\
-i(v) = -1.18295e-01\\
-v(5) = 2.532846e-07}\\
-and AC data is returned in this format:\\
-\texttt{
-No. of Data Rows : 6\\
-                                   mynetlist\\
-                                   AC Analysis  Sun Aug 30 18:35:07  2015\\
---------------------------------------------------------------------------------\\
-Index   frequency       i(v)                            \\
---------------------------------------------------------------------------------\\
-0	1.000000e+00	-1.72598e+00,	3.978810e+02	\\
-1	1.000000e+01	-1.58689e-01,	3.978827e+01	\\
-2	1.000000e+02	-1.43015e-01,	3.974287e+00	\\
-3	1.000000e+03	-1.42859e-01,	3.520201e-01	\\
-4	1.000000e+04	-1.42857e-01,	-4.18884e-01	\\
-5	1.000000e+05	-1.42857e-01,	-4.58275e+00	\\
-\\
-                                   mynetlist\\
-                                   AC Analysis  Sun Aug 30 18:35:07  2015\\
---------------------------------------------------------------------------------\\
-Index   frequency       v(3)                            \\
---------------------------------------------------------------------------------\\
-0	1.000000e+00	1.000000e+00,	0.000000e+00	\\
-1	1.000000e+01	1.000000e+00,	0.000000e+00	\\
-2	1.000000e+02	1.000000e+00,	0.000000e+00	\\
-3	1.000000e+03	1.000000e+00,	0.000000e+00	\\
-4	1.000000e+04	1.000000e+00,	0.000000e+00	\\
-5	1.000000e+05	1.000000e+00,	0.000000e+00\\
-}
+The last argument indicates how to parse the resulting data, as NgSpice returns DC data in the following format:
+\begin{Verbatim}[fontsize=\footnotesize]
+No. of Data Rows : 1
+i(v) = -1.18295e-01
+v(5) = 2.532846e-07}
+\end{Verbatim}
+and AC data is returned in this format:
+\begin{Verbatim}[fontsize=\footnotesize]
+No. of Data Rows : 6
+                                   mynetlist
+                                   AC Analysis  Sun Aug 30 18:35:07  2015
+--------------------------------------------------------------------------------
+Index   frequency       i(v)                            
+--------------------------------------------------------------------------------
+0	1.000000e+00	-1.72598e+00,	3.978810e+02	
+1	1.000000e+01	-1.58689e-01,	3.978827e+01	
+2	1.000000e+02	-1.43015e-01,	3.974287e+00	
+3	1.000000e+03	-1.42859e-01,	3.520201e-01	
+4	1.000000e+04	-1.42857e-01,	-4.18884e-01	
+5	1.000000e+05	-1.42857e-01,	-4.58275e+00	
 
+                                   mynetlist
+                                   AC Analysis  Sun Aug 30 18:35:07  2015
+--------------------------------------------------------------------------------
+Index   frequency       v(3)                            
+--------------------------------------------------------------------------------
+0	1.000000e+00	1.000000e+00,	0.000000e+00	
+1	1.000000e+01	1.000000e+00,	0.000000e+00	
+2	1.000000e+02	1.000000e+00,	0.000000e+00	
+3	1.000000e+03	1.000000e+00,	0.000000e+00	
+4	1.000000e+04	1.000000e+00,	0.000000e+00	
+5	1.000000e+05	1.000000e+00,	0.000000e+00
+\end{Verbatim}
 \subsection{Print Matrix}
 \texttt{def printMatrix(m):}
 Prints matrix \texttt{m} in nice command-line output.
-
 \section{Executing NSA}
 \subsection{Calculate $Z_{n{||}}(f)$}
 $Z_{n{||}}(f)$ is found by grounding all nodes except for node n and adding a voltage source to that node, then taking the ratio of the amplitudes of the resulting current into the node of interest and the voltage source.
