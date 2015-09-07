@@ -29,7 +29,7 @@ for n in nodelist:
 flist=runSim(net+'-t',out,'AC')['f']
 
 
-subprocess.call("clear")
+#subprocess.call("clear")
 
 printMatrix(zm)
 print("R:")
