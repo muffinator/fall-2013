@@ -1,4 +1,4 @@
-\def\DEBUG{1}
+%\def\DEBUG{1}
 \ifdefined\DEBUG
 \documentclass[11pt,twoside]{mitthesis}
 \usepackage{tikz}
@@ -67,6 +67,7 @@ The system is composed of a pcb-mounted breadboard, a voltage source, current me
 The hardware is controlled by a circuit sensing algorithm, which determines the equivalent circuit elements between any two nodes on the breadboard.
 A software simulation of the hardware system verifies operation of the network sensing algorithm and enables testing for networks larger than eight nodes.
 Once the circuit sensing algorithm reconstructs the entire circuit it generates a schematic diagram of the circuit, closing the loop on breadboard construction.
+
 
 %Since software is faster to prototype with, the theoretical circuit topology work was first implemented in software.
 %A circuit simulator test-bench was written to provide the circuit-sensing algorithm in development with data.

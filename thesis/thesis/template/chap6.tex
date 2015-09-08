@@ -1,4 +1,4 @@
-\def\DEBUG{1}
+%\def\DEBUG{1}
 \ifdefined\DEBUG
 \documentclass[11pt,twoside]{mitthesis}
 \usepackage{tikz}
@@ -11,17 +11,40 @@
 
 \chapter{Firmware}
 
+In this chapter, firmware configuration and operation is covered.
 The firmware is structured in three sections - USB data reception and transmission, DAC operation, and ADC operation.
+The USB subsystem receives commands from a host computer, specifying which nodes to ground, which nodes to connect to the voltage source, which nodes to probe, and what sample frequency to use.
+On a 'sample' command, the USB subsystem triggers both the DAC and ADC subsystems to operate synchronously, accumulating AC test samples in the memory buffer.
+When the buffer is full, the ADC subsystem sends the recorded data back to the host computer through the USB subsystem and waits for the next command.
+
+\section{USB}
 
 Libopencm3, licensed under the GNU LGPL v3, is used extensively in this firmware.
-
-Block Diagram
+Of particular utility, the USB subsystem relies entirely on example USB CDC ACM firmware included in the libopencm3 library.
+USB CDC (Communications Device Class) ACM (Abstract Control Module) is a USB protocol that is used to create virtual serial ports over USB.
+The firmware components that implement USB-CDC-ACM are a polling routine that is the only code running in the main loop and two callbacks - one for receiving data and one for transmitting data.
+The callback used to transmit data is called after the ADC subsystem has finished sampling and sends all of the collected data over USB.
+The callback used to receive data is called when the laptop sends commands over USB.
+\subsubsection{Command List}
+Commands are sent in sequences of characters over USBACM.
+The command list is as follows:\\\\
+\texttt{rcvBuf=['g',nodes]} grounds all of the nodes represented by \texttt{nodes}.
+In this command, \texttt{nodes} is an 8-bit binary representation of which nodes to ground.
+For example, \texttt{['g',0x03]} grounds nodes 1 and 2.\\\\
+\texttt{rcvBuf=['w',node]} connects the voltage source to \texttt{node} through a high-side switch.
+\texttt{node} is a decimal representation of which node to connect to the voltage source.
+For example, \texttt{['w',0x03]} connects the voltage source to node 3.\\\\
+\texttt{rcvBuf=['m',node]} configures the voltage multiplexer to connect \texttt{node} to the A/D converter.
+\texttt{node} is a decimal representation of which node to connect.
+For example, \texttt{['m',0x03]} connects the A/D to node 3.\\\\
+\texttt{rcvBuf=['s',f0,f1,f2]} configures the DAC to generate a cosine wave of frequency\\ \texttt{(f2<<16) + (f1<<8) + f0} and configures the ADC to sample between 100 and 250 times a cycle when possible, with a maximum sample rate of 500Khz.
+For example, \texttt{['s',0xe8,0x03,0x00]} configures the DAC to generate a 1KHz cosine wave and configures the ADC to sample at 250KHz.
 
 \section{ADC}
 The ADCS7476 is a successive approximation ADC with an SPI interface.  
 In operation, a master device initiates a conversion by pulling $\overline{\mbox{\texttt{CS}}}$ low, then clocks in data using the \texttt{CK} line and reading \texttt{SDATA}.
 
-\begin{figure}[H]
+\begin{figure}[h]
 	\label{fig:adc-timing}
   \begin{center}
       \includegraphics[width=\textwidth]{../adc-timing.png}
@@ -110,7 +133,7 @@ In Figure \ref{fig:data-reconstruct}, the binary data stored in \texttt{datas} i
 Each 16-bit integer in \texttt{datas} contains one bit of data from each of the 16 pins on \texttt{PORT E}, which connect to the data pins on the external A/D converters.
 Here, each letter represents the data from a particular external ADC.
 
-\begin{figure}[h]
+\begin{table}[h]
 \begin{center}
 \begin{tabular}{ r|c c c c c c c c c | }
 \multicolumn{1}{r}{Bit Index}
@@ -156,7 +179,7 @@ $\vdots$\hspace{2em}
 \end{center}
 \caption{\texttt{datas[0:16]}}
 \label{fig:data-reconstruct}
-\end{figure}
+\end{table}
 
 To reconstruct the data collected from ADC$_a$[0], a routine iterates through \texttt{datas[0:15]}, summing appropriately bit-shifted $b_0$'s.\\
 ADC$_a$[0] = ($a_{15}<<15)+(a_{14}<<14)+(a_{13}<<13)+...+(a_{2}<<2)+(a_{1}<<1)+a_0$\\
@@ -186,15 +209,18 @@ The DAC, in turn, triggers a data transfer from DMA1, which transfers the next v
 
 There are three DAC wavetables, each 1000 bytes long.
 The first wavetable has four cycles of cosine, the second has 10, and the last has 40.
-The different-sized wavetables are necessary to maintain high-fidelity output signals at low frequency while still permitting high-frequency output.
+The DAC synthesizes sinusoids by taking in a sequence of numbers from a wavetable and converting them, sequentially, to analog voltages.
+There are two factors that contribute to the output sinusoid's frequency: the rate at which the DAC takes in a new number and the number of samples in the wavetable it takes to complete one cycle.
+In the case of the first wavetable, where there are four cycles in 1000 samples, the DAC can synthesize a 1Hz signal by converting one number every 4mS, an 0.4\% of the period time-step.
+Had the DAC been looking up the second wavetable, where there are ten cycles in 1000 samples, the DAC would have needed to wait 10mS between samples, a 1\% of the period time-step.
+Using the third wavetable, the wait would be 40mS between samples, a 4\% of the period time-step.
+This amount of delay in the DAC output creates an unacceptable amount of distortion in the output signal.
 
-\section{USB}
+Wavetables with a higher number of samples per cycle can feed lower-frequency signals at higher sample rates.
+Additionally, wavetables with a high number of samples per cycle have smaller jumps between samples, resulting in a smoother waveform.
+According to these observations, a wavetable with an extremely large number of samples per cycle should be used to generate waveforms with the smallest amount of distortion.
 
-
-\subsection{USBACM}
-
-
-\subsection{Command List}
+However, the DAC's speed is limited by the internal system clock, and to generate sinusoids at 100KHz+, the DAC needs to be fed by a waveform with fewer samples per cycle.
 
 
 \ifdefined\DEBUG

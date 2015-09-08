@@ -1,4 +1,4 @@
-\def\DEBUG{1}
+%\def\DEBUG{1}
 \ifdefined\DEBUG
 \documentclass[11pt,twoside]{mitthesis}
 \usepackage{tikz}
@@ -11,15 +11,18 @@
 
 
 \chapter{Hardware}
-
-
-Block diagram / Schematic
-
-
+In this chapter, hardware system design is covered.
+The hardware system is decomposed into its subsystems, and the design choices, specifications, and operation of those subsystems are explained.
+The hardware system is composed of a set of eight breadboard rails connected to a node voltage reading system, a test voltage source system, a grounding system, and a 32-bit microcontroller development board.
+The node voltage reading system is composed of a voltage multiplexer and an external A/D converter.
+The test voltage source system is composed of an internal D/A converter, an external buffer, a current sensing amplifier, an external A/D converter, and eight high-side analog switches.
+The grounding system is composed of eight N-channel MOSFETs, handled by the microcontroller.
+A simplified block diagram is below:
 \begin{figure}[h]
   \begin{center}
-      \includegraphics[width=1\textwidth]{../circuit.png}
+      \includegraphics[width=.9\textwidth]{../circuit.png}
   \end{center}
+  \caption{Simplified block diagram of hardware}
 \end{figure}
 
 \section{Node Voltage Reading}
@@ -147,12 +150,120 @@ At 100kHz, the 140 pF capacitance on each rail has 11k\ohm of impedance.
 
 \section{PCB Mounted Breadboard}
 
+Modern solderless breadboards are composed of three components: a plastic face, metal finger springs (rails), and a foam backing.
+The finger springs are designed to fit snugly in the plastic face, which provides structure for the entire board.
+The foam backing keeps the finger springs from being pushed out the back of the plastic face..
+
+\begin{figure}[h!]
+  \begin{center}
+      \includegraphics[width=.6\textwidth]{../bb-rails2.png}
+      \caption{Solderless breadboard plastic face with finger spring rails removed}
+  \end{center}
+\end{figure}
+
+A breadboard can be mounted to a PCB by removing the foam backing and surface mount soldering the finger springs to a PCB, then pressing the plastic face onto the mounted rails
+Initial tests of this technique involved small numbers of finger springs hand-soldered one-by-one to a PCB, using nail polish as soldermask.
+
+\begin{figure}[H]
+  \begin{center}
+      \includegraphics[width=.8\textwidth]{../bb-proto-1.png}
+      \caption{Breadboard rails hand-mounted on copper clad PCB}
+  \end{center}
+\end{figure}
+
+The results of these tests were promising, but alignment proved to be an issue.
+To mitigate this, a finger spring jig was 3d-printed to loosely hold each finger spring in precise alignment for PCB mounting.
+\begin{figure}[H]
+  \begin{center}
+      \includegraphics[width=.9\textwidth]{../bb-18-45.png}
+      \caption{3D printed finger spring jigs}
+  \end{center}
+\end{figure}
+
+\begin{figure}[H]
+  \begin{center}
+      \includegraphics[width=.6\textwidth]{../bb-18.png}
+      \caption{Top view of 36-position finger spring jig}
+  \end{center}
+\end{figure}
+
+\begin{figure}[H]
+  \begin{center}
+      \includegraphics[width=.9\textwidth]{../bb-45.png}
+      \caption{Top view of 90-position finger spring jig}
+  \end{center}
+\end{figure}
+
+The finger spring jig was designed in openSCAD and has four alignment pegs to mate with alignment holes on a PCB.
+To assemble a PCB mounted breadboard, the finger spring rails are removed from the breadboard and inserted into the finger spring jig.
+\begin{figure}[H]
+  \begin{center}
+      \includegraphics[width=.8\textwidth]{../bb-w-rails.png}
+      \caption{Fully loaded 36-position finger spring jig}
+  \end{center}
+\end{figure}
+Once all of the rails are placed, a dot of super glue is dispensed in the center of each finger spring, between two dots of solderpaste.
+The rails are then adhered to the PCB by pressing the PCB upside-down onto the finger spring jig while the alignment pegs are properly mated with the alignment holes in the PCB.
+This ensures that the array of finger spring rails are aligned with the pads on the PCB.
+After about ten seconds the rails adhere to the PCB and the PCB can be carefully separated from the finger spring jig.
+Finally the assembly is reflowed with hot air or in a reflow oven, and the plastic faceplate can be pressed on.
+\begin{figure}[H]
+  \begin{center}
+      \includegraphics[width=.8\textwidth]{../bb-mount.png}
+      \caption{Front and back of PCB mounted breadboard}
+  \end{center}
+\end{figure}
+
 \section{Hardware Prototypes}
 
-\section{Low Cost}
+\begin{figure}[h]
+  \begin{center}
+      \includegraphics[width=1.08\textwidth, angle =90]{../schem1.png}
+      \caption{Schematic of full hardware system}
+  \end{center}
+\end{figure}
 
-Keeping the cost of production low makes butterboard accessible to the largest population of people.
-Using multiplexed ADCs where possible keeps the cost down by reducing the quantity of high price-tag components, like ADCs.
+\begin{figure}[h]
+  \begin{center}
+      \includegraphics[width=.9\textwidth]{../layout-tb.png}
+      \caption{Layout of full hardware system}
+  \end{center}
+\end{figure}
+
+\begin{figure}[h]
+  \begin{center}
+      \includegraphics[width=.9\textwidth]{../layout-t.png}
+      \caption{Top layer of full hardware system}
+  \end{center}
+\end{figure}
+
+\begin{figure}[h]
+  \begin{center}
+      \includegraphics[width=.9\textwidth]{../layout-b.png}
+      \caption{bottom layer of full hardware system}
+  \end{center}
+\end{figure}
+
+\begin{figure}[h]
+  \begin{center}
+      \includegraphics[width=.85\textwidth]{../butter-top.png}
+      \caption{Top side of completed hardware system - power jack, voltage reading multiplexer, low-side switches, and 8-pin breadboard header are visible.}
+  \end{center}
+\end{figure}
+
+\begin{figure}[h]
+  \begin{center}
+      \includegraphics[width=.85\textwidth]{../butter-bot.png}
+      \caption{Bottom side of completed hardware system - voltage regulators, A/D converters, high-side switches, and current-sense amplifier are visible}
+  \end{center}
+\end{figure}
+
+\begin{figure}[h]
+  \begin{center}
+      \includegraphics[width=\textwidth]{../system.png}
+      \caption{8-node circuit sensing breadboard in operation}
+  \end{center}
+\end{figure}
 
 
 \ifdefined\DEBUG

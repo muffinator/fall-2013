@@ -1,4 +1,4 @@
-\def\DEBUG{1}
+%\def\DEBUG{1}
 \ifdefined\DEBUG
 \documentclass[11pt,twoside]{mitthesis}
 \usepackage{tikz}
@@ -97,7 +97,7 @@ The network-sensing algorithm relies on the ability to shrink the effective netw
 		\fill (1.5+\offset,-2.584) circle (1mm);
 		\fill (3+\offset,0) circle (1mm);
 		
-		\def\offset{5.5}
+		\def\offset{5.25}
 		\draw (-1+\offset,-2.548)
 		to[short]
 		node[sground] {} (-1+\offset,-2.548);
@@ -115,20 +115,20 @@ The network-sensing algorithm relies on the ability to shrink the effective netw
 		to[short]
 		node[sground] {} (1.5+\offset,-2.548);
 		\draw (3+\offset,0)
-		to[short] (4+\offset,0)
-		to[short] (4+\offset,-2.548)
+		to[short] (3.5+\offset,0)
+		to[short] (3.5+\offset,-2.548)
 		node[sground] {};
 		\fill (\offset,0) circle (1mm);
 		\fill (1.5+\offset,-2.584) circle (1mm);
 		\fill (3+\offset,0) circle (1mm);
 		
-		\def\offset{12}
-		\draw (-1+\offset,-2)
-		to[short,o-] (-1+\offset,-2.548)
-		node[sground] {} (-1+\offset,-2.548);
+		\def\offset{10.75}
 		\draw (-.75+\offset,-2)
-		to[open,v^>=$V_A$] (-.75+\offset,-.1)
-		to[open](-1+\offset,0)
+		to[short,o-] (-.75+\offset,-2.548)
+		node[sground] {} (-.75+\offset,-2.548);
+		\draw (-.5+\offset,-2)
+		to[open,v^>=$V_A$] (-.5+\offset,-.1)
+		to[open](-.75+\offset,0)
 		to[short,o-](0+\offset,0);
 		\draw (\offset,0)
 		node[label={above:$A$}] {}
@@ -142,7 +142,7 @@ The network-sensing algorithm relies on the ability to shrink the effective netw
 		node[sground] {} (1.5+\offset,-2.548);
 		\draw (4+\offset,-2.548)
 		node[sground] {}
-		to[V,v_>=$V_t$] (4+\offset,0)
+		to[V,v^>=$V_t$] (4+\offset,0)
 		to[short] (3+\offset,0)
 		;
 		\fill (\offset,0) circle (1mm);
@@ -402,7 +402,7 @@ C=\frac{1}{cnum}\sum_{\omega_c}{\frac{1}{\omega_c Z[\omega_c]}}
 Where $rnum$, $lnum$, and $cnum$ are the number of sample frequencies in the R, L, and C regions, respectively.
 
 \subsection{Reconstructing the Network}
-With a record of all of the elements and their connections in the network, the network can be reconstructed and a schematic of the original circuit, drawn.
+With a record of all of the elements and their connections in the network, the network can be reconstructed and a schematic of the original circuit can be drawn.
 
 \ifdefined\DEBUG
 \end{document}

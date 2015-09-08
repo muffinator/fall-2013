@@ -1,37 +1,68 @@
-\def\DEBUG{1}
+%\def\DEBUG{1}
 \ifdefined\DEBUG
 \documentclass[11pt,twoside]{mitthesis}
 \usepackage{tikz}
 \usepackage{circuitikz}
 \usepackage{amsmath}
+\usepackage{fancyvrb}
 \usepackage{float}
 \newcommand{\ohm}{$\Omega$ }
 \begin{document}
 \fi
 
 \chapter{Software Control}
-
+In this chapter, software control of the hardware system is covered.
+The software that controls the hardware system is very similar to the software simulation in Chapter 3.  
+A control routine parses first circuit 'experiment' requests and configures the hardware to follow out the experiment.
+The routine then analyzes the returned measurement data.
+Unlike in the simulation, the measurement data is returned in the time domain rather than the frequency domain.
+The software transforms the returned data to the frequency domain to calculate the magnitude of the returned waveforms.
+With magnitude data, the same network sensing algorithm from Chapter 2  is used to reconstruct the network.
 \section{Control Routine}
 
 "Just a teaspoon of sugar makes the medicine go down" - Mary Poppins
 
+The control routine is quite self-explanatory.
 
+\begin{Verbatim}[fontsize=\footnotesize]
+def medicine(drive,chan,freq=1000,adc=0,uglist=[]):
+    nog=0	#a number representing nodes not to ground
+    for x in uglist:
+        nog+=(1<<x)
+    ser.write(['g',0xff&(~((1<<chan)|(1<<drive)|nog))])	
+		#ground all of the nodes whose bits are set to 1
+    ser.write(['w',drive+1])
+    	#connect the voltage source to node 'drive'
+    freq = int(freq)
+    f=[freq&0xff,(freq&0xff00)>>8,(freq&0xff0000)>>16]
+    	#send three bytes representing the desired frequency
+    ser.write(['m',chan])
+    	#set the voltage multiplexer to the channel of interest, chan
+    ser.flushInput()
+    	#clear everything already in the input buffer
+    ser.write((['s']+f+[adc]))
+    	#tell the microcontroller to begin sampling
+    	# adc value of 0 is for voltage and 1 for current
+    a = ser.read(2000)
+    b = [5*((ord(a[2*x+1])<<8)+ord(a[2*x]))/1024. for x in range(len(a)/2)]
+    b = b[2:]
+    	# the ADC data is 10-bits per sample, but the serial channel only supports
+    	# sending 8-bits at a time, so it has to be reconstructed.
+    ft=fft(b)
+    aind=argmax(abs(ft[1:]))+1
+    	#calculate the magnitude of the most prominent sinusoid and return it
+    amp = abs(ft[aind])/500
+    return amp
+\end{Verbatim}
 
-\subsection{Data Reconstruction}
-10-bits from 8-bit serial data
-
-\section{Finding Amplitude}
-\subsection{Tracking Method?}
-This one didn't work so well.
 \subsection{FFT}
-Yeah, this one works real well.
+The normalized FFT is used to extract the amplitude data out of the measured sinusoidal voltages and currents.
+Since the measured voltages and currents should be close to purely sinusoidal, the magnitude of the FFT of those voltage and currents should be close to a delta function at the frequency of interest.
+The magnitude peak value of the normalized FFT is the amplitude of the measured sinusoidal voltages and currents.
 
-\section{Node Iteration Loop}
-\subsection{Sampling}
-\subsection{Finite Differencing}
-\subsection{Resistor Characterizing}
-
-\section{JSON Update}
+\section{Network Sensing Algorithm}
+ The implementation of the network sensing algorithm in the hardware control software is identical to that in the hardware simulator, mentioned in Chapter 3.
+%Unfortunately, inductors tend to generate noisy impedance measurements, which heavily defeats the finite difference method of finding the slope of the impedance vs frequency plots.
 
 \ifdefined\DEBUG
 \end{document}
