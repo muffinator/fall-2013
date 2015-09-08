@@ -1,4 +1,4 @@
-%\def\DEBUG{1}
+\def\DEBUG{1}
 \ifdefined\DEBUG
 \documentclass[11pt,twoside]{mitthesis}
 \usepackage{tikz}
@@ -10,12 +10,24 @@
 \fi
 
 \chapter{Results}
+In this chapter, results for the simulation and hardware implementations of the RLC network identifying system are presented and analyzed.
+The shortcomings of the systems are addressed and potential improvements are discussed as future work.
 
 \section{Simulation Performance}
+The performance of the RLC network identifying system simulator is analyzed by its output precision and cases in which it fails.
+The output precision of the simulator is quite good and can be controlled almost arbitrarily.
+The precision depends almost entirely on the thresholds defined during the finite-differencing step, as looser thresholds allow bad data to get averaged into the good data.
+The cases in which the simulator fails are always cases where a relatively high resistance is in parallel with an LC network.
+In these cases, the simulator reports that there is no resistor in parallel with the LC network.
+The failure mode lies within finite difference stencil thresholding, where the simulator never finds a region where the slope of the impedance vs frequency plot is zero, and in turn the simulator decides there is no resistor.
+Designing a better element identifying algorithm would make excellent future work.
 
+%This could be remedied by either a patch to the algorithm or another algorithm entirely.
+%Instead of using a slope of zero on the \texttt{|Z| vs. f} plot to indicate parallel resistance, the maximum recorded impedance can be taken as the parallel resistance whenever the simulator finds an LC circuit.
+%In the case of an LC circuit where there is no resistance, 
 \section{Hardware Performance}
 \subsection{Block Performance}
-How each block of hardware performed individually and why
+\subsubsection{}
 \subsection{Capacitive Coupling}
 \subsection{Limits of Operation}
 Theoretical limits of system performance based on block performance
