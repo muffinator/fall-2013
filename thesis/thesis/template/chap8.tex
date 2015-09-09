@@ -143,6 +143,7 @@ Identifying and solving this problem would make excellent future work.
 \newpage
 \subsection{Network Testing}
 
+\subsubsection{Resistive Networks}
 To verify the network identification system performed properly, complete networks of three, four, five, and six nodes were constructed from resistors within the range of 100\ohm to 1000\ohm.
 
 \begin{figure}[H]
@@ -157,37 +158,65 @@ To verify the network identification system performed properly, complete network
       \end{center}
       \caption{Schematics of 3, 4, 5, and 6-node resistor networks rendered in the browser}
 \end{figure}
-  
+
+The RLC network identification system successfully detected all of the resistive connections in the complete 3, 4, 5, and 6 node networks.
+However, many of the values were detected with more than 5\% error once the network became large.
+This error is produced by the nonlinear weighting that occurs when combining resistors in parallel.
+As the network grows, each $R_{n_{||}}$ measurement contains more resistive elements in parallel with the branch of interest.
+If all of these resistive elements are on the same order of magnitude in value ($R$, the additional attenuation due to the addition of another parallel resistor goes as $\frac{k}{k+1}$, if k is the current number of resistors.
+This causes error in the measurement of $R_{nm}$ to be amplified by $R(k+1)$
+
+\begin{align*}
+R_{nm}'&= \frac{V_t R_{n_{||}}}{V_n} \qquad from ~ Section ~ 2.1.3\\
+&= \frac{\frac{r_{nm}}{R+r_{nm}}}{\frac{1}{R+R_{nm}}}
+\end{align*}
+with error $\Delta_r$, $\Delta_v$:
+\begin{align*}
+R_{nm}' &= \frac{V_t R_{n_{||}}}{V_n} = \frac{\frac{R_{nm}}{R+k R_{nm}}+\Delta_r}{\frac{1}{R+kR_{nm}}+\Delta_v}\\
+&= \frac{R_{nm}+\Delta_r (R + k R_{nm})}{1+\Delta_v(R+kR_{nm})}
+\end{align*}
+If $R_{nm}\approx R$, error contributed by $R_{n_{||}}$ measurements is $\Delta_r R (k+1)$ and the error contribued by $V_n$ measurements is $\frac{1}{1+\Delta_v R (k+1)}$, both of which are scaled by the number of parallel resistances.
+To improve performance in the cases where many branches connect to one node, improve measurement precision and dynamic range.
+In the previous tests, the average resistance was $\sim500$\ohm.
+Five 500\ohm resistors' equivalent parallel resistance is 100\ohm, close to the lower bound on the identification system's dynamic range.
+This analysis explains the asymmetry found in many of the measured resistance matrices, since each node had different parallel equivalent resistances, $R_{n_{||}}$.
+
+The following data correlates to the test networks in Figure \ref{fig:nodes}.
+Column index $i$ and row index $j$ are node numbers, the value at at index $i,j$ is the resistance $R_{ij}$.
+
 \begin{Verbatim}[fontsize=\footnotesize]
-R
-None     1.03e+03 8.55e+02  
-1.03e+03 None     7.70e+02  
-8.56e+02 7.71e+02 None  
+N=3
+R measured                          R actual
+None     1.03e+03 8.55e+02                   1.00e+03 8.20e+02
+1.03e+03 None     7.70e+02          1.00e+03          7.50e+02	
+8.56e+02 7.71e+02 None              8.20e+02 7.50e+02     
 \end{Verbatim}
 
 
 \begin{Verbatim}[fontsize=\footnotesize]
-R
+N=4
+R measured                                R actual
+None     1.03e+03 8.58e+02 6.42e+02                1.00e+03 8.50e+02 6.20+e02
+1.03e+03 None     7.71e+02 5.20e+02       1.00e+03          7.50e+02 5.10e+02
+8.63e+02 7.84e+02 None     1.04e+02       8.50e+02 7.50e+02          1.00+e02
+6.46e+02 5.27e+02 1.04e+02 None           6.20e+02 5.10e+02 1.00e+02     
+\end{Verbatim}
 
-None     1.03e+03 8.58e+02 6.42e+02  
-1.03e+03 None     7.71e+02 5.20e+02  
-8.63e+02 7.84e+02 None     1.04e+02  
-6.46e+02 5.27e+02 1.04e+02 None      
+\newpage 
+
+\begin{Verbatim}[fontsize=\footnotesize]
+N=5
+R measured                                     R actual
+None     1.03e+03 8.56e+02 6.49e+02 4.91e+02            1.00e+03 8.50e+02 6.20e+02 5.10e+02
+1.04e+03 None     7.81e+02 5.26e+02 1.66e+02   1.00e+03 None     7.50e+02 5.10e+02 1.60e+02
+9.99e+02 8.87e+02 None     1.19e+02 2.38e+02   8.50e+02 7.50e+02          1.00e+02 2.00e+02
+6.66e+02 5.31e+02 1.05e+02 None     6.55e+02   6.20e+02 5.10e+02 1.00e+02          6.20e+02
+5.02e+02 1.67e+02 2.10e+02 6.54e+02 None       5.10e+02 1.60e+02 2.00e+02 6.20e+02 
 \end{Verbatim}
 
 \begin{Verbatim}[fontsize=\footnotesize]
+N=6
 R
-
-None     1.03e+03 8.56e+02 6.49e+02 4.91e+02  
-1.04e+03 None     7.81e+02 5.26e+02 1.66e+02  
-9.99e+02 8.87e+02 None     1.19e+02 2.38e+02  
-6.66e+02 5.31e+02 1.05e+02 None     6.55e+02  
-5.02e+02 1.67e+02 2.10e+02 6.54e+02 None 
-\end{Verbatim}
-
-\begin{Verbatim}[fontsize=\footnotesize]
-R
-
 None     1.03e+03 8.65e+02 6.45e+02 4.96e+02 5.24e+02  
 1.04e+03 None     7.87e+02 5.28e+02 1.67e+02 7.05e+02  
 1.06e+03 9.65e+02 None     1.27e+02 2.55e+02 1.04e+03  
@@ -196,15 +225,64 @@ None     1.03e+03 8.65e+02 6.45e+02 4.96e+02 5.24e+02
 5.19e+02 6.97e+02 8.51e+02 2.49e+02 4.12e+02 None     
 \end{Verbatim}
 
+\subsubsection{RC Networks}
+Similar results are found when measuring RC networks.
+
 \section{Improvements}
-\subsection{VGA for ADC's, DAC, and Differential Amplifier}
+Various improvements would be welcome future work.
+From design focused on individual subsystems to topological changes, there is much to improve on this iteration of a circuit sensing breadboard.
+\subsection{Variable Gain Amplifiers}
+Adding a Variable Gain Amplifier to the ADC, DAC, and current sense amplifier signal chains would enable a large increase in dynamic range of the entire system.
+Not only would it improve the resolution (and thus precision) of measuring elements on the far-ends of the dynamic range, but it would enable higher resolution captures of small signals, improving the overall utility of the device.
+
 \subsection{Variable Sense Resistor}
+
+Similar to the aforementioned improvement, this would improve the dynamic range and resolution of the current measurements.  
+
 \subsection{Better Switches}
-\subsection{Computer-Aided Debugger}
-\subsection{Three Terminal Devices}
+The switches in this system are the main contributors the high parasitic capacitance between every node and ground.
+The parasitic capacitance causes undesired attenuation of signals at high-frequencies, making This version of the circuit sensing breadboard unsuitable for even moderate-frequency circuit design.
+Finding switches with lower parasitic capacitances would likely require permitting higher $r_{DS_{on}}$, which is possible but requires further testing.
+Alternative technologies for switches, such as relays, seem promising as they have very low parasitic capacitance and low on resistance, at the cost of bulk.
+
 \subsection{Better Schematic Display}
 
+The schematic display was built on top of D3, a javascript library for graphical applications in the browser.
+D3 was chosen because of its large community and available relevant example code.
+In particular, \emph{Force Graph}.
+Force graph is interesting because it could be configured to take an arbitrary graph and simulate a kind of spring fabric between the nodes.
+Nodes tied together with edges are attracted to one another, but nodes not connected repel.
+This action 'unfolds' random networks until they appear flat, with as few crossing branches as possible.
+Replace the branches with resistors, capacitors, and inductors and voilia!
+Unfortunately, using a relatively unmodified version of force graph in this application makes schematic display design lacking in many facets.
+Namely, lack of well-placed labels, trouble with handling parallel components, lack of orientation, and lack of visual control.
+Redesigning the current schematic display or designing a new one would greatly improve the usability of the system.
+
+\subsection{Additional Devices}
+
+At the moment, the RLC network identification system can only identify resistor and capacitor networks with a maximum of eight nodes.
+Designing a system that can successfully identify inductors would be a huge improvement.
+Additionally, determining how to identify systems composed of more complex components like diodes, transistors, transformers, and even integrated circuits is an interesting and likely rewarding problem to solve.
+
+\subsection{Computer-Aided Debugger}
+
+Although the intent of this hardware system is to display a live schematic of a circuit under construction, the hardware is capable of serving other purposes.
+Take, for example, a system that is given the schematic of the circuit at hand.
+The circuit is performing unexpectedly, so the circuit symptom is reported to the system.
+The system, knowing what the circuit should be, computes how the circuit should behave.
+Now, since the system knows how the circuit should behave, it asks the user to probe various parts of the circuit, comparing its simulation of the circuit to the actual signals on the circuit.
+Mismatches in simulated and physical signals are traced to their sources, and the bug is found.
+If the system were also give electrical access to every node in the circuit, it may also be able to debug the circuit on its own.
+This would make excellent future work.
+
 \section{Conclusion}
+
+A system that draws a live schematic of a resistive circuit built on an eight-rail breadboard was presented and analyzed.
+The system was decomposed into its algorithmic, hardware, firmware, and software components, each of which were described in detail.
+A new method for mounting breadboards to printed circuit boards was prototyped and presented.
+The performance of the overall system was measured and analyzed, and much was learned along the way.
+Although RLC network identification systems may not be feasible, realistic, or desirable, future work on this topic could lead to some interesting and novel systems.
+
 \ifdefined\DEBUG
 \end{document}
 \fi
