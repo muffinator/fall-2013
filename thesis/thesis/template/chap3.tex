@@ -275,20 +275,32 @@ The number of branches in a complete graph with n nodes is equal to $\frac{n(n-1
 The total number of measurements required to reverse-engineer an n-node circuit is $n(n-1)$.
 
 
+
 \subsection{Element Identification}
 
 Networks composed of elements with complex impedance can be analyzed with the same algorithm.
 By replacing the test DC voltage sources with AC voltage sources, the reactance of capacitors and inductors can be measured in addition to the resistance of resistors.
 
+
+\ifdefined\DEBUG
 \subsubsection{From Resistance to Impedance}
 
+Impedance is the complex-valued equivalent of resistance, in that:
+\begin{equation*}
+V=IZ
+\qquad
+\end{equation*}
+where $V$, $I$, and $Z$ are all complex numbers.
 
-Impedance is a complex valued ratio of the voltage across a circuit to the current flowing through that circuit.
-source the sum of resistance and reactance.
-Here, frequency-domain complex impedance is useful for identifying circuit elements based on the change in branch impedance over inputs of various frequencies.
+To understand impedance in the time domain, arbitrary input signals are represented as sums of complex exponentials:
+\begin{align*}
+V&=|V_0|e^{j(\omega_0 t+\phi_v)}+|V_1|e^{j(\omega_1 t+\phi_v)}+...\\
+I&=|I_0|e^{j(\omega_0 t+\phi_{i_0})}+|I_1|e^{j(\omega_1 t+\phi_{i_1})}+...\\
+Z&=\frac{V}{I}
+\end{align*}
 
-
-MAKE NOTE ABOUT USING THE AMPLITUDE OF THE MEASURED SIGNALS
+In the frequency domain, amplitude and 
+\fi
 
 \subsubsection{Parallel RLC Branches}
 
