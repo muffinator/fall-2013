@@ -69,7 +69,7 @@ The onboard DAC is configured to output a cosine wavetable with a DC offset, as 
 
 The DAC output is buffered by half of an MCP6L92 10MHz op-amp.
 The onboard DAC can be configured with an optional onboard buffer, but the buffer limits the DAC output range from 0.2V to Vdd-0.2V.
-Without the onboard buffer, the DAC output is 15k$\Omega$.
+Without the onboard buffer, the DAC output impedance is 15k$\Omega$.
 When configured as a voltage buffer, the MCP6L92 has an input impedance larger than 1G$\Omega$, resulting in no signal attenuation.
 
 \begin{figure}[h!]
@@ -81,7 +81,7 @@ When configured as a voltage buffer, the MCP6L92 has an input impedance larger t
 
 The buffer sources current through a 10.0\ohm, 1\% sense resistor, which can be switched onto any of the breadboard rails through an array of eight high-side switches.
 The voltage across the sense resistor is measured by the other half of the MCP6L92 op-amp configured as a simple difference amplifier.
-Using two 10k\ohm resistors and two 100k\ohm resistors, the difference amplifier is configured with a gain of 10.  
+Using two $10k\Omega$ resistors and two $100k\Omega$ resistors, the difference amplifier is configured with a gain of 10.  
 
 \begin{figure}[h!]
   \begin{center}
@@ -97,7 +97,7 @@ According to the MCP6L92 datasheet, the difference amplifier should have a -3dB 
 
 The high-side switches were selected for high-voltage operation, so that any rail of the breadboard could swing between 0 and 30V and there wouldn't be a problem.
 The selected switches were Vishay DG468 normally open analog switches.
-They have 9\ohm resistance and 76pF of capacitance in the on-state, 1nA of leakage current and 30pF of capacitance in the off-state.
+They have $9\Omega$ resistance and 76pF of capacitance in the on-state, 1nA of leakage current and 30pF of capacitance in the off-state.
 The high and low side switches are the main limits of bandwidth due to their high amounts of input capacitance in both on and off states.
 
 
@@ -107,11 +107,11 @@ The low-side switches have a low logic-level threshold voltage, low drain-source
 The IRLML2803 N-FETs have an $R_{DS_{ON}}$ of about 1\ohm with a $V_{GS}$ of 3.3V.
 With 10V $V_{GS}$, $R_{DS_{ON}}$ drops to 250m\ohm.
 The downside of these FETs is the high $C_{DS}$ that comes from a wide transistor.
-$C_{DC}$ is on the order of 60pF for each transistor.
+$C_{DS}$ is on the order of 60pF for each transistor.
 When combined with the additional capacitances mentioned above, each breadboard rail has a total of 140pF to ground.  
 This has a significant impact on the maximum usable frequency for even moderate impedances on the breadboard.
-For example, consider a 10k\ohm-10k\ohm resistor divider.
-At 100kHz, the 140 pF capacitance on each rail has 11k\ohm of impedance.
+For example, consider a 10k\ohm-$10k\Omega$ resistor divider.
+At 100kHz, the 140 pF capacitance on each rail has $11k\Omega$ of impedance.
 \begin{figure}[h]
   \begin{center}
     \begin{circuitikz}[american]
@@ -156,7 +156,7 @@ The foam backing keeps the finger springs from being pushed out the back of the 
 
 \begin{figure}[h!]
   \begin{center}
-      \includegraphics[width=.6\textwidth]{../bb-rails2.png}
+      \includegraphics[width=.55\textwidth]{../bb-rails2.png}
       \caption{Solderless breadboard plastic face with finger spring rails removed}
   \end{center}
 \end{figure}
@@ -166,30 +166,30 @@ Initial tests of this technique involved small numbers of finger springs hand-so
 
 \begin{figure}[H]
   \begin{center}
-      \includegraphics[width=.8\textwidth]{../bb-proto-1.png}
+      \includegraphics[width=.55\textwidth]{../bb-proto-1.png}
       \caption{Breadboard rails hand-mounted on copper clad PCB}
   \end{center}
 \end{figure}
 
 The results of these tests were promising, but alignment proved to be an issue.
 To mitigate this, a finger spring jig was 3d-printed to loosely hold each finger spring in precise alignment for PCB mounting.
-\begin{figure}[H]
+\begin{figure}[h]
   \begin{center}
-      \includegraphics[width=.9\textwidth]{../bb-18-45.png}
+      \includegraphics[width=.8\textwidth]{../bb-18-45.png}
       \caption{3D printed finger spring jigs}
   \end{center}
 \end{figure}
 
-\begin{figure}[H]
+\begin{figure}[h]
   \begin{center}
-      \includegraphics[width=.6\textwidth]{../bb-18.png}
+      \includegraphics[width=.55\textwidth]{../bb-18.png}
       \caption{Top view of 36-position finger spring jig}
   \end{center}
 \end{figure}
 
-\begin{figure}[H]
+\begin{figure}[h]
   \begin{center}
-      \includegraphics[width=.9\textwidth]{../bb-45.png}
+      \includegraphics[width=.6\textwidth]{../bb-45.png}
       \caption{Top view of 90-position finger spring jig}
   \end{center}
 \end{figure}
@@ -198,7 +198,7 @@ The finger spring jig was designed in openSCAD and has four alignment pegs to ma
 To assemble a PCB mounted breadboard, the finger spring rails are removed from the breadboard and inserted into the finger spring jig.
 \begin{figure}[H]
   \begin{center}
-      \includegraphics[width=.8\textwidth]{../bb-w-rails.png}
+      \includegraphics[width=.6\textwidth]{../bb-w-rails.png}
       \caption{Fully loaded 36-position finger spring jig}
   \end{center}
 \end{figure}
@@ -221,49 +221,49 @@ All of these systems were designed and built by hand at the MIT Electronics Rese
 
 \begin{figure}[h]
   \begin{center}
-      \includegraphics[width=1.08\textwidth, angle =90]{../schem1.png}
+      \includegraphics[width=1.3\textwidth, angle =90]{../schem1.png}
       \caption{Schematic of full hardware system}
   \end{center}
 \end{figure}
 
 \begin{figure}[h]
   \begin{center}
-      \includegraphics[width=.9\textwidth]{../layout-tb.png}
+      \includegraphics[width=.55\textwidth]{../layout-tb.png}
       \caption{Layout of full hardware system}
   \end{center}
 \end{figure}
 
 \begin{figure}[h]
   \begin{center}
-      \includegraphics[width=.9\textwidth]{../layout-t.png}
+      \includegraphics[width=.55\textwidth]{../layout-t.png}
       \caption{Top layer of full hardware system}
   \end{center}
 \end{figure}
 
 \begin{figure}[h]
   \begin{center}
-      \includegraphics[width=.9\textwidth]{../layout-b.png}
-      \caption{bottom layer of full hardware system}
+      \includegraphics[width=.55\textwidth]{../layout-b.png}
+      \caption{Bottom layer of full hardware system}
   \end{center}
 \end{figure}
 
 \begin{figure}[h]
   \begin{center}
-      \includegraphics[width=.85\textwidth]{../butter-top.png}
+      \includegraphics[width=.55\textwidth]{../butter-top.png}
       \caption{Top side of completed hardware system - power jack, voltage reading multiplexer, low-side switches, and 8-pin breadboard header are visible.}
   \end{center}
 \end{figure}
 
 \begin{figure}[h]
   \begin{center}
-      \includegraphics[width=.85\textwidth]{../butter-bot.png}
+      \includegraphics[width=.55\textwidth]{../butter-bot.png}
       \caption{Bottom side of completed hardware system - voltage regulators, A/D converters, high-side switches, and current-sense amplifier are visible}
   \end{center}
 \end{figure}
 
 \begin{figure}[h]
   \begin{center}
-      \includegraphics[width=\textwidth]{../system.png}
+      \includegraphics[width=.55\textwidth]{../system.png}
       \caption{8-node circuit sensing breadboard in operation}
   \end{center}
 \end{figure}

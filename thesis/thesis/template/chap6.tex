@@ -54,7 +54,7 @@ In operation, a master device initiates a conversion by pulling $\overline{\mbox
 
 The ADC firmware configures two 32-bit timers and the DMA to record data from up to sixteen external ADCs.
 The two timers are responsible for driving the Chip Select and Clock lines on all of the ADCs.
-The timing of the Chip Select line determines the sampling frequency and the Clock line is driven at the ADCS7476's maximum clock frequency of 20MHz.
+The timing of the Chip Select line determines the sampling frequency and the Clock line is driven at 8.4MHz.
 On the rising edge of each clock cycle, the DMA is triggered to sample the data lines of each ADC.
 A trigger causes the DMA to store each of the 16 pin states on \texttt{PORT E} as a 16-bit integer in the buffer \texttt{datas}.
 
@@ -86,7 +86,7 @@ In this case, the signal on TRG0 is used to enable Timer 1.
   \end{center}
 \end{figure}
 
-Timer 1 drives the ADC Clock lines and behaves as a $1\mu S$ on - $1\mu S$ off 16-shot timer.
+Timer 1 drives the ADC Clock lines and behaves as a $59nS$ on - $59nS$ off 16-shot timer.
 It's also configured as a 32-bit up-counting timer clocked at 84MHz, but it's only enabled by the TRG0 signal from Timer 5.
 Like Timer 5, it uses output compare unit 1 to control an output pin, in this case \texttt{PA8}.
 Unlike Timer 5, it's set to run in one-shot mode with a repetition counter that is preloaded with a value of 15.
